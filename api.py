@@ -104,6 +104,7 @@ def upload_eml_to_s3(local_file_path, bucket_name, email_type, nonce):
 # ----------- ENV VARIABLES ------------ (Todo: Clean this)
 
 env_example_path = "./.env.example"
+env_credentials = {}
 if os.path.isfile(env_example_path):
     def get_variable_names_from_env_file(file_path=env_example_path):
         variable_names = []
@@ -119,7 +120,6 @@ if os.path.isfile(env_example_path):
 
     # Load additional environment variables from the .env file
     additional_vars = get_variable_names_from_env_file()
-    env_credentials = {}
     load_dotenv()  # Load environment variables from .env file
     for var_name in additional_vars:
         # If it doesnt start with local
@@ -139,7 +139,7 @@ print("merged crednetials", merged_credentials)
 # ----------------- MODAL -----------------
 
 image = modal.Image.from_registry(
-    "0xsachink/zkp2p:test1", 
+    "0xsachink/zkp2p:modal", 
     add_python="3.11"
 ).pip_install_from_requirements("requirements.txt")
 stub = modal.Stub(image=image)
@@ -181,7 +181,7 @@ registration_nonce = 0
 def genproof_email(email_data: Dict):
 
     email_type = email_data["email_type"]
-
+    
     # Increment nonce
     # todo: Make nonce as hash of the email
     if email_type == "send":
@@ -199,10 +199,25 @@ def genproof_email(email_data: Dict):
     # Todo: Validate the email_data
 
     # Write file to local
-    write_file_to_local(email_data["email"], "send", str(send_nonce))
+    write_file_to_local(email_data["email"], email_type, str(send_nonce))
 
     # Prove
-    proof, public_values = prove_email("send", str(send_nonce))
+    proof, public_values = prove_email(email_type, str(send_nonce))
+
+    # Uncomment to debug
+    new_env = os.environ.copy()
+    x = subprocess.run(["ls", f"/root/zk-p2p/circuits-circom/build/venmo_{email_type}"], text=True, env=new_env)
+    print(x.stdout)
+    x = subprocess.run(["ls", "/root/prover-api/received_eml/"], text=True, env=new_env)
+    print(x.stdout)
+    x = subprocess.run(["ls", "/root/prover-api/inputs/"], text=True, env=new_env)
+    print(x.stdout)
+    x = subprocess.run(["ls", "/root/prover-api/proofs/"], text=True, env=new_env)
+    print(x.stdout)
+
+
+    if proof == "" or public_values == "":
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Proof generation failed")
 
     # Construct a HTTP response
     response = {
@@ -232,20 +247,38 @@ def run_modal():
     response = genproof_email.remote(email_data)
     print(response)
 
-# ---------------- Run local -----------------
+# ---------------- Run local (inside Docker) -----------------
+
+EMAIL_TYPE = 'receive'
+EMAIL_PATH = './received_eml/test_receive.eml'
+
+TEST_LOCAL_RUN = False
+TEST_ENDPOINT = True
+
+# confirm only one test is true
+if TEST_LOCAL_RUN + TEST_ENDPOINT != 1:
+    raise Exception("Only one test should be true")
 
 if __name__ == "__main__":
     
     # Read an email file
-    with open('./received_eml/test.eml', 'r') as file:
+    with open(EMAIL_PATH, 'r') as file:
         email = file.read()
 
     # Construct the email data
     email_data = {
-        "email_type": "send",
+        "email_type": EMAIL_TYPE,
         "email": email
     }
 
-    # Call the prove_email function
-    response = genproof_email.local(email_data)
-    print(response)
+    if TEST_LOCAL_RUN:
+        # Call the prove_email function
+        response = genproof_email.local(email_data)
+        print(response)
+    elif TEST_ENDPOINT:
+        # call the endpoint
+        import requests
+        response = requests.post("https://0xsachink--api-py-genproof-email-dev.modal.run/", json=email_data)
+        print(response.json())
+    else:
+        pass
