@@ -91,7 +91,7 @@ RUN git clone --branch ${PROVER_API_BRANCH_NAME} --single-branch https://github.
 WORKDIR /root/prover-api
 
 # Make necessary files executable
-RUN chmod +x /root/prover-api/src/circom_proofgen.sh
+RUN chmod +x /root/prover-api/circom_proofgen.sh
 
 # Copy .env.example to .env
 RUN cp /root/prover-api/.env.example /root/prover-api/.env
