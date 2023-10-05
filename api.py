@@ -183,6 +183,7 @@ def genproof_email(email_data: Dict):
     email_type = email_data["email_type"]
 
     # Increment nonce
+    # todo: Make nonce as hash of the email
     if email_type == "send":
         global send_nonce
         send_nonce += 1
