@@ -215,7 +215,7 @@ def genproof_email(email_data: Dict):
 def run_modal():
 
     # Read an email file
-    with open('test.eml', 'r') as file:
+    with open('./received_eml/test.eml', 'r') as file:
         email = file.read()
 
     # Construct the email data
@@ -233,7 +233,7 @@ def run_modal():
 if __name__ == "__main__":
     
     # Read an email file
-    with open('test.eml', 'r') as file:
+    with open('./received_eml/test.eml', 'r') as file:
         email = file.read()
 
     # Construct the email data
