@@ -33,7 +33,7 @@
 FROM rust:latest
 ARG ZKP2P_BRANCH_NAME=sachin/integrate-relayer
 ARG ZKP2P_VERSION=v0.0.6
-ARG RELAYER_BRANCH_NAME=develop
+ARG PROVER_API_BRANCH_NAME=main
 
 # Update the package list and install necessary dependencies
 RUN apt-get update && \
@@ -86,19 +86,19 @@ RUN wget -P /root/zk-p2p/circuits-circom/build/venmo_registration https://zk-p2p
 # RUN wget -P /root/zk-p2p/circuits-circom/build/venmo_registration https://zk-p2p.s3.amazonaws.com/v2/${ZKP2P_VERSION}/venmo_registration/venmo_registration_js/ --quiet
 
 
-# Clone the relayer repository at the latest commit and set it as the working directory
-RUN git clone --branch ${RELAYER_BRANCH_NAME} --single-branch https://github.com/zkp2p/relayer /root/relayer
-WORKDIR /root/relayer
+# Clone the prover-api repository at the latest commit and set it as the working directory
+RUN git clone --branch ${PROVER_API_BRANCH_NAME} --single-branch https://github.com/zkp2p/prover-api /root/prover-api
+WORKDIR /root/prover-api
 
 # Make necessary files executable
-RUN chmod +x /root/relayer/src/circom_proofgen.sh
+RUN chmod +x /root/prover-api/src/circom_proofgen.sh
 
 # Copy .env.example to .env
-RUN cp /root/relayer/.env.example /root/relayer/.env
+RUN cp /root/prover-api/.env.example /root/prover-api/.env
 
 
 # Install pytho, pip and requirements to run coordinator.py (Not required for modal)
 # RUN apt-get install -y python3 python-is-python3 python3-pip python3-venv
 # RUN python3 -m venv /venv
 # # Activate the virtual environment and install requirements
-# RUN /venv/bin/pip install --no-cache-dir -r /root/relayer/requirements.txt
+# RUN /venv/bin/pip install --no-cache-dir -r /root/prover-api/requirements.txt
