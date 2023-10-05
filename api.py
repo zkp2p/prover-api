@@ -205,15 +205,15 @@ def genproof_email(email_data: Dict):
     proof, public_values = prove_email(email_type, str(send_nonce))
 
     # Uncomment to debug
-    new_env = os.environ.copy()
-    x = subprocess.run(["ls", f"/root/zk-p2p/circuits-circom/build/venmo_{email_type}"], text=True, env=new_env)
-    print(x.stdout)
-    x = subprocess.run(["ls", "/root/prover-api/received_eml/"], text=True, env=new_env)
-    print(x.stdout)
-    x = subprocess.run(["ls", "/root/prover-api/inputs/"], text=True, env=new_env)
-    print(x.stdout)
-    x = subprocess.run(["ls", "/root/prover-api/proofs/"], text=True, env=new_env)
-    print(x.stdout)
+    # new_env = os.environ.copy()
+    # x = subprocess.run(["ls", f"/root/zk-p2p/circuits-circom/build/venmo_{email_type}"], text=True, env=new_env)
+    # print(x.stdout)
+    # x = subprocess.run(["ls", "/root/prover-api/received_eml/"], text=True, env=new_env)
+    # print(x.stdout)
+    # x = subprocess.run(["ls", "/root/prover-api/inputs/"], text=True, env=new_env)
+    # print(x.stdout)
+    # x = subprocess.run(["ls", "/root/prover-api/proofs/"], text=True, env=new_env)
+    # print(x.stdout)
 
 
     if proof == "" or public_values == "":
@@ -247,10 +247,10 @@ def run_modal():
     response = genproof_email.remote(email_data)
     print(response)
 
-# ---------------- Run local (inside Docker) -----------------
+# ---------------- Run local (inside Docker) or serve and hit the APi -----------------
 
-EMAIL_TYPE = 'receive'
-EMAIL_PATH = './received_eml/test_receive.eml'
+TEST_EMAIL_TYPE = os.getenv("TEST_EMAIL_TYPE")
+TEST_EMAIL_PATH = os.getenv("TEST_EMAIL_PATH")
 
 TEST_LOCAL_RUN = False
 TEST_ENDPOINT = True
@@ -262,12 +262,12 @@ if TEST_LOCAL_RUN + TEST_ENDPOINT != 1:
 if __name__ == "__main__":
     
     # Read an email file
-    with open(EMAIL_PATH, 'r') as file:
+    with open(TEST_EMAIL_PATH, 'r') as file:
         email = file.read()
 
     # Construct the email data
     email_data = {
-        "email_type": EMAIL_TYPE,
+        "email_type": TEST_EMAIL_TYPE,
         "email": email
     }
 
@@ -275,10 +275,12 @@ if __name__ == "__main__":
         # Call the prove_email function
         response = genproof_email.local(email_data)
         print(response)
+    
     elif TEST_ENDPOINT:
         # call the endpoint
         import requests
         response = requests.post("https://0xsachink--api-py-genproof-email-dev.modal.run/", json=email_data)
         print(response.json())
+    
     else:
         pass
