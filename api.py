@@ -199,15 +199,18 @@ def genproof_email(email_data: Dict):
     # Todo: Validate the email_data
 
     # Write file to local
-    eml_file_path = write_file_to_local(email_data["email"], "send", str(send_nonce))
+    write_file_to_local(email_data["email"], "send", str(send_nonce))
 
     # Prove
-    response = prove_email("send", str(send_nonce))
+    proof, public_values = prove_email("send", str(send_nonce))
 
-    if response.success:
-        return response.result
-    
-    raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Modal function call failed")
+    # Construct a HTTP response
+    response = {
+        "proof": proof,
+        "public_values": public_values
+    }
+
+    return response
 
 
 # ----------------- Modal Inovke -----------------
@@ -227,7 +230,7 @@ def run_modal():
 
     # Call the prove_email function
     response = genproof_email.remote(email_data)
-    print(response.result)
+    print(response)
 
 # ---------------- Run local -----------------
 
@@ -245,4 +248,4 @@ if __name__ == "__main__":
 
     # Call the prove_email function
     response = genproof_email.local(email_data)
-    print(response.result)
+    print(response)
