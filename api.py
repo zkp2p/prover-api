@@ -201,7 +201,7 @@ def genproof_email(email_data: Dict):
     eml_file_path = write_file_to_local(email_data["email"], "send", str(send_nonce))
 
     # Prove
-    response = prove_email.remote("send", str(send_nonce))
+    response = prove_email("send", str(send_nonce))
 
     if response.success:
         return response.result
@@ -225,7 +225,7 @@ def run_modal():
     }
 
     # Call the prove_email function
-    response = prove_email.remote(email_data)
+    response = genproof_email.remote(email_data)
     print(response.result)
 
 # ---------------- Run local -----------------
@@ -243,5 +243,5 @@ if __name__ == "__main__":
     }
 
     # Call the prove_email function
-    response = prove_email.local(email_data)
+    response = genproof_email.local(email_data)
     print(response.result)

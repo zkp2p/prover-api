@@ -32,7 +32,7 @@ nonce=$2
 HOME="${MODAL_HOME_PATH}"
 zk_p2p_path="${MODAL_ZK_P2P_CIRCOM_PATH}"
 venmo_eml_dir_path="${MODAL_INCOMING_EML_PATH}"
-prover_output_path="${prover_api_path}/../proofs/"
+prover_output_path="${venmo_email_dir_path}/../proofs/"
 
 circuit_name=venmo_${email_type}
 venmo_eml_path="${venmo_eml_dir_path}/venmo_${email_type}_${nonce}.eml"
