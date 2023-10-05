@@ -172,8 +172,6 @@ def pull_and_prove_email(s3_url: str, email_type: str, nonce: str):
 
 # ----------------- API -----------------
 
-
-
 send_nonce = 0
 receive_nonce = 0
 registration_nonce = 0
@@ -211,7 +209,7 @@ def genproof_email(email_data: Dict):
     raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Modal function call failed")
 
 
-# ----------------- Run locally (LOCAL) -----------------
+# ----------------- Modal Inovke -----------------
 
 @stub.local_entrypoint()
 def run_modal():
@@ -228,4 +226,22 @@ def run_modal():
 
     # Call the prove_email function
     response = prove_email.remote(email_data)
+    print(response.result)
+
+# ---------------- Run local -----------------
+
+if __name__ == "__main__":
+    
+    # Read an email file
+    with open('test.eml', 'r') as file:
+        email = file.read()
+
+    # Construct the email data
+    email_data = {
+        "email_type": "send",
+        "email": email
+    }
+
+    # Call the prove_email function
+    response = prove_email.local(email_data)
     print(response.result)
