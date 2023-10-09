@@ -139,21 +139,21 @@ print("merged crednetials", merged_credentials)
 # ----------------- MODAL -----------------
 
 image = modal.Image.from_registry(
-    "0xsachink/zkp2p:modal", 
+    "0xsachink/zkp2p:modal-0.0.7", 
     add_python="3.11"
 ).pip_install_from_requirements("requirements.txt")
-stub = modal.Stub(image=image)
+stub = modal.Stub(name="zkp2p-v0.0.7", image=image)
 stub['credentials_secret'] = modal.Secret.from_dict(merged_credentials)
 
 
-@stub.function(cpu=14, memory=6000, secret=stub['credentials_secret'])
-def prove_email(email_type: str, nonce: str):
+@stub.function(cpu=48, memory=32000, secret=stub['credentials_secret'])
+def prove_email(email_type: str, nonce: str, orderId: str):
     print('Running prove email')       # Todo: Remove this later.
     
     import subprocess 
 
     # Run the circom proofgen script
-    result = subprocess.run(['/root/prover-api/circom_proofgen.sh', email_type, nonce], capture_output=True, text=True)
+    result = subprocess.run(['/root/prover-api/circom_proofgen.sh', email_type, nonce, orderId], capture_output=True, text=True)
     print(result.stdout)        # Todo: Remove this later.
     
     # Read the proof and public values 
@@ -161,12 +161,12 @@ def prove_email(email_type: str, nonce: str):
     return proof, public_values
 
 
-@stub.function(cpu=14, memory=6000, secret=stub['credentials_secret'])
-def pull_and_prove_email(s3_url: str, email_type: str, nonce: str):
+@stub.function(cpu=48, memory=32000, secret=stub['credentials_secret'])
+def pull_and_prove_email(s3_url: str, email_type: str, nonce: str, orderId: str):
     print('Running pull and prove email')       # Todo: Remove this later.
     
     download_and_write_file(s3_url, email_type, nonce)
-    proof, public_values = prove_email(email_type, nonce)
+    proof, public_values = prove_email(email_type, nonce, orderId)
     return proof, public_values
 
 
@@ -176,11 +176,12 @@ send_nonce = 0
 receive_nonce = 0
 registration_nonce = 0
 
-@stub.function(cpu=14, memory=6000, secret=stub['credentials_secret'])
+@stub.function(cpu=48, memory=32000, secret=stub['credentials_secret'])
 @modal.web_endpoint(method="POST")
 def genproof_email(email_data: Dict):
 
     email_type = email_data["email_type"]
+    orderId = email_data["order_id"]
     
     # Increment nonce
     # todo: Make nonce as hash of the email
@@ -202,7 +203,7 @@ def genproof_email(email_data: Dict):
     write_file_to_local(email_data["email"], email_type, str(send_nonce))
 
     # Prove
-    proof, public_values = prove_email(email_type, str(send_nonce))
+    proof, public_values = prove_email(email_type, str(send_nonce), orderId)
 
     # Uncomment to debug
     # new_env = os.environ.copy()
@@ -279,7 +280,9 @@ if __name__ == "__main__":
     elif TEST_ENDPOINT:
         # call the endpoint
         import requests
-        response = requests.post("https://0xsachink--api-py-genproof-email-dev.modal.run/", json=email_data)
+        import json
+        print(json.dumps(email_data))
+        response = requests.post("https://0xsachink--zkp2p-v0-0-7-genproof-email.modal.run", json=email_data)
         print(response.json())
     
     else:
