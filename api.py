@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 from enum import Enum
 from fastapi import FastAPI, HTTPException, status
 from typing import Dict
-
+from utils import fetch_domain_key, validate_dkim
 
 load_dotenv()       # Load environment variables from .env file
 bucket_name = "relayer-emails-zkp2p"  # Replace with your S3 bucket name
@@ -18,6 +18,8 @@ s3_url = "https://" + bucket_name + ".s3.amazonaws.com/" + object_key_template
 incoming_eml_file_path = "/root/prover-api/received_eml/venmo_[email_type]_[nonce].eml"
 proof_file_path = "/root/prover-api/proofs/rapidsnark_proof_[email_type]_[nonce].json"
 public_values_file_path = "/root/prover-api/proofs/rapidsnark_public_[email_type]_[nonce].json"
+
+
 
 
 # ----------------- LOCAL ENV -----------------
@@ -37,6 +39,38 @@ if os.path.isfile(aws_config_path) and os.path.isfile(aws_credentials_path):
     }
 else:
     print("AWS has not been configured. Please run 'aws configure' to set up your AWS credentials.")
+
+
+# --------- VALIDATE EMAIL ------------
+
+DOMAIN = 'venmo.com'
+DOMAIN_KEY_SELECTOR = 'yzlavq3ml4jl4lt6dltbgmnoftxftkly'
+DOMAIN_KEY_STORED_ON_CONTRACT = ''
+
+def validate_domain_key(domain_key):
+    pass
+
+def alert_on_slack(message):
+    pass
+
+
+def validate_email(email_raw_content):
+
+    # Fetch Venmo's domain key (replace 'venmo.com' and 'default' as needed)
+    domain_key = fetch_domain_key(DOMAIN, DOMAIN_KEY_SELECTOR)
+    is_domain_key_valid = validate_domain_key(domain_key)
+    if not is_domain_key_valid:
+        print("Expected domain key: ", DOMAIN_KEY_STORED_ON_CONTRACT, ". Actual domain key: ", domain_key)
+        alert_on_slack("Domain key is not valid")    
+
+    # Validate the DKIM signature
+    # Although might not be from Venmo
+    is_valid = validate_dkim(email_raw_content)
+    if not is_valid:
+        print("DKIM validation failed.")
+
+    # Ensure the email is from Venmo
+    
 
 
 # --------- AWS HELPER FUNCTIONS ------------
@@ -100,6 +134,7 @@ def upload_eml_to_s3(local_file_path, bucket_name, email_type, nonce):
     print(f"File '{local_file_path}' uploaded to {bucket_name}/{object_key} as a private object.")
 
     return s3_url.replace("[email_type]", email_type).replace("[nonce]", nonce)
+
 
 # ----------- ENV VARIABLES ------------ (Todo: Clean this)
 
