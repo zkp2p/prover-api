@@ -4,3 +4,5 @@ received_eml/*.json
 
 venv/
 inputs/*.json
+
+__pycache__/
