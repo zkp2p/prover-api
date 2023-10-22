@@ -139,10 +139,10 @@ print("merged crednetials", merged_credentials)
 # ----------------- MODAL -----------------
 
 image = modal.Image.from_registry(
-    "0xsachink/zkp2p:modal-0.0.7", 
+    "0xsachink/zkp2p:modal-0.0.8", 
     add_python="3.11"
 ).pip_install_from_requirements("requirements.txt")
-stub = modal.Stub(name="zkp2p-v0.0.7", image=image)
+stub = modal.Stub(name="zkp2p-v0.0.8", image=image)
 stub['credentials_secret'] = modal.Secret.from_dict(merged_credentials)
 
 
@@ -241,7 +241,7 @@ def run_modal():
     # Construct the email data
     email_data = {
         "email_type": "send",
-        "email": email
+        "email": email,
     }
 
     # Call the prove_email function
@@ -269,7 +269,8 @@ if __name__ == "__main__":
     # Construct the email data
     email_data = {
         "email_type": TEST_EMAIL_TYPE,
-        "email": email
+        "email": email,
+        "order_id": "12345"
     }
 
     if TEST_LOCAL_RUN:
@@ -282,7 +283,7 @@ if __name__ == "__main__":
         import requests
         import json
         print(json.dumps(email_data))
-        response = requests.post("https://0xsachink--zkp2p-v0-0-7-genproof-email.modal.run", json=email_data)
+        response = requests.post("https://zkp2p--zkp2p-v0-0-8-genproof-email-0xsachink-dev.modal.run", json=email_data)
         print(response.json())
     
     else:
