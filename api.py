@@ -181,8 +181,8 @@ registration_nonce = 0
 def genproof_email(email_data: Dict):
 
     email_type = email_data["email_type"]
-    orderId = email_data["order_id"]
-    
+    orderId = email_data["intent_hash"]
+
     # Increment nonce
     # todo: Make nonce as hash of the email
     if email_type == "send":
@@ -204,18 +204,6 @@ def genproof_email(email_data: Dict):
 
     # Prove
     proof, public_values = prove_email(email_type, str(send_nonce), orderId)
-
-    # Uncomment to debug
-    # new_env = os.environ.copy()
-    # x = subprocess.run(["ls", f"/root/zk-p2p/circuits-circom/build/venmo_{email_type}"], text=True, env=new_env)
-    # print(x.stdout)
-    # x = subprocess.run(["ls", "/root/prover-api/received_eml/"], text=True, env=new_env)
-    # print(x.stdout)
-    # x = subprocess.run(["ls", "/root/prover-api/inputs/"], text=True, env=new_env)
-    # print(x.stdout)
-    # x = subprocess.run(["ls", "/root/prover-api/proofs/"], text=True, env=new_env)
-    # print(x.stdout)
-
 
     if proof == "" or public_values == "":
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Proof generation failed")
@@ -241,7 +229,7 @@ def run_modal():
     # Construct the email data
     email_data = {
         "email_type": "send",
-        "email": email,
+        "email": email
     }
 
     # Call the prove_email function
@@ -270,7 +258,7 @@ if __name__ == "__main__":
     email_data = {
         "email_type": TEST_EMAIL_TYPE,
         "email": email,
-        "order_id": "12345"
+        "intent_hash": "12345"
     }
 
     if TEST_LOCAL_RUN:
@@ -282,8 +270,11 @@ if __name__ == "__main__":
         # call the endpoint
         import requests
         import json
-        print(json.dumps(email_data))
+        import time
+        start = time.time()
         response = requests.post("https://zkp2p--zkp2p-v0-0-8-genproof-email-0xsachink-dev.modal.run", json=email_data)
+        end = time.time()
+        print("Time taken: ", end - start)
         print(response.json())
     
     else:
