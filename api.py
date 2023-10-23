@@ -147,13 +147,13 @@ stub['credentials_secret'] = modal.Secret.from_dict(merged_credentials)
 
 
 @stub.function(cpu=48, memory=64000, secret=stub['credentials_secret'])
-def prove_email(email_type: str, nonce: str, orderId: str):
+def prove_email(email_type: str, nonce: str, intent_hash: str):
     print('Running prove email')       # Todo: Remove this later.
     
     import subprocess 
 
     # Run the circom proofgen script
-    result = subprocess.run(['/root/prover-api/circom_proofgen.sh', email_type, nonce, orderId], capture_output=True, text=True)
+    result = subprocess.run(['/root/prover-api/circom_proofgen.sh', email_type, nonce, intent_hash], capture_output=True, text=True)
     print(result.stdout)        # Todo: Remove this later.
     
     # Read the proof and public values 
@@ -162,11 +162,11 @@ def prove_email(email_type: str, nonce: str, orderId: str):
 
 
 @stub.function(cpu=48, memory=64000, secret=stub['credentials_secret'])
-def pull_and_prove_email(s3_url: str, email_type: str, nonce: str, orderId: str):
+def pull_and_prove_email(s3_url: str, email_type: str, nonce: str, intent_hash: str):
     print('Running pull and prove email')       # Todo: Remove this later.
     
     download_and_write_file(s3_url, email_type, nonce)
-    proof, public_values = prove_email(email_type, nonce, orderId)
+    proof, public_values = prove_email(email_type, nonce, intent_hash)
     return proof, public_values
 
 
@@ -181,7 +181,7 @@ registration_nonce = 0
 def genproof_email(email_data: Dict):
 
     email_type = email_data["email_type"]
-    orderId = email_data["intent_hash"]
+    intent_hash = email_data["intent_hash"]
 
     # Increment nonce
     # todo: Make nonce as hash of the email
@@ -203,7 +203,7 @@ def genproof_email(email_data: Dict):
     write_file_to_local(email_data["email"], email_type, str(send_nonce))
 
     # Prove
-    proof, public_values = prove_email(email_type, str(send_nonce), orderId)
+    proof, public_values = prove_email(email_type, str(send_nonce), intent_hash)
 
     if proof == "" or public_values == "":
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Proof generation failed")
