@@ -27,10 +27,10 @@ with open(TEST_EMAIL_PATH, 'r') as file:
 
 
 # Fetch Venmo's domain key (replace 'venmo.com' and 'default' as needed)
-# domain = 'venmo.com'
-# selector = 'yzlavq3ml4jl4lt6dltbgmnoftxftkly'  # Replace with Venmo's actual selector
-# domain_key = fetch_domain_key(domain, selector)
-# print("domain_key: ", domain_key)
+domain = 'venmo.com'
+selector = 'yzlavq3ml4jl4lt6dltbgmnoftxftkly'  # Replace with Venmo's actual selector
+domain_key = fetch_domain_key(domain, selector)
+print("domain_key: ", domain_key)
 domain_key = 1
 
 print('validating email')

@@ -45,32 +45,80 @@ else:
 
 DOMAIN = 'venmo.com'
 DOMAIN_KEY_SELECTOR = 'yzlavq3ml4jl4lt6dltbgmnoftxftkly'
-DOMAIN_KEY_STORED_ON_CONTRACT = ''
-
-def validate_domain_key(domain_key):
-    pass
+DOMAIN_KEY_STORED_ON_CONTRACT = 'p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCoecgrbF4KMhqGMZK02Dv2vZgGnSAo9CDpYEZCpNDRBLXkfp/0Yzp3rgngm4nuiQWbhHO457vQ37nvc88I9ANuJKa3LIodD+QtOLCjwlzH+li2A81duY4fKLHcHYO3XKw+uYXKWd+bABQqps3AQP5KxoOgQ/P1EssOnvtQYBHjWQIDAQAB'
+TEMPLATE = """
+                <!-- actor name -->\s*
+                <a style=3D"color:#0074DE; text-decoration:none" href=3D"ht=\s*
+tps://venmo\.com/code\?user_id=3D(\d+)&actor_id=3D=(\d+)\s*
+(\d+)">\s*
+                    You\s*
+                </a>\s*
+                <!-- action -->\s*
+                <span>\s*
+                    paid\s*
+                </span>\s*
+              =20\s*
+                <!-- recipient name -->\s*
+                <a style=3D"color:#0074DE; text-decoration:none"\s*
+                   =20\s*
+                    href=3D"https://venmo\.com/code\?user_id=3D=(\d+)\s*
+(\d+)&actor_id=3D(\d+)">\s*
+                   =20\s*
+                    Receiver's name\s*
+                </a>\s*
+"""
+NAME_PATTERN = r"^[A-Z][a-z'’-]+\s([A-Z][a-z'’-]+\s?)+$"
+TEMPLATE = r"""
+            <div >\s*
+                <!-- actor name -->\s*
+                <a style=3D"color:#0074DE; text-decoration:none" href=3D"ht=\s*
+tps://venmo\.com/code\?user_id=3D(\d+)&actor_id=3D(\d+)=\s*
+(\d+)">\s*
+                    [A-Z][a-z'’-]+(\s[A-Z][a-z'’-]+)*\s*
+                </a>\s*
+                <!-- action -->\s*
+                <span>\s*
+                    paid\s*
+                </span>\s*
+              =20\s*
+                <!-- recipient name -->
+                <a style=3D"color:#0074DE; text-decoration:none"
+                   =20
+                    href=3D"https://venmo\.com/code\?user_id=3D(\d+)=\s*
+(\d+)&actor_id=3D(\d+)">\s*
+                   =20\s*
+                    [A-Z][a-z'’-]+(\s[A-Z][a-z'’-]+)*\s*
+                </a>\s*
+               =20\s*
+            </div>\s*
+            <!-- note -->\s*
+"""
 
 def alert_on_slack(message):
-    pass
+    print(message)
 
 
 def validate_email(email_raw_content):
 
-    # Fetch Venmo's domain key (replace 'venmo.com' and 'default' as needed)
+    # validate domain key
     domain_key = fetch_domain_key(DOMAIN, DOMAIN_KEY_SELECTOR)
-    is_domain_key_valid = validate_domain_key(domain_key)
-    if not is_domain_key_valid:
-        print("Expected domain key: ", DOMAIN_KEY_STORED_ON_CONTRACT, ". Actual domain key: ", domain_key)
-        alert_on_slack("Domain key is not valid")    
-
+    if domain_key is None or domain_key == "" or domain_key != DOMAIN_KEY_STORED_ON_CONTRACT:
+        alert_on_slack("Domain key is not valid")
+    
     # Validate the DKIM signature
-    # Although might not be from Venmo
-    is_valid = validate_dkim(email_raw_content)
-    if not is_valid:
+    if not validate_dkim(email_raw_content):
         print("DKIM validation failed.")
 
-    # Ensure the email is from Venmo
+    # Ensure the email is from venmo@venmo.com
+    if not re.search(r'From: Venmo <venmo@venmo.com>', email_raw_content):
+        alert_on_slack("Email is not from Venmo")
     
+
+    # Ensure the email has the right template
+    match = re.search(TEMPLATE, email_raw_content)
+    print(match)
+    if not match:
+        alert_on_slack("Email does not have the right template")
 
 
 # --------- AWS HELPER FUNCTIONS ------------
@@ -295,6 +343,9 @@ if __name__ == "__main__":
         "email": email,
         "intent_hash": "12345"
     }
+
+    # print(email)
+    validate_email(email)
 
     if TEST_LOCAL_RUN:
         # Call the prove_email function
