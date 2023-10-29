@@ -7,6 +7,9 @@ from dotenv import load_dotenv
 from enum import Enum
 from fastapi import FastAPI, HTTPException, status
 from typing import Dict
+from utils import fetch_domain_key, validate_dkim
+import requests
+
 
 
 load_dotenv()       # Load environment variables from .env file
@@ -38,6 +41,73 @@ if os.path.isfile(aws_config_path) and os.path.isfile(aws_credentials_path):
 else:
     print("AWS has not been configured. Please run 'aws configure' to set up your AWS credentials.")
 
+
+# --------- VALIDATE EMAIL ------------
+
+DOMAIN = 'venmo.com'
+DOMAIN_KEY_SELECTOR = 'yzlavq3ml4jl4lt6dltbgmnoftxftkly'
+DOMAIN_KEY_STORED_ON_CONTRACT = 'p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCoecgrbF4KMhqGMZK02Dv2vZgGnSAo9CDpYEZCpNDRBLXkfp/0Yzp3rgngm4nuiQWbhHO457vQ37nvc88I9ANuJKa3LIodD+QtOLCjwlzH+li2A81duY4fKLHcHYO3XKw+uYXKWd+bABQqps3AQP5KxoOgQ/P1EssOnvtQYBHjWQIDAQAB'
+NAME_PATTERN = r"^[A-Z][a-z'’-]+\s([A-Z][a-z'’-]+\s?)+$"
+TEMPLATE = r"""
+            <div >\s*
+                <!-- actor name -->\s*
+                <a style=3D"color:#0074DE; text-decoration:none" href=3D"ht=\s*
+tps://venmo\.com/code\?user_id=3D(\d+)&actor_id=3D(\d+)=\s*
+(\d+)">\s*
+                    [A-Z][a-z'’-]+(\s[A-Z][a-z'’-]+)*\s*
+                </a>\s*
+                <!-- action -->\s*
+                <span>\s*
+                    (paid|charged)\s*
+                </span>\s*
+              =20\s*
+                <!-- recipient name -->
+                <a style=3D"color:#0074DE; text-decoration:none"
+                   =20
+                    href=3D"https://venmo\.com/code\?user_id=3D(\d+)=\s*
+(\d+)&actor_id=3D(\d+)">\s*
+                   =20\s*
+                    [A-Z][a-z'’-]+(\s[A-Z][a-z'’-]+)*\s*
+                </a>\s*
+               =20\s*
+            </div>\s*
+            <!-- note -->\s*
+"""
+
+
+# Usage
+SLACK_WEBHOOK_URL = os.getenv("SLACK_WEBHOOK_URL")
+
+def alert_on_slack(message, email_raw_content):
+    payload = {'text': f'Alert: {message}'}
+    response = requests.post(SLACK_WEBHOOK_URL, json=payload)
+    return response.status_code
+
+
+def validate_email(email_raw_content):
+
+    # validate domain key
+    domain_key = fetch_domain_key(DOMAIN, DOMAIN_KEY_SELECTOR)
+    if domain_key is None or domain_key == "" or domain_key != DOMAIN_KEY_STORED_ON_CONTRACT:
+        alert_on_slack("Venmo domain key might have changed")
+    
+    # Validate the DKIM signature
+    if not validate_dkim(email_raw_content):
+        alert_on_slack("DKIM validation failed", email_raw_content)
+        return False
+
+    # Ensure the email is from venmo@venmo.com
+    if not re.search(r'From: Venmo <venmo@venmo.com>', email_raw_content):
+        alert_on_slack("Email is not from Venmo", email_raw_content)
+        return False
+    
+    # Ensure the email has the right template
+    match = re.search(TEMPLATE, email_raw_content)
+    if not match:
+        alert_on_slack("Email does not have the right template", email_raw_content)
+        return False
+
+    return True
 
 # --------- AWS HELPER FUNCTIONS ------------
 
@@ -100,6 +170,7 @@ def upload_eml_to_s3(local_file_path, bucket_name, email_type, nonce):
     print(f"File '{local_file_path}' uploaded to {bucket_name}/{object_key} as a private object.")
 
     return s3_url.replace("[email_type]", email_type).replace("[nonce]", nonce)
+
 
 # ----------- ENV VARIABLES ------------ (Todo: Clean this)
 
@@ -180,6 +251,7 @@ registration_nonce = 0
 @modal.web_endpoint(method="POST")
 def genproof_email(email_data: Dict):
 
+    email_raw_data = email_data["email"]
     email_type = email_data["email_type"]
     intent_hash = email_data["intent_hash"]
 
@@ -197,10 +269,12 @@ def genproof_email(email_data: Dict):
     else:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid email type")
 
-    # Todo: Validate the email_data
+    # Validate email
+    if not validate_email(email_raw_data):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email validation failed")
 
     # Write file to local
-    write_file_to_local(email_data["email"], email_type, str(send_nonce))
+    write_file_to_local(email_raw_data, email_type, str(send_nonce))
 
     # Prove
     proof, public_values = prove_email(email_type, str(send_nonce), intent_hash)
@@ -240,6 +314,7 @@ def run_modal():
 
 TEST_EMAIL_TYPE = os.getenv("TEST_EMAIL_TYPE")
 TEST_EMAIL_PATH = os.getenv("TEST_EMAIL_PATH")
+MODAL_ENDPOINT = os.getenv("MODAL_ENDPOINT")
 
 TEST_LOCAL_RUN = False
 TEST_ENDPOINT = True
@@ -272,10 +347,13 @@ if __name__ == "__main__":
         import json
         import time
         start = time.time()
-        response = requests.post("https://zkp2p--zkp2p-v0-0-8-genproof-email-0xsachink-dev.modal.run", json=email_data)
+        response = requests.post(MODAL_ENDPOINT, json=email_data)
         end = time.time()
         print("Time taken: ", end - start)
-        print(response.json())
+        if response.status_code == 200:
+            print(response.json())
+        else:
+            print(response.text)
     
     else:
         pass

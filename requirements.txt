@@ -3,3 +3,4 @@ modal_client>=0.49
 python-dotenv==1.0.0
 fastapi
 requests
+dkimpy
