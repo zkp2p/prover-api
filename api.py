@@ -84,7 +84,7 @@ VENMO_SUBJECT_PATTERNS = [
 SLACK_WEBHOOK_URL = os.getenv("SLACK_WEBHOOK_URL")
 
 
-def alert_on_slack(message, email_raw_content, log_subject=False):
+def alert_on_slack(message, email_raw_content="", log_subject=False):
 
     msg = f'Alert: {message}'
     if log_subject:
@@ -106,25 +106,30 @@ def validate_email(email_raw_content):
     # validate domain key
     domain_key = fetch_domain_key(DOMAIN, DOMAIN_KEY_SELECTOR)
     if domain_key is None or domain_key == "" or domain_key != DOMAIN_KEY_STORED_ON_CONTRACT:
-        alert_on_slack("Venmo domain key might have changed")
+        msg = "Venmo domain key might have changed"
+        alert_on_slack(msg)
+        return False, msg
     
     # Validate the DKIM signature
     if not validate_dkim(email_raw_content):
-        alert_on_slack("DKIM validation failed", email_raw_content)
-        return False
+        msg = "DKIM validation failed"
+        alert_on_slack(msg)
+        return False, msg
 
     # Ensure the email is from venmo@venmo.com
     if not re.search(r'From: Venmo <venmo@venmo.com>', email_raw_content):
-        alert_on_slack("Email is not from Venmo", email_raw_content)
-        return False
+        msg = "Email is not from Venmo"
+        alert_on_slack(msg)
+        return False, msg
     
     # Ensure the email has the right template
     match = re.search(TEMPLATE, email_raw_content)
     if not match:
-        alert_on_slack("Email does not have the right template", email_raw_content, log_subject=True)
-        return False
+        msg = "Email does not have the right template"
+        alert_on_slack(msg, email_raw_content, log_subject=True)
+        return False, msg
 
-    return True
+    return True, ""
 
 # --------- AWS HELPER FUNCTIONS ------------
 
@@ -276,8 +281,9 @@ def genproof_email(email_data: Dict):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid email type")
 
     # Validate email
-    if not validate_email(email_raw_data):
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email validation failed")
+    valid_email, error_msg = validate_email(email_raw_data)
+    if not valid_email:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=error_msg)
 
     # Write file to local
     write_file_to_local(email_raw_data, email_type, str(nonce))
