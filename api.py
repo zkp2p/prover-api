@@ -81,7 +81,7 @@ tps://venmo\.com/code\?user_id=3D(\d+)&actor_id=3D(\d+)=\s*
 SLACK_WEBHOOK_URL = os.getenv("SLACK_WEBHOOK_URL")
 
 def alert_on_slack(message, email_raw_content):
-    payload = {'text': f'Alert: ${message}'}
+    payload = {'text': f'Alert: {message}'}
     response = requests.post(SLACK_WEBHOOK_URL, json=payload)
     return response.status_code
 
@@ -103,7 +103,6 @@ def validate_email(email_raw_content):
         alert_on_slack("Email is not from Venmo", email_raw_content)
         return False
     
-
     # Ensure the email has the right template
     match = re.search(TEMPLATE, email_raw_content)
     if not match:
@@ -254,6 +253,7 @@ registration_nonce = 0
 @modal.web_endpoint(method="POST")
 def genproof_email(email_data: Dict):
 
+    email_raw_data = email_data["email"]
     email_type = email_data["email_type"]
     intent_hash = email_data["intent_hash"]
 
@@ -272,11 +272,11 @@ def genproof_email(email_data: Dict):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid email type")
 
     # Validate email
-    if not validate_email(email_data["email"]):
+    if not validate_email(email_raw_data):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email validation failed")
 
     # Write file to local
-    write_file_to_local(email_data["email"], email_type, str(send_nonce))
+    write_file_to_local(email_raw_data, email_type, str(send_nonce))
 
     # Prove
     proof, public_values = prove_email(email_type, str(send_nonce), intent_hash)
@@ -338,10 +338,6 @@ if __name__ == "__main__":
         "intent_hash": "12345"
     }
 
-    # print(email)
-    if not validate_email(email):
-        raise Exception("Email validation failed")
-
     if TEST_LOCAL_RUN:
         # Call the prove_email function
         response = genproof_email.local(email_data)
@@ -356,7 +352,10 @@ if __name__ == "__main__":
         response = requests.post(MODAL_ENDPOINT, json=email_data)
         end = time.time()
         print("Time taken: ", end - start)
-        print(response.json())
+        if response.status_code == 200:
+            print(response.json())
+        else:
+            print(response.text)
     
     else:
         pass
