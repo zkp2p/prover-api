@@ -2,13 +2,14 @@ import modal
 import re
 import boto3
 import requests
+import hashlib
 import subprocess
 import os
 from dotenv import load_dotenv
 from enum import Enum
 from fastapi import FastAPI, HTTPException, status
 from typing import Dict
-from utils import fetch_domain_key, validate_dkim, match_and_sub
+from utils import fetch_domain_key, validate_dkim, match_and_sub, sha256_hash
 
 
 load_dotenv()       # Load environment variables from .env file
@@ -259,10 +260,6 @@ def pull_and_prove_email(s3_url: str, email_type: str, nonce: str, intent_hash: 
 
 # ----------------- API -----------------
 
-send_nonce = 0
-receive_nonce = 0
-registration_nonce = 0
-
 @stub.function(cpu=48, memory=64000, secret=stub['credentials_secret'])
 @modal.web_endpoint(method="POST")
 def genproof_email(email_data: Dict):
@@ -270,18 +267,11 @@ def genproof_email(email_data: Dict):
     email_raw_data = email_data["email"]
     email_type = email_data["email_type"]
     intent_hash = email_data["intent_hash"]
+    
+    nonce = int(sha256_hash(email_raw_data), 16)
 
-    # Increment nonce
-    # todo: Make nonce as hash of the email
-    if email_type == "send":
-        global send_nonce
-        send_nonce += 1
-    elif email_type == "receive":
-        global receive_nonce
-        receive_nonce += 1
-    elif email_type == "registration":
-        global registration_nonce
-        registration_nonce += 1
+    if email_type == "send" or email_type == "receive" or email_type == "registration":
+        pass
     else:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid email type")
 
@@ -290,10 +280,10 @@ def genproof_email(email_data: Dict):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email validation failed")
 
     # Write file to local
-    write_file_to_local(email_raw_data, email_type, str(send_nonce))
+    write_file_to_local(email_raw_data, email_type, str(nonce))
 
     # Prove
-    proof, public_values = prove_email(email_type, str(send_nonce), intent_hash)
+    proof, public_values = prove_email(email_type, str(nonce), intent_hash)
 
     if proof == "" or public_values == "":
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Proof generation failed")
