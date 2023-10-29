@@ -23,8 +23,6 @@ proof_file_path = "/root/prover-api/proofs/rapidsnark_proof_[email_type]_[nonce]
 public_values_file_path = "/root/prover-api/proofs/rapidsnark_public_[email_type]_[nonce].json"
 
 
-
-
 # ----------------- LOCAL ENV -----------------
 # Define the paths to the AWS config and credentials files
 aws_config_path = os.path.expanduser('~/.aws/config')
