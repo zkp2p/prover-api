@@ -1,15 +1,14 @@
 import modal
 import re
 import boto3
+import requests
 import subprocess
 import os
 from dotenv import load_dotenv
 from enum import Enum
 from fastapi import FastAPI, HTTPException, status
 from typing import Dict
-from utils import fetch_domain_key, validate_dkim
-import requests
-
+from utils import fetch_domain_key, validate_dkim, match_and_sub
 
 
 load_dotenv()       # Load environment variables from .env file
@@ -73,13 +72,30 @@ tps://venmo\.com/code\?user_id=3D(\d+)&actor_id=3D(\d+)=\s*
             </div>\s*
             <!-- note -->\s*
 """
+VENMO_SUBJECT_PATTERNS = [
+    r"You paid (.+?) \$(.+)",
+    r"(.+?) paid you \$(.+)",
+    r"You completed (.+?) \$(.+) charge request",
+    r"(.+?) paid your \$(.+) request",
+    r"(.+?) requests \$(.+)"
+]
 
-
-# Usage
 SLACK_WEBHOOK_URL = os.getenv("SLACK_WEBHOOK_URL")
 
-def alert_on_slack(message, email_raw_content):
-    payload = {'text': f'Alert: {message}'}
+
+def alert_on_slack(message, email_raw_content, log_subject=False):
+
+    msg = f'Alert: {message}'
+    if log_subject:
+        # Get subject
+        subject = ""
+        match = re.search(r'Subject: (.+)', email_raw_content)
+        if match:
+            subject = match.group(1)
+        de_identified_subject = match_and_sub(subject, VENMO_SUBJECT_PATTERNS)
+        msg += f'\nSubject: {de_identified_subject}'
+        
+    payload = {'text': msg}
     response = requests.post(SLACK_WEBHOOK_URL, json=payload)
     return response.status_code
 
@@ -104,7 +120,7 @@ def validate_email(email_raw_content):
     # Ensure the email has the right template
     match = re.search(TEMPLATE, email_raw_content)
     if not match:
-        alert_on_slack("Email does not have the right template", email_raw_content)
+        alert_on_slack("Email does not have the right template", email_raw_content, log_subject=True)
         return False
 
     return True
