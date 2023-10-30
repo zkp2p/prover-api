@@ -83,10 +83,43 @@ VENMO_SUBJECT_PATTERNS = [
 
 SLACK_WEBHOOK_URL = os.getenv("SLACK_WEBHOOK_URL")
 
+class Errors:
 
-def alert_on_slack(message, email_raw_content="", log_subject=False):
+    class ErrorCodes(Enum):
+        INVALID_EMAIL_TYPE = 1
+        INVALID_DOMAIN_KEY = 2
+        DKIM_VALIDATION_FAILED = 3
+        NOT_FROM_VENMO = 4
+        INVALID_TEMPLATE = 5
+        PROOF_GEN_FAILED = 6
 
-    msg = f'Alert: {message}'
+    def __init__(self):
+        self.error_messages = {
+            self.ErrorCodes.INVALID_EMAIL_TYPE: "Invalid email type",
+            self.ErrorCodes.INVALID_DOMAIN_KEY: "Venmo domain key might have changed",
+            self.ErrorCodes.DKIM_VALIDATION_FAILED: "DKIM validation failed",
+            self.ErrorCodes.NOT_FROM_VENMO: "Email is not from Venmo",
+            self.ErrorCodes.INVALID_TEMPLATE: "Email does not have the right template",
+            self.ErrorCodes.PROOF_GEN_FAILED: "Proof generation failed"
+        }
+
+    def get_error_message(self, error_code):
+        return self.error_messages[error_code]
+    
+    def get_error_response(self, error_code):
+        return {
+            "code": error_code.value,
+            "message": self.get_error_message(error_code)
+        }
+
+
+Error = Errors()
+
+
+def alert_on_slack(error_code, email_raw_content="", log_subject=False):
+
+    error_message = Error.get_error_message(error_code)
+    msg = f'Alert: {error_message}'
     if log_subject:
         # Get subject
         subject = ""
@@ -106,28 +139,28 @@ def validate_email(email_raw_content):
     # validate domain key
     domain_key = fetch_domain_key(DOMAIN, DOMAIN_KEY_SELECTOR)
     if domain_key is None or domain_key == "" or domain_key != DOMAIN_KEY_STORED_ON_CONTRACT:
-        msg = "Venmo domain key might have changed"
-        alert_on_slack(msg)
-        return False, msg
+        error_code = Error.ErrorCodes.INVALID_DOMAIN_KEY
+        alert_on_slack(error_code)
+        return False, error_code
     
     # Validate the DKIM signature
     if not validate_dkim(email_raw_content):
-        msg = "DKIM validation failed"
-        alert_on_slack(msg)
-        return False, msg
+        error_code = Error.ErrorCodes.DKIM_VALIDATION_FAILED
+        alert_on_slack(error_code)
+        return False, error_code
 
     # Ensure the email is from venmo@venmo.com
     if not re.search(r'From: Venmo <venmo@venmo.com>', email_raw_content):
-        msg = "Email is not from Venmo"
-        alert_on_slack(msg)
-        return False, msg
+        error_code = Error.ErrorCodes.NOT_FROM_VENMO
+        alert_on_slack(error_code)
+        return False, error_code
     
     # Ensure the email has the right template
     match = re.search(TEMPLATE, email_raw_content)
     if not match:
-        msg = "Email does not have the right template"
-        alert_on_slack(msg, email_raw_content, log_subject=True)
-        return False, msg
+        error_code = Error.ErrorCodes.INVALID_TEMPLATE
+        alert_on_slack(error_code, email_raw_content, log_subject=True)
+        return False, error_code
 
     return True, ""
 
@@ -278,12 +311,12 @@ def genproof_email(email_data: Dict):
     if email_type == "send" or email_type == "receive" or email_type == "registration":
         pass
     else:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid email type")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=Error.get_error_response(Error.ErrorCodes.INVALID_EMAIL_TYPE))
 
     # Validate email
-    valid_email, error_msg = validate_email(email_raw_data)
+    valid_email, error_code = validate_email(email_raw_data)
     if not valid_email:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=error_msg)
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=Error.get_error_response(error_code))
 
     # Write file to local
     write_file_to_local(email_raw_data, email_type, str(nonce))
@@ -292,7 +325,7 @@ def genproof_email(email_data: Dict):
     proof, public_values = prove_email(email_type, str(nonce), intent_hash)
 
     if proof == "" or public_values == "":
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Proof generation failed")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=Error.get_error_response(Error.ErrorCodes.PROOF_GEN_FAILED))
 
     # Construct a HTTP response
     response = {
