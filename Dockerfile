@@ -33,7 +33,7 @@
 FROM rust:latest
 ARG ZKP2P_BRANCH_NAME=richard/audit-fixes
 ARG ZKP2P_VERSION=v0.0.9
-ARG PROVER_API_BRANCH_NAME=main
+ARG PROVER_API_BRANCH_NAME=v0.0.9
 
 # Update the package list and install necessary dependencies
 RUN apt-get update && \
