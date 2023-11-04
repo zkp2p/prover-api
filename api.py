@@ -165,7 +165,7 @@ def validate_email(email_raw_content):
 
     # Ensure the email has the right template
     match = re.search(TEMPLATE, email_raw_content)
-    if match:
+    if not match:
         error_code = Error.ErrorCodes.INVALID_TEMPLATE
         alert_on_slack(error_code, email_raw_content, log_subject=True)
         return False, error_code
