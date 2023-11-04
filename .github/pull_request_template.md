@@ -1,6 +1,7 @@
 ## Description
 
 Please include a summary of change and which issue is fixed. Please also include relevant motivation and context. List any dependencies that are required for this change.
+New Endpoint: https://zkp2p--zkp2p-v0-0-x-genproof-email.modal.run
 
 ## Checklist
 
@@ -18,5 +19,5 @@ Please include a summary of change and which issue is fixed. Please also include
 - [ ] Serve the app using modal serve app.py.
 - [ ] Update the MODAL ENDPOINT link in the .env
 - [ ] Run python api.py to test the proof generation works!
-- [ ] Deploy the app using modal deploy app.py
+- [ ] Deploy the app using modal deploy app.py and paste the link above.
 - [ ] Commit the changes and open the PR for review
