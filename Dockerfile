@@ -31,9 +31,9 @@
 
 # Use the official Rust image as the base image
 FROM rust:latest
-ARG ZKP2P_BRANCH_NAME=richard/add-timestamp-extract
-ARG ZKP2P_VERSION=v0.0.8
-ARG PROVER_API_BRANCH_NAME=main
+ARG ZKP2P_BRANCH_NAME=richard/audit-fixes
+ARG ZKP2P_VERSION=v0.0.9
+ARG PROVER_API_BRANCH_NAME=v0.0.9
 
 # Update the package list and install necessary dependencies
 RUN apt-get update && \
@@ -76,15 +76,7 @@ RUN yarn add tsx
 
 # Pull keys from S3
 RUN wget -P /root/zk-p2p/circuits-circom/build/venmo_send https://zk-p2p.s3.amazonaws.com/v2/${ZKP2P_VERSION}/venmo_send/venmo_send.zkey --quiet
-RUN wget -P /root/zk-p2p/circuits-circom/build/venmo_receive https://zk-p2p.s3.amazonaws.com/v2/${ZKP2P_VERSION}/venmo_receive/venmo_receive.zkey --quiet
 RUN wget -P /root/zk-p2p/circuits-circom/build/venmo_registration https://zk-p2p.s3.amazonaws.com/v2/${ZKP2P_VERSION}/venmo_registration/venmo_registration.zkey --quiet
-
-# Download JS artifacts from S3
-# TODO: Discuss whether to commit this to the repo or to store it in S3.
-# RUN wget -P /root/zk-p2p/circuits-circom/build/venmo_send https://zk-p2p.s3.amazonaws.com/v2/${ZKP2P_VERSION}/venmo_send/venmo_send_js/ --quiet
-# RUN wget -P /root/zk-p2p/circuits-circom/build/venmo_receive https://zk-p2p.s3.amazonaws.com/v2/${ZKP2P_VERSION}/venmo_receive/venmo_receive_js/ --quiet
-# RUN wget -P /root/zk-p2p/circuits-circom/build/venmo_registration https://zk-p2p.s3.amazonaws.com/v2/${ZKP2P_VERSION}/venmo_registration/venmo_registration_js/ --quiet
-
 
 # Clone the prover-api repository at the latest commit and set it as the working directory
 RUN git clone --branch ${PROVER_API_BRANCH_NAME} --single-branch https://github.com/zkp2p/prover-api /root/prover-api
