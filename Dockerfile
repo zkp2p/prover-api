@@ -31,9 +31,9 @@
 
 # Use the official Rust image as the base image
 FROM rust:latest
-ARG ZKP2P_BRANCH_NAME=richard/audit-fixes
-ARG ZKP2P_VERSION=v0.0.9
-ARG PROVER_API_BRANCH_NAME=v0.0.9
+ARG ZKP2P_BRANCH_NAME=develop
+ARG ZKP2P_VERSION=v0.0.10
+ARG PROVER_API_BRANCH_NAME=v0.0.10-rc1
 
 # Update the package list and install necessary dependencies
 RUN apt-get update && \
