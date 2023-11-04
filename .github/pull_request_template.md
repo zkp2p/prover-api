@@ -11,7 +11,7 @@ Please include a summary of change and which issue is fixed. Please also include
   - [ ] ARG PROVER_API_BRANCH_NAME=xxxxxx
 - [ ] Commit the changes in prover-api
 - [ ] Build the docker file image on an AWS machine.
-  - `sudo docker build -t 0xsachink/zkp2p:modal-0.0.x `
+  - `sudo docker build -t 0xsachink/zkp2p:modal-0.0.x .`
 - [ ] Publish the docker image file to dockerhub.
   - `sudo docker push 0xsachink/zkp2p:modal-0.0.x`
 - [ ] Update the docker file version in prover/api.py. Also, increment the version in the stub name.
