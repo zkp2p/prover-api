@@ -19,3 +19,4 @@ Please include a summary of change and which issue is fixed. Please also include
 - [ ] Update the MODAL ENDPOINT link in the .env
 - [ ] Run python api.py to test the proof generation works!
 - [ ] Deploy the app using modal deploy app.py
+- [ ] Commit the changes and open the PR for review
