@@ -58,7 +58,7 @@ tps://venmo\.com/code\?user_id=3D(\d+)&actor_id=3D(\d+)=\s*
                 </a>\s*
                 <!-- action -->\s*
                 <span>\s*
-                    (paid|charged)\s*
+                    paid\s*
                 </span>\s*
               =20\s*
                 <!-- recipient name -->
@@ -87,19 +87,21 @@ class Errors:
 
     class ErrorCodes(Enum):
         INVALID_EMAIL_TYPE = 1
-        INVALID_DOMAIN_KEY = 2
-        DKIM_VALIDATION_FAILED = 3
-        NOT_FROM_VENMO = 4
-        INVALID_TEMPLATE = 5
-        PROOF_GEN_FAILED = 6
+        NOT_SEND_EMAIL = 2
+        INVALID_DOMAIN_KEY = 3
+        DKIM_VALIDATION_FAILED = 4
+        NOT_FROM_VENMO = 5
+        INVALID_TEMPLATE = 6
+        PROOF_GEN_FAILED = 7
 
     def __init__(self):
         self.error_messages = {
             self.ErrorCodes.INVALID_EMAIL_TYPE: "Invalid email type",
-            self.ErrorCodes.INVALID_DOMAIN_KEY: "Venmo domain key might have changed",
+            self.ErrorCodes.NOT_SEND_EMAIL: "Email is not a send email",
+            self.ErrorCodes.INVALID_DOMAIN_KEY: "❗️Venmo domain key might have changed❗️",
             self.ErrorCodes.DKIM_VALIDATION_FAILED: "DKIM validation failed",
             self.ErrorCodes.NOT_FROM_VENMO: "Email is not from Venmo",
-            self.ErrorCodes.INVALID_TEMPLATE: "Email does not have the right template",
+            self.ErrorCodes.INVALID_TEMPLATE: "❗️Email does not have the right template❗️",
             self.ErrorCodes.PROOF_GEN_FAILED: "Proof generation failed"
         }
 
@@ -155,6 +157,12 @@ def validate_email(email_raw_content):
         alert_on_slack(error_code)
         return False, error_code
     
+    # Ensure the email is a send email
+    if not re.search(r'Subject: You paid (.+?) \$(.+)', email_raw_content):
+        error_code = Error.ErrorCodes.NOT_SEND_EMAIL
+        alert_on_slack(error_code, email_raw_content, log_subject=True)
+        return False, error_code
+
     # Ensure the email has the right template
     match = re.search(TEMPLATE, email_raw_content)
     if not match:
@@ -265,10 +273,10 @@ print("merged crednetials", merged_credentials)
 # ----------------- MODAL -----------------
 
 image = modal.Image.from_registry(
-    "0xsachink/zkp2p:modal-0.0.9", 
+    "0xsachink/zkp2p:modal-0.0.10", 
     add_python="3.11"
 ).pip_install_from_requirements("requirements.txt")
-stub = modal.Stub(name="zkp2p-v0.0.9", image=image)
+stub = modal.Stub(name="zkp2p-v0.0.10", image=image)
 stub['credentials_secret'] = modal.Secret.from_dict(merged_credentials)
 
 
@@ -318,8 +326,6 @@ def genproof_email(email_data: Dict):
     if not valid_email:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=Error.get_error_response(error_code))
     
-    # TODO: Add email type specific validation
-
     # Write file to local
     write_file_to_local(email_raw_data, email_type, str(nonce))
 
