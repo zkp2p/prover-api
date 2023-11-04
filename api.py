@@ -98,10 +98,10 @@ class Errors:
         self.error_messages = {
             self.ErrorCodes.INVALID_EMAIL_TYPE: "Invalid email type",
             self.ErrorCodes.NOT_SEND_EMAIL: "Email is not a send email",
-            self.ErrorCodes.INVALID_DOMAIN_KEY: "Venmo domain key might have changed",
+            self.ErrorCodes.INVALID_DOMAIN_KEY: "❗️Venmo domain key might have changed❗️",
             self.ErrorCodes.DKIM_VALIDATION_FAILED: "DKIM validation failed",
             self.ErrorCodes.NOT_FROM_VENMO: "Email is not from Venmo",
-            self.ErrorCodes.INVALID_TEMPLATE: "Email does not have the right template",
+            self.ErrorCodes.INVALID_TEMPLATE: "❗️Email does not have the right template❗️",
             self.ErrorCodes.PROOF_GEN_FAILED: "Proof generation failed"
         }
 
@@ -165,7 +165,7 @@ def validate_email(email_raw_content):
 
     # Ensure the email has the right template
     match = re.search(TEMPLATE, email_raw_content)
-    if not match:
+    if match:
         error_code = Error.ErrorCodes.INVALID_TEMPLATE
         alert_on_slack(error_code, email_raw_content, log_subject=True)
         return False, error_code
