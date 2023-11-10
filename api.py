@@ -280,7 +280,7 @@ stub = modal.Stub(name="zkp2p-v0.0.10", image=image)
 stub['credentials_secret'] = modal.Secret.from_dict(merged_credentials)
 
 
-@stub.function(cpu=64, memory=164000, secret=stub['credentials_secret'])
+@stub.function(cpu=64, memory=256000, secret=stub['credentials_secret'])
 def prove_email(email_type: str, nonce: str, intent_hash: str):
     print('Running prove email')       # Todo: Remove this later.
     
@@ -295,7 +295,7 @@ def prove_email(email_type: str, nonce: str, intent_hash: str):
     return proof, public_values
 
 
-@stub.function(cpu=64, memory=164000, secret=stub['credentials_secret'])
+@stub.function(cpu=64, memory=256000, secret=stub['credentials_secret'])
 def pull_and_prove_email(s3_url: str, email_type: str, nonce: str, intent_hash: str):
     print('Running pull and prove email')       # Todo: Remove this later.
     
@@ -306,7 +306,7 @@ def pull_and_prove_email(s3_url: str, email_type: str, nonce: str, intent_hash: 
 
 # ----------------- API -----------------
 
-@stub.function(cpu=64, memory=164000, secret=stub['credentials_secret'])
+@stub.function(cpu=64, memory=256000, secret=stub['credentials_secret'])
 @modal.web_endpoint(method="POST")
 def genproof_email(email_data: Dict):
 
@@ -322,9 +322,9 @@ def genproof_email(email_data: Dict):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=Error.get_error_response(Error.ErrorCodes.INVALID_EMAIL_TYPE))
 
     # Validate email
-    valid_email, error_code = validate_email(email_raw_data)
-    if not valid_email:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=Error.get_error_response(error_code))
+    # valid_email, error_code = validate_email(email_raw_data)
+    # if not valid_email:
+    #     raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=Error.get_error_response(error_code))
     
     # Write file to local
     write_file_to_local(email_raw_data, email_type, str(nonce))
