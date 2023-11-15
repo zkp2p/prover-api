@@ -273,10 +273,10 @@ print("merged crednetials", merged_credentials)
 # ----------------- MODAL -----------------
 
 image = modal.Image.from_registry(
-    "0xsachink/zkp2p:modal-0.0.10", 
+    "0xsachink/zkp2p:modal-c-0.0.10", 
     add_python="3.11"
 ).pip_install_from_requirements("requirements.txt")
-stub = modal.Stub(name="zkp2p-v0.0.10", image=image)
+stub = modal.Stub(name="zkp2p-c-v0.0.10", image=image)
 stub['credentials_secret'] = modal.Secret.from_dict(merged_credentials)
 
 

@@ -33,7 +33,7 @@
 FROM rust:latest
 ARG ZKP2P_BRANCH_NAME=develop
 ARG ZKP2P_VERSION=v0.0.10
-ARG PROVER_API_BRANCH_NAME=sachin/v0.0.10-rc1
+ARG PROVER_API_BRANCH_NAME=sachin/c-witness-gen
 
 # Update the package list and install necessary dependencies
 RUN apt-get update && \
