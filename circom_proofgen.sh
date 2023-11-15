@@ -13,6 +13,8 @@
 #                           witness_${email_type}_${nonce}.wtns
 #                       venmo_${email_type}_cpp/
 #                           venmo_${email_type}
+#                       venmo_${email_type}_cpp/
+#                           venmo_${email_type}
 #       prover-api/
 #           proofs/
 #               rapidsnark_proof_${email_type}_${nonce}.json
@@ -29,6 +31,7 @@
 email_type=$1
 nonce=$2
 intent_hash=$3
+c_witness_gen=${4:-true}
 
 HOME="${MODAL_HOME_PATH}"
 zk_p2p_path="${MODAL_ZK_P2P_CIRCOM_PATH}"
@@ -47,20 +50,34 @@ echo "npx ${zk_p2p_path}/circuits-circom/node_modules/.bin/tsx ${zk_p2p_path}/ci
 npx ${zk_p2p_path}/circuits-circom/node_modules/.bin/tsx "${zk_p2p_path}/circuits-circom/scripts/generate_input.ts" --email_file="${venmo_eml_path}" --email_type="${email_type}" --nonce="${nonce}" --intent_hash="${intent_hash}" | tee /dev/stderr
 status_inputgen=$?
 
+# Todo: Is status_inputgen set to anything?
 echo "Finished input gen! Status: ${status_inputgen}"
 if [ $status_inputgen -ne 0 ]; then
     echo "generate_input.ts failed with status: ${status_inputgen}"
     exit 1
 fi
 
-echo "node ${build_dir}/${circuit_name}_js/generate_witness.js ${build_dir}/${circuit_name}_js/${circuit_name}.wasm ${input_email_path} ${witness_path}"
-node "${build_dir}/${circuit_name}_js/generate_witness.js" "${build_dir}/${circuit_name}_js/${circuit_name}.wasm" "${input_email_path}" "${witness_path}"  | tee /dev/stderr
-status_jswitgen=$?
-echo "status_jswitgen: ${status_jswitgen}"
+if [ "$c_witness_gen" = true ]; then
+    echo "Performing c witness gen!"
+    echo "${build_dir}/${circuit_name}_cpp/${circuit_name} ${input_email_path} ${witness_path}"
+    "${build_dir}/${circuit_name}_cpp/${circuit_name}" "${input_email_path}" "${witness_path}"
+    status_cwitgen=$?
 
-if [ $status_jswitgen -ne 0 ]; then
-    echo "generate_witness.js failed with status: ${status_jswitgen}"
-    exit 1
+    if [ $status_cwitgen -ne 0 ]; then
+        echo "C based witness gen failed with status: ${status_cwitgen}"
+        exit 1
+    fi
+else 
+    echo "Performing js witness gen!"
+    echo "node ${build_dir}/${circuit_name}_js/generate_witness.js ${build_dir}/${circuit_name}_js/${circuit_name}.wasm ${input_email_path} ${witness_path}"
+    node "${build_dir}/${circuit_name}_js/generate_witness.js" "${build_dir}/${circuit_name}_js/${circuit_name}.wasm" "${input_email_path}" "${witness_path}"  | tee /dev/stderr
+    status_jswitgen=$?
+    echo "status_jswitgen: ${status_jswitgen}"
+
+    if [ $status_jswitgen -ne 0 ]; then
+        echo "generate_witness.js failed with status: ${status_jswitgen}"
+        exit 1
+    fi
 fi
 
 # echo "/${build_dir}/${circuit_name}_cpp/${circuit_name} ${input_email_path} ${witness_path}"
