@@ -32,8 +32,8 @@
 # Use the official Rust image as the base image
 FROM rust:latest
 ARG ZKP2P_BRANCH_NAME=develop
-ARG ZKP2P_VERSION=v0.0.10
-ARG PROVER_API_BRANCH_NAME=sachin/c-witness-gen
+ARG ZKP2P_VERSION=v0.1.0
+ARG PROVER_API_BRANCH_NAME=sachin/v0.1.0
 
 # Update the package list and install necessary dependencies
 RUN apt-get update && \
