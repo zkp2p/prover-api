@@ -80,7 +80,9 @@ RUN wget -P /root/zk-p2p/circuits-circom/build/venmo_registration https://zk-p2p
 
 # Pull C witness gen binary from S3
 RUN wget -P /root/zk-p2p/circuits-circom/build/venmo_send/venmo_send_cpp https://zk-p2p.s3.amazonaws.com/v2/${ZKP2P_VERSION}/venmo_send/venmo_send --quiet
+RUN chmod +x /root/zk-p2p/circuits-circom/build/venmo_send/venmo_send_cpp/venmo_send
 RUN wget -P /root/zk-p2p/circuits-circom/build/venmo_registration/venmo_registration_cpp https://zk-p2p.s3.amazonaws.com/v2/${ZKP2P_VERSION}/venmo_registration/venmo_registration --quiet
+RUN chmod +x /root/zk-p2p/circuits-circom/build/venmo_registration/venmo_registration_cpp/venmo_registration
 
 # Clone the prover-api repository at the latest commit and set it as the working directory
 RUN git clone --branch ${PROVER_API_BRANCH_NAME} --single-branch https://github.com/zkp2p/prover-api /root/prover-api
