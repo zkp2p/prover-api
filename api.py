@@ -273,10 +273,10 @@ print("merged crednetials", merged_credentials)
 # ----------------- MODAL -----------------
 
 image = modal.Image.from_registry(
-    "0xsachink/zkp2p:modal-c-0.0.10-v4", 
+    "0xsachink/zkp2p:modal-0.1.0", 
     add_python="3.11"
 ).pip_install_from_requirements("requirements.txt")
-stub = modal.Stub(name="zkp2p-c-v0.0.10", image=image)
+stub = modal.Stub(name="zkp2p-v0.1.0", image=image)
 stub['credentials_secret'] = modal.Secret.from_dict(merged_credentials)
 
 
@@ -304,7 +304,7 @@ def pull_and_prove_email(s3_url: str, email_type: str, nonce: str, intent_hash: 
 
 # ----------------- API -----------------
 
-@stub.function(cpu=48, memory=8000, secret=stub['credentials_secret'])
+@stub.function(cpu=48, memory=16000, secret=stub['credentials_secret'])
 @modal.web_endpoint(method="POST")
 def genproof_email(email_data: Dict):
 
