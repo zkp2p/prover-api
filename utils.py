@@ -2,6 +2,7 @@ import dkim
 from dns import resolver
 import re
 import hashlib
+import requests
 
 def fetch_domain_key(domain, selector='default'):
     try:
@@ -32,6 +33,24 @@ def match_and_sub(text, patterns):
             log_text = text.replace(match.group(1), '').replace(match.group(2), '')
             return log_text.strip()
     return ""
+
+
+
+def upload_file_to_slack(channels, token, initial_comment, file_content):
+    """Uploads a file to Slack."""
+    headers = {"Authorization": f"Bearer {token}"}
+    payload = {
+        "channels": channels,
+        "initial_comment": initial_comment,
+    }
+    response = requests.post(
+        "https://slack.com/api/files.upload", 
+        headers=headers, 
+        params=payload, 
+        files=file_content
+    )
+    return response
+
 
 
 if __name__ == "__main__":

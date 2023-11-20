@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 from enum import Enum
 from fastapi import FastAPI, HTTPException, status
 from typing import Dict
-from utils import fetch_domain_key, validate_dkim, match_and_sub, sha256_hash
+from utils import fetch_domain_key, validate_dkim, match_and_sub, sha256_hash, upload_file_to_slack
 
 
 load_dotenv()       # Load environment variables from .env file
@@ -82,6 +82,8 @@ VENMO_SUBJECT_PATTERNS = [
 ]
 
 SLACK_WEBHOOK_URL = os.getenv("SLACK_WEBHOOK_URL")
+SLACK_TOKEN = os.getenv('SLACK_TOKEN')
+CHANNEL_ID = os.getenv('CHANNEL_ID')
 
 class Errors:
 
@@ -122,17 +124,13 @@ def alert_on_slack(error_code, email_raw_content="", log_subject=False):
 
     error_message = Error.get_error_message(error_code)
     msg = f'Alert: {error_message}'
-    if log_subject:
-        # Get subject
-        subject = ""
-        match = re.search(r'Subject: (.+)', email_raw_content)
-        if match:
-            subject = match.group(1)
-        de_identified_subject = match_and_sub(subject, VENMO_SUBJECT_PATTERNS)
-        msg += f'\nSubject: {de_identified_subject}'
-        
-    payload = {'text': msg}
-    response = requests.post(SLACK_WEBHOOK_URL, json=payload)
+    
+    response = upload_file_to_slack(
+        CHANNEL_ID,
+        SLACK_TOKEN,
+        msg,
+        {'file': email_raw_content}
+    )
     return response.status_code
 
 
@@ -148,13 +146,13 @@ def validate_email(email_raw_content):
     # Validate the DKIM signature
     if not validate_dkim(email_raw_content):
         error_code = Error.ErrorCodes.DKIM_VALIDATION_FAILED
-        alert_on_slack(error_code)
+        alert_on_slack(error_code, email_raw_content)
         return False, error_code
 
     # Ensure the email is from venmo@venmo.com
     if not re.search(r'From: Venmo <venmo@venmo.com>', email_raw_content):
         error_code = Error.ErrorCodes.NOT_FROM_VENMO
-        alert_on_slack(error_code)
+        alert_on_slack(error_code, email_raw_content)
         return False, error_code
     
     # Ensure the email is a send email
