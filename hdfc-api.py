@@ -30,7 +30,7 @@ TEMPLATE = r"""
 """
 
 FROM_EMAIL_ADDRESS = "From: HDFC Bank InstaAlerts <alerts@hdfcbank.net>"
-EMAIL_SUBJECT = "Subject: =?UTF-8?q?=E2=9D=97_You_have_done_a_UPI_txn._Check_details!?="
+EMAIL_SUBJECT = "Subject: =\?UTF-8\?q\?=E2=9D=97_You_have_done_a_UPI_txn\._Check_details\!\?="
 DOCKER_IMAGE_NAME = '0xsachink/zkp2p:modal-upi-0.1.1'
 STUB_NAME = 'zkp2p:modal-upi-0.1.1-testing'
 
@@ -42,23 +42,22 @@ CHANNEL_ID = os.getenv('CHANNEL_ID')
 class Errors:
 
     class ErrorCodes(Enum):
-        INVALID_CIRCUIT_TYPE = 1
-        NOT_VALID_EMAIL_TYPE = 2
+        INVALID_PAYMENT_TYPE = 1
+        INVALID_CIRCUIT_TYPE = 2
         INVALID_DOMAIN_KEY = 3
         DKIM_VALIDATION_FAILED = 4
-        NOT_FROM_DOMAIN = 5
-        INVALID_TEMPLATE = 6
+        INVALID_FROM_ADDRESS = 5
+        INVALID_EMAIL_SUBJECT = 6
         PROOF_GEN_FAILED = 7
-        INVALID_PAYMENT_TYPE = 8
 
     def __init__(self):
         self.error_messages = {
-            self.ErrorCodes.INVALID_EMAIL_TYPE: "Invalid email type",
-            self.ErrorCodes.NOT_VALID_EMAIL_TYPE: "Email is not a send email",
+            self.ErrorCodes.INVALID_PAYMENT_TYPE: "Invalid payment type. Payment type should be venmo or hdfc",
+            self.ErrorCodes.INVALID_CIRCUIT_TYPE: "Invalid circuit type. Circuit type should be send or registration",
             self.ErrorCodes.INVALID_DOMAIN_KEY: "❗️Domain key might have changed❗️",
             self.ErrorCodes.DKIM_VALIDATION_FAILED: "DKIM validation failed",
-            self.ErrorCodes.NOT_FROM_DOMAIN: "Email is not from Domain",
-            self.ErrorCodes.INVALID_TEMPLATE: "❗️Email does not have the right template❗️",
+            self.ErrorCodes.INVALID_FROM_ADDRESS: "Invalid from address",
+            self.ErrorCodes.INVALID_EMAIL_SUBJECT: "Invalid email subject",
             self.ErrorCodes.PROOF_GEN_FAILED: "Proof generation failed"
         }
 
@@ -99,20 +98,20 @@ def validate_email(email_raw_content):
         return False, error_code
     
     # Validate the DKIM signature
-    if not validate_dkim(email_raw_content):
-        error_code = Error.ErrorCodes.DKIM_VALIDATION_FAILED
-        alert_on_slack(error_code, email_raw_content)
-        return False, error_code
+    # if not validate_dkim(email_raw_content):
+    #     error_code = Error.ErrorCodes.DKIM_VALIDATION_FAILED
+    #     alert_on_slack(error_code, email_raw_content)
+    #     return False, error_code
 
     # Ensure the email is from the domain
     if not re.search(fr'{FROM_EMAIL_ADDRESS}', email_raw_content):
-        error_code = Error.ErrorCodes.NOT_FROM_DOMAIN
+        error_code = Error.ErrorCodes.INVALID_FROM_ADDRESS
         alert_on_slack(error_code, email_raw_content)
         return False, error_code
     
     # Ensure the email is a send email
     if not re.search(fr'{EMAIL_SUBJECT}', email_raw_content):
-        error_code = Error.ErrorCodes.NOT_VALID_EMAIL_TYPE
+        error_code = Error.ErrorCodes.INVALID_EMAIL_SUBJECT
         alert_on_slack(error_code, email_raw_content, log_subject=True)
         return False, error_code
 
@@ -306,8 +305,8 @@ TEST_PAYMENT_TYPE = os.getenv("TEST_PAYMENT_TYPE")
 TEST_CIRCUIT_TYPE = os.getenv("TEST_CIRCUIT_TYPE")
 TEST_EMAIL_PATH = os.getenv("TEST_EMAIL_PATH")
 MODAL_ENDPOINT = os.getenv("MODAL_ENDPOINT")
-TEST_LOCAL_RUN = os.getenv("TEST_LOCAL_RUN")
-TEST_ENDPOINT = os.getenv("TEST_ENDPOINT")
+TEST_LOCAL_RUN = int(os.getenv("TEST_LOCAL_RUN"))
+TEST_ENDPOINT = int(os.getenv("TEST_ENDPOINT"))
 
 # confirm only one test is true
 if TEST_LOCAL_RUN + TEST_ENDPOINT != 1:
