@@ -32,7 +32,7 @@
 # Use the official Rust image as the base image
 FROM rust:latest
 ARG ZKP2P_BRANCH_NAME=sachin/circuits-upi
-ARG ZKP2P_VERSION=v2/v0.1.1
+ARG ZKP2P_VERSION=v2.5/v0.1.1
 ARG PROVER_API_BRANCH_NAME=sachin/upi
 ARG PAYMENT_TYPE=hdfc
 
