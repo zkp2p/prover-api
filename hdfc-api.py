@@ -15,9 +15,9 @@ from utils import fetch_domain_key, validate_dkim, match_and_sub, sha256_hash, u
 load_dotenv()       # Load environment variables from .env file
 
 # Paths
-incoming_eml_file_path = "/root/prover-api/received_eml/hdfc_[email_type]_[nonce].eml"
-proof_file_path = "/root/prover-api/proofs/rapidsnark_proof_[email_type]_[nonce].json"
-public_values_file_path = "/root/prover-api/proofs/rapidsnark_public_[email_type]_[nonce].json"
+incoming_eml_file_path = "/root/prover-api/received_eml/[payment_type]_[circuit_type]_[nonce].eml"
+proof_file_path = "/root/prover-api/proofs/rapidsnark_proof_[payment_type]_[circuit_type]_[nonce].json"
+public_values_file_path = "/root/prover-api/proofs/rapidsnark_public_[payment_type]_[circuit_type]_[nonce].json"
 
 
 # --------- VALIDATE EMAIL ------------
@@ -29,24 +29,27 @@ NAME_PATTERN = r"^[A-Z][a-z'’-]+\s([A-Z][a-z'’-]+\s?)+$"
 TEMPLATE = r"""
 """
 
-FROM_EMAIL_ADDRESS = ""
-EMAIL_SUBJECT = ""
+FROM_EMAIL_ADDRESS = "From: HDFC Bank InstaAlerts <alerts@hdfcbank.net>"
+EMAIL_SUBJECT = "Subject: =?UTF-8?q?=E2=9D=97_You_have_done_a_UPI_txn._Check_details!?="
+DOCKER_IMAGE_NAME = '0xsachink/zkp2p:modal-upi-0.1.1'
+STUB_NAME = 'zkp2p:modal-upi-0.1.1-testing'
+
 SLACK_WEBHOOK_URL = os.getenv("SLACK_WEBHOOK_URL")
 SLACK_TOKEN = os.getenv('SLACK_TOKEN')
 CHANNEL_ID = os.getenv('CHANNEL_ID')
-DOCKER_IMAGE_NAME = ''
-STUB_NAME = ''
+
 
 class Errors:
 
     class ErrorCodes(Enum):
-        INVALID_EMAIL_TYPE = 1
+        INVALID_CIRCUIT_TYPE = 1
         NOT_VALID_EMAIL_TYPE = 2
         INVALID_DOMAIN_KEY = 3
         DKIM_VALIDATION_FAILED = 4
         NOT_FROM_DOMAIN = 5
         INVALID_TEMPLATE = 6
         PROOF_GEN_FAILED = 7
+        INVALID_PAYMENT_TYPE = 8
 
     def __init__(self):
         self.error_messages = {
@@ -124,18 +127,27 @@ def validate_email(email_raw_content):
 
 # --------- AWS HELPER FUNCTIONS ------------
 
-def write_file_to_local(file_contents, email_type, nonce):
-    file_path = incoming_eml_file_path.replace("[email_type]", email_type).replace("[nonce]", nonce)
+def write_file_to_local(file_contents, payment_type, circuit_type, nonce):
+    file_path = incoming_eml_file_path\
+        .replace("[payment_type]", payment_type)\
+        .replace("[circuit_type]", circuit_type)\
+        .replace("[nonce]", nonce)
     with open(file_path, 'w') as file:
         file.write(file_contents)
     return file_path
 
 
-def read_proof_from_local(email_type, nonce):
+def read_proof_from_local(payment_type, circuit_type, nonce):
     proof = ""
     public_values = ""
-    proof_file_name = proof_file_path.replace("[email_type]", email_type).replace("[nonce]", nonce)
-    public_values_file_name = public_values_file_path.replace("[email_type]", email_type).replace("[nonce]", nonce)
+    proof_file_name = proof_file_path\
+        .replace("[payment_type]", payment_type)\
+        .replace("[circuit_type]", circuit_type)\
+        .replace("[nonce]", nonce)
+    public_values_file_name = public_values_file_path\
+        .replace("[payment_type]", payment_type)\
+        .replace("[circuit_type]", circuit_type)\
+        .replace("[nonce]", nonce)
 
     # check if the file exists
     if not os.path.isfile(proof_file_name) or not os.path.isfile(public_values_file_name):
@@ -195,17 +207,17 @@ stub = modal.Stub(name=STUB_NAME, image=image)
 stub['credentials_secret'] = modal.Secret.from_dict(env_credentials)
 
 
-def prove_email(email_type: str, nonce: str, intent_hash: str):
+def prove_email(payment_type:str, circuit_type:str, nonce: str, intent_hash: str):
     print('Running prove email')
     
     import subprocess 
 
     # Run the circom proofgen script
-    result = subprocess.run(['/root/prover-api/circom_proofgen.sh', email_type, nonce, intent_hash], capture_output=True, text=True)
+    result = subprocess.run(['/root/prover-api/circom_proofgen.sh', payment_type, circuit_type, nonce, intent_hash], capture_output=True, text=True)
     print(result.stdout)
     
     # Read the proof and public values 
-    proof, public_values = read_proof_from_local(email_type, nonce)
+    proof, public_values = read_proof_from_local(payment_type, circuit_type, nonce)
     return proof, public_values
 
 
@@ -217,29 +229,47 @@ def prove_email(email_type: str, nonce: str, intent_hash: str):
 def genproof_email(email_data: Dict):
 
     email_raw_data = email_data["email"]
-    email_type = email_data["email_type"]   # TODO: RENAME THIS TO CIRCUIT TYPE.
+    payment_type = email_data["payment_type"]
+    circuit_type = email_data["circuit_type"]
     intent_hash = email_data["intent_hash"]
     
     nonce = int(sha256_hash(email_raw_data), 16)
 
-    if email_type == "send" or email_type == "registration":
+    if payment_type == "venmo" or payment_type == "hdfc":
         pass
     else:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=Error.get_error_response(Error.ErrorCodes.INVALID_EMAIL_TYPE))
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, 
+            detail=Error.get_error_response(Error.ErrorCodes.INVALID_PAYMENT_TYPE)
+        )
+
+    if circuit_type == "send" or circuit_type == "registration":
+        pass
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, 
+            detail=Error.get_error_response(Error.ErrorCodes.INVALID_CIRCUIT_TYPE)
+        )
 
     # Validate email
     valid_email, error_code = validate_email(email_raw_data)
     if not valid_email:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=Error.get_error_response(error_code))
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, 
+            detail=Error.get_error_response(error_code)
+        )
     
     # Write file to local
-    write_file_to_local(email_raw_data, email_type, str(nonce))
+    write_file_to_local(email_raw_data, payment_type, circuit_type, str(nonce))
 
     # Prove
-    proof, public_values = prove_email(email_type, str(nonce), intent_hash)
+    proof, public_values = prove_email(payment_type, circuit_type, str(nonce), intent_hash)
 
     if proof == "" or public_values == "":
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=Error.get_error_response(Error.ErrorCodes.PROOF_GEN_FAILED))
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
+            detail=Error.get_error_response(Error.ErrorCodes.PROOF_GEN_FAILED)
+        )
 
     # Construct a HTTP response
     response = {
@@ -261,7 +291,8 @@ def run_modal():
 
     # Construct the email data
     email_data = {
-        "email_type": "send",
+        "payment_type": "venmo",
+        "circuit_type": "send",
         "email": email
     }
 
@@ -271,12 +302,12 @@ def run_modal():
 
 # ---------------- Run local (inside Docker) or serve and hit the APi -----------------
 
-TEST_EMAIL_TYPE = os.getenv("TEST_EMAIL_TYPE")
+TEST_PAYMENT_TYPE = os.getenv("TEST_PAYMENT_TYPE")
+TEST_CIRCUIT_TYPE = os.getenv("TEST_CIRCUIT_TYPE")
 TEST_EMAIL_PATH = os.getenv("TEST_EMAIL_PATH")
 MODAL_ENDPOINT = os.getenv("MODAL_ENDPOINT")
-
-TEST_LOCAL_RUN = False
-TEST_ENDPOINT = True
+TEST_LOCAL_RUN = os.getenv("TEST_LOCAL_RUN")
+TEST_ENDPOINT = os.getenv("TEST_ENDPOINT")
 
 # confirm only one test is true
 if TEST_LOCAL_RUN + TEST_ENDPOINT != 1:
@@ -290,7 +321,8 @@ if __name__ == "__main__":
 
     # Construct the email data
     email_data = {
-        "email_type": TEST_EMAIL_TYPE,
+        "payment_type": TEST_PAYMENT_TYPE,
+        "circuit_type": TEST_CIRCUIT_TYPE,
         "email": email,
         "intent_hash": "12345"
     }
