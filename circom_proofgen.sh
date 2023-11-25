@@ -30,9 +30,9 @@
 
 payment_type=$1
 circuit_type=$2
-nonce=$2
-intent_hash=$3
-c_witness_gen=${4:-false}
+nonce=$3
+intent_hash=$4
+c_witness_gen=${5:-false}
 
 HOME="${MODAL_HOME_PATH}"
 zk_p2p_path="${MODAL_ZK_P2P_CIRCOM_PATH}"

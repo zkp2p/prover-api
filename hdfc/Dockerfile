@@ -103,3 +103,4 @@ RUN cp /root/prover-api/.env.example /root/prover-api/.env
 # RUN python3 -m venv /venv
 # # Activate the virtual environment and install requirements
 # RUN /venv/bin/pip install --no-cache-dir -r /root/prover-api/requirements.txt
+# RUN apt-get install vim -y
