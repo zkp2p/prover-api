@@ -55,22 +55,7 @@ def upload_file_to_slack(channels, token, initial_comment, file_content):
 
 if __name__ == "__main__":
     
-    venmo_subject_patterns = [
-        r"You paid (.+?) \$(.+)",
-        r"(.+?) paid you \$(.+)",
-        r"You completed (.+?) \$(.+) charge request",
-        r"(.+?) paid your \$(.+) request",
-        r"(.+?) requests \$(.+)"
-    ]
-
-    # Usage
-    texts = [
-        "You paid Sachin $1,000",
-        "Alex Soong paid you $1,000",
-        "You completed Richard $1,000 charge request",
-        "Brian paid your $1,000 request",
-        "Richard Liang requests $1,000"
-    ]
-
-    for text in texts:
-        print(match_and_sub(text, venmo_subject_patterns))
+    # Fetch domain key
+    domain_key = fetch_domain_key('hdfcbank.net', selector='acls01') 
+    print(domain_key)
+    
