@@ -80,6 +80,10 @@ VENMO_SUBJECT_PATTERNS = [
     r"(.+?) paid your \$(.+) request",
     r"(.+?) requests \$(.+)"
 ]
+SEND_TO_MERCHANT_EMAIL_BODY_SUBSTR = r"""As an obl=\s*
+igor of this payment, PayPal, Inc\. \(855-812-4430\) is liable for non-deliver=\s*
+y or delayed delivery of your funds\."""
+
 
 SLACK_WEBHOOK_URL = os.getenv("SLACK_WEBHOOK_URL")
 SLACK_TOKEN = os.getenv('SLACK_TOKEN')
@@ -95,6 +99,7 @@ class Errors:
         NOT_FROM_VENMO = 5
         INVALID_TEMPLATE = 6
         PROOF_GEN_FAILED = 7
+        MERCHANT_SEND_EMAIL = 8
 
     def __init__(self):
         self.error_messages = {
@@ -104,7 +109,8 @@ class Errors:
             self.ErrorCodes.DKIM_VALIDATION_FAILED: "DKIM validation failed",
             self.ErrorCodes.NOT_FROM_VENMO: "Email is not from Venmo",
             self.ErrorCodes.INVALID_TEMPLATE: "❗️Email does not have the right template❗️",
-            self.ErrorCodes.PROOF_GEN_FAILED: "Proof generation failed"
+            self.ErrorCodes.PROOF_GEN_FAILED: "Proof generation failed",
+            self.ErrorCodes.MERCHANT_SEND_EMAIL: "Email is a send to merchant email"
         }
 
     def get_error_message(self, error_code):
@@ -168,6 +174,12 @@ def validate_email(email_raw_content):
     #     alert_on_slack(error_code, email_raw_content, log_subject=True)
     #     return False, error_code
 
+    # Ensure the email is not a send to merchant email
+    if re.search(SEND_TO_MERCHANT_EMAIL_BODY_SUBSTR, email_raw_content):
+        error_code = Error.ErrorCodes.MERCHANT_SEND_EMAIL
+        alert_on_slack(error_code, email_raw_content, log_subject=True)
+        return False, error_code
+    
     return True, ""
 
 # --------- AWS HELPER FUNCTIONS ------------
