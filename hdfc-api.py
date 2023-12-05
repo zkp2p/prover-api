@@ -30,7 +30,7 @@ TEMPLATE = r"""
 """
 FROM_EMAIL_ADDRESS = "From: HDFC Bank InstaAlerts <alerts@hdfcbank.net>"
 EMAIL_SUBJECT = "Subject: =\?UTF-8\?q\?=E2=9D=97_You_have_done_a_UPI_txn\._Check_details\!\?="
-DOCKER_IMAGE_NAME = '0xsachink/zkp2p:modal-upi-0.1.1-testing-1'
+DOCKER_IMAGE_NAME = '0xsachink/zkp2p:modal-upi-0.1.1-testing-2'
 STUB_NAME = 'zkp2p-modal-upi-0.1.1-staging'
 
 SLACK_WEBHOOK_URL = os.getenv("SLACK_WEBHOOK_URL")
@@ -88,15 +88,19 @@ def alert_on_slack(error_code, email_raw_content="", log_subject=False):
 
 
 def replace_message_id_with_x_google_original_message_id(email_raw_content):
-    message_id_start = email_raw_content.find("Message-ID: <")
-    message_id_end = email_raw_content.find(">", message_id_start)
-    message_id = email_raw_content[message_id_start:message_id_end + 1]
-    x_message_id_start = email_raw_content.find("X-Google-Original-Message-ID: <")
-    x_message_id_end = email_raw_content.find(">", x_message_id_start)
-    x_message_id = email_raw_content[x_message_id_start:x_message_id_end + 1]
-    # Replace "message-id: <text>" with "message-id: <x-message-id>"
-    return email_raw_content.replace(message_id, x_message_id)
+    message_id_label = "Message-ID: <"
+    x_google_message_id_label = "X-Google-Original-Message-ID: "
 
+    message_id_start = email_raw_content.find(message_id_label) + len(message_id_label)
+    message_id_end = email_raw_content.find(">", message_id_start)
+    message_id = email_raw_content[message_id_start: message_id_end]
+
+    x_message_id_start = email_raw_content.find(x_google_message_id_label) + len(x_google_message_id_label)
+    x_message_id_end = email_raw_content.find("\r", x_message_id_start)
+    x_message_id = email_raw_content[x_message_id_start: x_message_id_end]
+
+    # Replace "<message-id>" with "x-message-id"
+    return email_raw_content.replace("<" + message_id + ">", x_message_id)
 
 def validate_email(email_raw_content):
 
