@@ -51,11 +51,28 @@ def upload_file_to_slack(channels, token, initial_comment, file_content):
     )
     return response
 
+def replace_message_id_with_x_google_original_message_id(email_raw_content):
+    message_id_label = "Message-ID: <"
+    x_google_message_id_label = "X-Google-Original-Message-ID: "
 
+    message_id_start = email_raw_content.find(message_id_label) + len(message_id_label)
+    message_id_end = email_raw_content.find(">", message_id_start)
+    message_id = email_raw_content[message_id_start: message_id_end]
+    # print("message_id", message_id)
+
+    x_message_id_start = email_raw_content.find(x_google_message_id_label) + len(x_google_message_id_label)
+    x_message_id_end = email_raw_content.find(".com", x_message_id_start) + len(".com")
+    x_message_id = email_raw_content[x_message_id_start: x_message_id_end]
+    # print("x_message_id", x_message_id)
+
+    # Replace "<message-id>" with "x-message-id"
+    return email_raw_content.replace("<" + message_id + ">", x_message_id)
 
 if __name__ == "__main__":
     
     # Fetch domain key
-    domain_key = fetch_domain_key('hdfcbank.net', selector='acls01') 
-    print(domain_key)
-    
+    email_raw = open("./received_eml/hdfc_send_sachin_nov_4.eml", "r").read()
+
+    # replace and print
+    email_raw = replace_message_id_with_x_google_original_message_id(email_raw)
+    print(email_raw)
