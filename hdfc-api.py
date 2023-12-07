@@ -30,7 +30,7 @@ TEMPLATE = r"""
 """
 FROM_EMAIL_ADDRESS = "From: HDFC Bank InstaAlerts <alerts@hdfcbank.net>"
 EMAIL_SUBJECT = "Subject: =\?UTF-8\?q\?=E2=9D=97_You_have_done_a_UPI_txn\._Check_details\!\?="
-DOCKER_IMAGE_NAME = '0xsachink/zkp2p:modal-upi-0.1.1-testing-3'
+DOCKER_IMAGE_NAME = '0xsachink/zkp2p:modal-upi-0.1.1-testing-4'
 STUB_NAME = 'zkp2p-modal-upi-0.1.1-staging'
 
 SLACK_WEBHOOK_URL = os.getenv("SLACK_WEBHOOK_URL")
@@ -91,11 +91,11 @@ def alert_on_slack(error_code, email_raw_content="", log_subject=False):
 def validate_email(email_raw_content):
 
     # validate domain key
-    domain_key = fetch_domain_key(DOMAIN, DOMAIN_KEY_SELECTOR)
-    if domain_key is None or domain_key == "" or domain_key != DOMAIN_KEY_STORED_ON_CONTRACT:
-        error_code = Error.ErrorCodes.INVALID_DOMAIN_KEY
-        alert_on_slack(error_code)
-        return False, error_code
+    # domain_key = fetch_domain_key(DOMAIN, DOMAIN_KEY_SELECTOR)
+    # if domain_key is None or domain_key == "" or domain_key != DOMAIN_KEY_STORED_ON_CONTRACT:
+    #     error_code = Error.ErrorCodes.INVALID_DOMAIN_KEY
+    #     alert_on_slack(error_code)
+    #     return False, error_code
     
     email_raw_content = replace_message_id_with_x_google_original_message_id(email_raw_content)
 

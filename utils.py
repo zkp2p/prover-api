@@ -60,6 +60,10 @@ def replace_message_id_with_x_google_original_message_id(email_raw_content):
     message_id = email_raw_content[message_id_start: message_id_end]
     # print("message_id", message_id)
 
+    # Replace "<message-id>" with "x-message-id" if message id contains "SMTPIN_ADDED_BROKEN@mx.google.com"
+    if "SMTPIN_ADDED_BROKEN@mx.google.com" not in message_id:
+        return email_raw_content
+
     x_message_id_start = email_raw_content.find(x_google_message_id_label) + len(x_google_message_id_label)
     x_message_id_end = email_raw_content.find(".com", x_message_id_start) + len(".com")
     x_message_id = email_raw_content[x_message_id_start: x_message_id_end]
