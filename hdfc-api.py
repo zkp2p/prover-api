@@ -114,7 +114,7 @@ def genproof_email(email_data: Dict):
     
     nonce = int(sha256_hash(email_raw_data), 16)
 
-    if payment_type == "venmo" or payment_type == "hdfc":
+    if payment_type == "hdfc":
         pass
     else:
         raise HTTPException(

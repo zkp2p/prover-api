@@ -25,9 +25,13 @@ DOMAIN = 'venmo.com'
 DOMAIN_KEY_SELECTOR = 'yzlavq3ml4jl4lt6dltbgmnoftxftkly'
 DOMAIN_KEY_STORED_ON_CONTRACT = 'p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCoecgrbF4KMhqGMZK02Dv2vZgGnSAo9CDpYEZCpNDRBLXkfp/0Yzp3rgngm4nuiQWbhHO457vQ37nvc88I9ANuJKa3LIodD+QtOLCjwlzH+li2A81duY4fKLHcHYO3XKw+uYXKWd+bABQqps3AQP5KxoOgQ/P1EssOnvtQYBHjWQIDAQAB'
 NAME_PATTERN = r"^[A-Z][a-z'’-]+\s([A-Z][a-z'’-]+\s?)+$"
+SEND_TO_MERCHANT_EMAIL_BODY_SUBSTR = r"""As an obl=\s*
+igor of this payment, PayPal, Inc\. \(855-812-4430\) is liable for non-deliver=\s*
+y or delayed delivery of your funds\."""
+
 FROM_EMAIL_ADDRESS = "From: Venmo <venmo@venmo.com>"
 EMAIL_SUBJECT = "Subject: You paid (.+?) \$(.+)"
-DOCKER_IMAGE_NAME = '0xsachink/zkp2p:modal-0.1.0'
+DOCKER_IMAGE_NAME = '0xsachink/zkp2p:modal-venmo-0.1.1-staging-testing-1'
 STUB_NAME = 'zkp2p-modal-venmo-0.1.1-staging'
 
 SLACK_WEBHOOK_URL = os.getenv("SLACK_WEBHOOK_URL")
@@ -77,6 +81,12 @@ def validate_email(email_raw_content):
         error_code = Error.ErrorCodes.INVALID_EMAIL_SUBJECT
         alert_on_slack(error_code, email_raw_content, log_subject=True)
         return False, error_code
+    
+    # Ensure the email is not a send to merchant email
+    if re.search(SEND_TO_MERCHANT_EMAIL_BODY_SUBSTR, email_raw_content):
+        error_code = Error.ErrorCodes.INVALID_EMAIL
+        alert_on_slack(error_code, email_raw_content, log_subject=True)
+        return False, error_code
 
     return True, ""
 
@@ -109,7 +119,7 @@ def genproof_email(email_data: Dict):
     
     nonce = int(sha256_hash(email_raw_data), 16)
 
-    if payment_type == "venmo" or payment_type == "hdfc":
+    if payment_type == "venmo":
         pass
     else:
         raise HTTPException(
