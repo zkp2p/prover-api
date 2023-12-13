@@ -34,7 +34,7 @@ FROM rust:latest
 ARG ZKP2P_BRANCH_NAME=develop
 ARG ZKP2P_VERSION=v2/v0.1.0
 ARG PROVER_API_BRANCH_NAME=sachin/upi
-ARG PAYMENT_TYPE=hdfc
+ARG PAYMENT_TYPE=venmo
 
 # Update the package list and install necessary dependencies
 RUN apt-get update && \
