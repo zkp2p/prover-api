@@ -37,7 +37,6 @@ def match_and_sub(text, patterns):
     return ""
 
 
-
 def upload_file_to_slack(channels, token, initial_comment, file_content):
     """Uploads a file to Slack."""
     headers = {"Authorization": f"Bearer {token}"}
@@ -53,7 +52,7 @@ def upload_file_to_slack(channels, token, initial_comment, file_content):
     )
     return response
 
-# --------- AWS HELPER FUNCTIONS ------------
+# --------- PROOFGEN HELPER FUNCTIONS ------------
 
 incoming_eml_file_path = "/root/prover-api/received_eml/[payment_type]_[circuit_type]_[nonce].eml"
 proof_file_path = "/root/prover-api/proofs/rapidsnark_proof_[payment_type]_[circuit_type]_[nonce].json"
@@ -119,6 +118,9 @@ def prove_email(payment_type:str, circuit_type:str, nonce: str, intent_hash: str
     proof, public_values = read_proof_from_local(payment_type, circuit_type, nonce)
     return proof, public_values
 
+
+# ----------- ENV VARIABLES ------------ (Todo: Clean this)
+
 def read_env_credentials():
     env_example_path = "./.env.example"
     env_credentials = {}
@@ -149,6 +151,8 @@ def read_env_credentials():
                     env_credentials[var_name] = var_value
     return env_credentials
     
+
+# ----------- PREPROCESSING EMAILS ------------
 
 def replace_message_id_with_x_google_original_message_id(email_raw_content):
     message_id_label = "Message-ID: <"
