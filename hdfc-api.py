@@ -29,8 +29,8 @@ TEMPLATE = r"""
 """
 FROM_EMAIL_ADDRESS = "From: HDFC Bank InstaAlerts <alerts@hdfcbank.net>"
 EMAIL_SUBJECT = "Subject: =\?UTF-8\?q\?=E2=9D=97_You_have_done_a_UPI_txn\._Check_details\!\?="
-DOCKER_IMAGE_NAME = '0xsachink/zkp2p:modal-upi-0.1.1-testing-4'
-STUB_NAME = 'zkp2p-modal-upi-0.1.1-staging'
+DOCKER_IMAGE_NAME = '0xsachink/zkp2p:modal-upi-0.1.2-testing-1'
+STUB_NAME = 'zkp2p-modal-upi-0.1.2-staging'
 
 SLACK_WEBHOOK_URL = os.getenv("SLACK_WEBHOOK_URL")
 SLACK_TOKEN = os.getenv('SLACK_TOKEN')
@@ -142,7 +142,7 @@ def genproof_email(email_data: Dict):
     write_file_to_local(email_raw_data, payment_type, circuit_type, str(nonce))
 
     # Prove
-    proof, public_values = prove_email(payment_type, circuit_type, str(nonce), intent_hash, "false")
+    proof, public_values = prove_email(payment_type, circuit_type, str(nonce), intent_hash, "true")
 
     if proof == "" or public_values == "":
         raise HTTPException(
