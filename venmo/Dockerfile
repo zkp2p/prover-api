@@ -32,7 +32,7 @@
 # Use the official Rust image as the base image
 FROM rust:latest
 ARG ZKP2P_BRANCH_NAME=develop
-ARG ZKP2P_VERSION=v2/v0.1.0
+ARG ZKP2P_VERSION=v2.5/v0.1.2
 ARG PROVER_API_BRANCH_NAME=sachin/upi
 ARG PAYMENT_TYPE=venmo
 
@@ -80,12 +80,12 @@ RUN wget -P /root/zk-p2p/circuits-circom/build/${PAYMENT_TYPE}_send https://zk-p
 RUN wget -P /root/zk-p2p/circuits-circom/build/${PAYMENT_TYPE}_registration https://zk-p2p.s3.amazonaws.com/${ZKP2P_VERSION}/${PAYMENT_TYPE}_registration/${PAYMENT_TYPE}_registration.zkey --quiet
 
 # Pull C witness gen binary from S3
-RUN wget -P /root/zk-p2p/circuits-circom/build/${PAYMENT_TYPE}_send/${PAYMENT_TYPE}_send_cpp https://zk-p2p.s3.amazonaws.com/${ZKP2P_VERSION}/${PAYMENT_TYPE}_send/${PAYMENT_TYPE}_send --quiet
-RUN wget -P /root/zk-p2p/circuits-circom/build/${PAYMENT_TYPE}_send/${PAYMENT_TYPE}_send_cpp https://zk-p2p.s3.amazonaws.com/${ZKP2P_VERSION}/${PAYMENT_TYPE}_send/${PAYMENT_TYPE}_send.dat --quiet
-RUN chmod +x /root/zk-p2p/circuits-circom/build/${PAYMENT_TYPE}_send/${PAYMENT_TYPE}_send_cpp/${PAYMENT_TYPE}_send
-RUN wget -P /root/zk-p2p/circuits-circom/build/${PAYMENT_TYPE}_registration/${PAYMENT_TYPE}_registration_cpp https://zk-p2p.s3.amazonaws.com/${ZKP2P_VERSION}/${PAYMENT_TYPE}_registration/${PAYMENT_TYPE}_registration --quiet
-RUN wget -P /root/zk-p2p/circuits-circom/build/${PAYMENT_TYPE}_registration/${PAYMENT_TYPE}_registration_cpp https://zk-p2p.s3.amazonaws.com/${ZKP2P_VERSION}/${PAYMENT_TYPE}_registration/${PAYMENT_TYPE}_registration.dat --quiet
-RUN chmod +x /root/zk-p2p/circuits-circom/build/${PAYMENT_TYPE}_registration/venmo_registration_cpp/venmo_registration
+# RUN wget -P /root/zk-p2p/circuits-circom/build/${PAYMENT_TYPE}_send/${PAYMENT_TYPE}_send_cpp https://zk-p2p.s3.amazonaws.com/${ZKP2P_VERSION}/${PAYMENT_TYPE}_send/${PAYMENT_TYPE}_send --quiet
+# RUN wget -P /root/zk-p2p/circuits-circom/build/${PAYMENT_TYPE}_send/${PAYMENT_TYPE}_send_cpp https://zk-p2p.s3.amazonaws.com/${ZKP2P_VERSION}/${PAYMENT_TYPE}_send/${PAYMENT_TYPE}_send.dat --quiet
+# RUN chmod +x /root/zk-p2p/circuits-circom/build/${PAYMENT_TYPE}_send/${PAYMENT_TYPE}_send_cpp/${PAYMENT_TYPE}_send
+# RUN wget -P /root/zk-p2p/circuits-circom/build/${PAYMENT_TYPE}_registration/${PAYMENT_TYPE}_registration_cpp https://zk-p2p.s3.amazonaws.com/${ZKP2P_VERSION}/${PAYMENT_TYPE}_registration/${PAYMENT_TYPE}_registration --quiet
+# RUN wget -P /root/zk-p2p/circuits-circom/build/${PAYMENT_TYPE}_registration/${PAYMENT_TYPE}_registration_cpp https://zk-p2p.s3.amazonaws.com/${ZKP2P_VERSION}/${PAYMENT_TYPE}_registration/${PAYMENT_TYPE}_registration.dat --quiet
+# RUN chmod +x /root/zk-p2p/circuits-circom/build/${PAYMENT_TYPE}_registration/${PAYMENT_TYPE}_registration_cpp/${PAYMENT_TYPE}_registration
 
 # Clone the prover-api repository at the latest commit and set it as the working directory
 RUN git clone --branch ${PROVER_API_BRANCH_NAME} --single-branch https://github.com/zkp2p/prover-api /root/prover-api
