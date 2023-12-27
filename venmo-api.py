@@ -31,8 +31,8 @@ y or delayed delivery of your funds\."""
 
 FROM_EMAIL_ADDRESS = "From: Venmo <venmo@venmo.com>"
 EMAIL_SUBJECT = "Subject: You paid (.+?) \$(.+)"
-DOCKER_IMAGE_NAME = '0xsachink/zkp2p:modal-venmo-0.1.1-staging-testing-1'
-STUB_NAME = 'zkp2p-modal-venmo-0.1.1-staging'
+DOCKER_IMAGE_NAME = '0xsachink/zkp2p:modal-venmo-0.1.2-testing-1'
+STUB_NAME = 'zkp2p-modal-venmo-0.1.2-staging'
 
 SLACK_WEBHOOK_URL = os.getenv("SLACK_WEBHOOK_URL")
 SLACK_TOKEN = os.getenv('SLACK_TOKEN')
@@ -147,7 +147,7 @@ def genproof_email(email_data: Dict):
     write_file_to_local(email_raw_data, payment_type, circuit_type, str(nonce))
 
     # Prove
-    proof, public_values = prove_email(payment_type, circuit_type, str(nonce), intent_hash, "true")
+    proof, public_values = prove_email(payment_type, circuit_type, str(nonce), intent_hash, "false")
 
     if proof == "" or public_values == "":
         raise HTTPException(
