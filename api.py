@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 from enum import Enum
 from fastapi import FastAPI, HTTPException, status
 from typing import Dict
-from utils import fetch_domain_key, validate_dkim, match_and_sub, sha256_hash, upload_file_to_slack
+from utils.helpers import fetch_domain_key, validate_dkim, match_and_sub, sha256_hash, upload_file_to_slack
 
 
 load_dotenv()       # Load environment variables from .env file
@@ -198,39 +198,6 @@ def read_proof_from_local(email_type, nonce):
     
     return proof, public_values
 
-
-def download_and_write_file(s3_url, email_type, nonce):
-    # Extract the bucket name and object key from the S3 URL
-    s3_url_parts = s3_url.replace("https://", "").replace("[nonce]", nonce).replace("[email_type]", email_type).split("/")
-    bucket_name = s3_url_parts[0].split(".")[0]
-    object_key = "/".join(s3_url_parts[1:])
-
-    # Create an S3 client using boto3
-    s3_client = boto3.client("s3")
-
-    # Download the object from S3
-    response = s3_client.get_object(Bucket=bucket_name, Key=object_key)
-    file_contents = response['Body'].read().decode('utf-8')
-
-    # Write the file to the local filesystem
-    write_file_to_local(file_contents, email_type, nonce)
-    
-    return file_contents
-
-# Uploads file to s3 and returns the url
-def upload_eml_to_s3(local_file_path, bucket_name, email_type, nonce):
-    object_key = object_key_template.replace("[email_type]", email_type).replace("[nonce]", nonce)
-
-    # Create an S3 client using boto3
-    s3_client = boto3.client('s3')
-
-    # Upload the file to S3 with private access (default)
-    s3_client.upload_file(local_file_path, bucket_name, object_key, ExtraArgs={'ACL': 'private'})
-
-    # Print a success message
-    print(f"File '{local_file_path}' uploaded to {bucket_name}/{object_key} as a private object.")
-
-    return s3_url.replace("[email_type]", email_type).replace("[nonce]", nonce)
 
 
 # ----------- ENV VARIABLES ------------ (Todo: Clean this)

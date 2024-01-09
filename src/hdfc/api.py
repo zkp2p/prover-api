@@ -1,24 +1,21 @@
-import modal
-import re
-import boto3
-import requests
-import time
 import os
+import re
+import time
+import modal
+import requests
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException, status
+from fastapi import HTTPException, status
 from typing import Dict
-from utils import fetch_domain_key, \
-    validate_dkim, \
-    sha256_hash, \
-    upload_file_to_slack, \
-    replace_message_id_with_x_google_original_message_id, \
-    read_proof_from_local, \
-    write_file_to_local, \
-    prove_email, \
-    read_env_credentials
-from errors import Errors
 
-load_dotenv()       # Load environment variables from .env file
+from utils.helpers import fetch_domain_key, validate_dkim, sha256_hash
+from utils.prove import run_prove_process
+from utils.errors import Errors
+from utils.env_utils import read_env_credentials
+from utils.file_utils import write_file_to_local, read_proof_from_local
+from utils.slack_utils import upload_file_to_slack
+from .preprocessing import replace_message_id_with_x_google_original_message_id
+
+load_dotenv('./env')       # Load environment variables from .env file
 
 # --------- VALIDATE EMAIL ------------
 
@@ -90,7 +87,7 @@ def validate_email(email_raw_content):
 
 # ----------- ENV VARIABLES ------------ (Todo: Clean this)
 
-env_credentials = read_env_credentials()
+env_credentials = read_env_credentials('./hdfc/.env.example', './hdfc/.env')
 print("env crednetials", env_credentials)
 
 
@@ -145,7 +142,10 @@ def genproof_email(email_data: Dict):
     write_file_to_local(email_raw_data, payment_type, circuit_type, str(nonce))
 
     # Prove
-    proof, public_values = prove_email(payment_type, circuit_type, str(nonce), intent_hash, "true")
+    run_prove_process(payment_type, circuit_type, str(nonce), intent_hash, "true")
+
+    # Read the proof from local
+    proof, public_values = read_proof_from_local(payment_type, circuit_type, str(nonce))
 
     if proof == "" or public_values == "":
         raise HTTPException(
@@ -207,56 +207,3 @@ def verify_upi_id(vpa: str):
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=response.json()
         )
-
-# ---------------- Run local (inside Docker) or serve and hit the APi -----------------
-
-TEST_PAYMENT_TYPE = os.getenv("TEST_PAYMENT_TYPE")
-TEST_CIRCUIT_TYPE = os.getenv("TEST_CIRCUIT_TYPE")
-TEST_EMAIL_PATH = os.getenv("TEST_EMAIL_PATH")
-MODAL_ENDPOINT = os.getenv("MODAL_ENDPOINT")
-TEST_LOCAL_RUN = False
-TEST_ENDPOINT = True
-
-# confirm only one test is true
-if TEST_LOCAL_RUN + TEST_ENDPOINT != 1:
-    raise Exception("Only one test should be true")
-
-if __name__ == "__main__":
-    
-    # Read an email file
-    with open(TEST_EMAIL_PATH, 'r') as file:
-        email = file.read()
-
-    # Construct the email data
-    email_data = {
-        "payment_type": TEST_PAYMENT_TYPE,
-        "circuit_type": TEST_CIRCUIT_TYPE,
-        "email": email,
-        "intent_hash": "12345"
-    }
-    print(
-        "Payment Type: ", email_data['payment_type'], 
-        "Circuit Type: ", email_data['circuit_type']
-    )
-
-    if TEST_LOCAL_RUN:
-        # Call the prove_email function
-        response = genproof_email.local(email_data)
-        print(response)
-    
-    elif TEST_ENDPOINT:
-        # call the endpoint
-        import requests
-        import json
-        import time
-        start = time.time()
-        response = requests.post(MODAL_ENDPOINT, json=email_data)
-        end = time.time()
-        print("Time taken: ", end - start)
-        if response.status_code == 200:
-            print(response.json())
-        else:
-            print(response.text)
-    
-    else:
-        pass
