@@ -2,6 +2,7 @@ import modal
 import re
 import boto3
 import requests
+import time
 import os
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, status
@@ -31,11 +32,13 @@ FROM_EMAIL_ADDRESS = "From: HDFC Bank InstaAlerts <alerts@hdfcbank.net>"
 EMAIL_SUBJECT = "Subject: =\?UTF-8\?q\?=E2=9D=97_You_have_done_a_UPI_txn\._Check_details\!\?="
 DOCKER_IMAGE_NAME = '0xsachink/zkp2p:modal-upi-0.1.2-testing-2'
 STUB_NAME = 'zkp2p-modal-upi-0.1.2-staging'
+DEEPVUE_BASE_URL = "https://production.deepvue.tech/v1"
 
 SLACK_WEBHOOK_URL = os.getenv("SLACK_WEBHOOK_URL")
 SLACK_TOKEN = os.getenv('SLACK_TOKEN')
 CHANNEL_ID = os.getenv('CHANNEL_ID')
-
+DEEPVUE_CLIENT_ID = os.getenv('DEEPVUE_CLIENT_ID')
+DEEPVUE_CLIENT_SECRET = os.getenv('DEEPVUE_CLIENT_SECRET')
 
 Error = Errors()
 
@@ -157,6 +160,53 @@ def genproof_email(email_data: Dict):
     }
 
     return response
+
+#----------------- Validate UPI ID Endpoint -----------------
+
+def refresh_token():
+    # Read the access token from env variables
+    access_token = os.getenv("DEEPVUE_ACCESS_TOKEN")
+    access_token_expiry = os.getenv("DEEPVUE_ACCESS_TOKEN_EXPIRY")
+    print(access_token, access_token_expiry)
+
+    if access_token is not None and access_token_expiry is not None and access_token != "" and access_token_expiry != "":
+        if int(time.time()) < int(access_token_expiry):
+            print("Using existing access token")
+            return access_token
+        else:
+            print("Access token expired")
+    
+    print("Fetching new access token")
+    url = f"{DEEPVUE_BASE_URL}/authorize"
+    headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+    payload = {'client_id': f"{DEEPVUE_CLIENT_ID}",'client_secret': f"{DEEPVUE_CLIENT_SECRET}"}
+    response = requests.post(url, headers=headers, data=payload)
+    access_token = response.json()['access_token']
+    access_token_expiry = int(time.time()) + 24 * 60 * 60
+    os.environ["DEEPVUE_ACCESS_TOKEN"] = access_token
+    os.environ["DEEPVUE_ACCESS_TOKEN_EXPIRY"] = str(access_token_expiry)
+    return access_token
+
+@stub.function(secret=stub['credentials_secret'])
+@modal.web_endpoint(method="GET")
+def verify_upi_id(vpa: str):
+    url = f"{DEEPVUE_BASE_URL}/verification/upi?vpa={vpa}"
+
+    auth_token = refresh_token()
+    payload = {}
+    headers = {
+        'Authorization': f'Bearer {auth_token}',
+        'x-api-key': f'{DEEPVUE_CLIENT_SECRET}',
+    }
+    response = requests.request("GET", url, headers=headers, data=payload)
+
+    if response.status_code == 200:
+        return response.json()
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=response.json()
+        )
 
 # ---------------- Run local (inside Docker) or serve and hit the APi -----------------
 
