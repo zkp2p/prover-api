@@ -42,13 +42,14 @@ prover_output_path="${eml_dir_path}/../proofs/"
 circuit_name=${payment_type}_${circuit_type}
 eml_path="${eml_dir_path}/${circuit_name}_${nonce}.eml"
 input_email_path="${eml_dir_path}/../inputs/input_${circuit_name}_${nonce}.json"
-build_dir="${zk_p2p_path}/circuits-circom/circuits/build/${payment_type}/${circuit_name}"
+payment_dir="${zk_p2p_path}/circuits-circom/circuits/${payment_type}"
+build_dir="${payment_dir}/build/${circuit_name}"
 witness_path="${build_dir}/witness_${circuit_name}_${nonce}.wtns"
 proof_path="${prover_output_path}/rapidsnark_proof_${circuit_name}_${nonce}.json"
 public_path="${prover_output_path}/rapidsnark_public_${circuit_name}_${nonce}.json"
 
-echo "npx ${zk_p2p_path}/circuits-circom/node_modules/.bin/tsx ${zk_p2p_path}/circuits-circom/scripts/generate_input.ts --email_file='${eml_path}' --payment_type='${payment_type}' --circuit_type='${circuit_type}' --nonce='${nonce}' --intent_hash='${intent_hash}'"
-npx ${zk_p2p_path}/circuits-circom/node_modules/.bin/tsx "${zk_p2p_path}/circuits-circom/scripts/generate_input.ts" --email_file="${eml_path}" --payment_type="${payment_type}" --circuit_type="${circuit_type}" --nonce="${nonce}" --intent_hash="${intent_hash}" | tee /dev/stderr
+echo "npx ${payment_dir}/node_modules/.bin/tsx ${payment_dir}/scripts/generate_input.ts --email_file='${eml_path}' --payment_type='${payment_type}' --circuit_type='${circuit_type}' --nonce='${nonce}' --intent_hash='${intent_hash}'"
+npx ${payment_dir}/node_modules/.bin/tsx "${payment_dir}/scripts/generate_input.ts" --email_file="${eml_path}" --payment_type="${payment_type}" --circuit_type="${circuit_type}" --nonce="${nonce}" --intent_hash="${intent_hash}" | tee /dev/stderr
 status_inputgen=$?
 
 # Todo: Is status_inputgen set to anything?

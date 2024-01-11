@@ -15,5 +15,6 @@ def run_prove_process(payment_type:str, circuit_type:str, nonce: str, intent_has
         capture_output=True, 
         text=True
     )
+    print(result.stdout)
     return result
     
