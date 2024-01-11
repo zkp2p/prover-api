@@ -76,8 +76,8 @@ RUN yarn install
 RUN yarn add tsx
 
 # Pull JS .wasm from S3 and place them in js folders
-RUN wget -P /root/zk-p2p/circuits-circom/build/${PAYMENT_TYPE}_send/${PAYMENT_TYPE}_send_js https://zk-p2p.s3.amazonaws.com/${ZKP2P_VERSION}/${PAYMENT_TYPE}_send/${PAYMENT_TYPE}_send.wasm --quiet
-RUN wget -P /root/zk-p2p/circuits-circom/build/${PAYMENT_TYPE}_registration/${PAYMENT_TYPE}_registration_js https://zk-p2p.s3.amazonaws.com/${ZKP2P_VERSION}/${PAYMENT_TYPE}_registration/${PAYMENT_TYPE}_registration.wasm --quiet
+# RUN wget -P /root/zk-p2p/circuits-circom/build/${PAYMENT_TYPE}_send/${PAYMENT_TYPE}_send_js https://zk-p2p.s3.amazonaws.com/${ZKP2P_VERSION}/${PAYMENT_TYPE}_send/${PAYMENT_TYPE}_send.wasm --quiet
+# RUN wget -P /root/zk-p2p/circuits-circom/build/${PAYMENT_TYPE}_registration/${PAYMENT_TYPE}_registration_js https://zk-p2p.s3.amazonaws.com/${ZKP2P_VERSION}/${PAYMENT_TYPE}_registration/${PAYMENT_TYPE}_registration.wasm --quiet
 
 # Pull C .dat from S3 and place them in cpp folders
 RUN wget -P /root/zk-p2p/circuits-circom/build/${PAYMENT_TYPE}_send/${PAYMENT_TYPE}_send_cpp https://zk-p2p.s3.amazonaws.com/${ZKP2P_VERSION}/${PAYMENT_TYPE}_send/${PAYMENT_TYPE}_send.dat --quiet

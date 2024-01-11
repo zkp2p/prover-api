@@ -17,8 +17,8 @@ load_dotenv('./env')       # Load environment variables from .env file
 # --------- VALIDATE EMAIL ------------
 
 DOMAIN = 'venmo.com'
-DOMAIN_KEY_SELECTOR = 'yzlavq3ml4jl4lt6dltbgmnoftxftkly'
-DOMAIN_KEY_STORED_ON_CONTRACT = 'p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCoecgrbF4KMhqGMZK02Dv2vZgGnSAo9CDpYEZCpNDRBLXkfp/0Yzp3rgngm4nuiQWbhHO457vQ37nvc88I9ANuJKa3LIodD+QtOLCjwlzH+li2A81duY4fKLHcHYO3XKw+uYXKWd+bABQqps3AQP5KxoOgQ/P1EssOnvtQYBHjWQIDAQAB'
+DOMAIN_KEY_SELECTOR = 'lycwyfwp74k6gitv7a7jiergkl3mgkrg'
+DOMAIN_KEY_STORED_ON_CONTRACT = 'p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCMh6czdzpSrMH7a5nxQ867R2FqeEkoDdSUszWVL2/06iGLMI4X/mOF23IW31hWBsb5YGkm7vHEwXVltWYpSf1mVGuvqIIyXOb77tOPtVdgkvyfko/z7uUgTT509QYbo3KQyBj6geojrGZF6GN0isLIXxeE11XCz9yKmdh8JK4bAQIDAQAB'
 NAME_PATTERN = r"^[A-Z][a-z'’-]+\s([A-Z][a-z'’-]+\s?)+$"
 SEND_TO_MERCHANT_EMAIL_BODY_SUBSTR = r"""As an obl=\s*
 igor of this payment, PayPal, Inc\. \(855-812-4430\) is liable for non-deliver=\s*
@@ -26,10 +26,9 @@ y or delayed delivery of your funds\."""
 
 FROM_EMAIL_ADDRESS = "From: Venmo <venmo@venmo.com>"
 EMAIL_SUBJECT = "Subject: You paid (.+?) \$(.+)"
-DOCKER_IMAGE_NAME = '0xsachink/zkp2p:modal-venmo-0.1.2-testing-1'
+DOCKER_IMAGE_NAME = '0xsachink/zkp2p:modal-venmo-0.1.2-testing-2'
 STUB_NAME = 'zkp2p-modal-venmo-0.1.2-staging'
 
-SLACK_WEBHOOK_URL = os.getenv("SLACK_WEBHOOK_URL")
 SLACK_TOKEN = os.getenv('SLACK_TOKEN')
 CHANNEL_ID = os.getenv('CHANNEL_ID')
 
@@ -142,7 +141,7 @@ def genproof_email(email_data: Dict):
     write_file_to_local(email_raw_data, payment_type, circuit_type, str(nonce))
 
     # Prove
-    run_prove_process(payment_type, circuit_type, str(nonce), intent_hash, "false")
+    run_prove_process(payment_type, circuit_type, str(nonce), intent_hash, "true")
 
     # Read the proof from local
     proof, public_values = read_proof_from_local(payment_type, circuit_type, str(nonce))

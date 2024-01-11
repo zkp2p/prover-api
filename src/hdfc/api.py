@@ -31,7 +31,6 @@ DOCKER_IMAGE_NAME = '0xsachink/zkp2p:modal-upi-0.1.2-testing-2'
 STUB_NAME = 'zkp2p-modal-upi-0.1.2-staging'
 DEEPVUE_BASE_URL = "https://production.deepvue.tech/v1"
 
-SLACK_WEBHOOK_URL = os.getenv("SLACK_WEBHOOK_URL")
 SLACK_TOKEN = os.getenv('SLACK_TOKEN')
 CHANNEL_ID = os.getenv('CHANNEL_ID')
 DEEPVUE_CLIENT_ID = os.getenv('DEEPVUE_CLIENT_ID')
