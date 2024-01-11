@@ -35,7 +35,8 @@ ARG ZKP2P_BRANCH_NAME=sachin/refactor-folders
 ARG ZKP2P_VERSION=v2.5/v0.1.2
 ARG PROVER_API_BRANCH_NAME=sachin/upi
 ARG PAYMENT_TYPE=hdfc
-ARG BUILD_DIR=/root/zk-p2p/circuits-circom/circuits/${PAYMENT_TYPE}
+ARG PAYMENT_ROOT_DIR=/root/zk-p2p/circuits-circom/circuits/${PAYMENT_TYPE}
+ARG BUILD_DIR=${PAYMENT_ROOT_DIR}/build
 
 # Update the package list and install necessary dependencies
 RUN apt-get update && \
@@ -72,7 +73,7 @@ WORKDIR /root/
 
 # Clone zk p2p repository at the latest commit and set it as the working directory
 RUN git clone https://github.com/zkp2p/zk-p2p -b ${ZKP2P_BRANCH_NAME} /root/zk-p2p
-WORKDIR /root/zk-p2p/circuits-circom
+WORKDIR ${PAYMENT_ROOT_DIR}
 RUN yarn install
 RUN yarn add tsx
 

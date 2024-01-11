@@ -57,16 +57,16 @@ RUN npm install -g yarn
 RUN npm install -g typescript
 
 # Clone and build rapidsnark
-# RUN  git clone https://github.com/Divide-By-0/rapidsnark /root/rapidsnark
-# WORKDIR /root/rapidsnark
-# RUN npm install
-# RUN git submodule init
-# RUN git submodule update
-# RUN npx task createFieldSources
-# RUN npx task buildPistache
-# RUN npx task buildProver
-# RUN chmod +x /root/rapidsnark/build/prover
-# WORKDIR /root/
+RUN  git clone https://github.com/Divide-By-0/rapidsnark /root/rapidsnark
+WORKDIR /root/rapidsnark
+RUN npm install
+RUN git submodule init
+RUN git submodule update
+RUN npx task createFieldSources
+RUN npx task buildPistache
+RUN npx task buildProver
+RUN chmod +x /root/rapidsnark/build/prover
+WORKDIR /root/
 
 # TODO: Instead we could just copy the build folder from the local machine
 # COPY ./rapidsnark/build /rapidsnark/build
