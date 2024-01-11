@@ -75,17 +75,25 @@ WORKDIR /root/zk-p2p/circuits-circom
 RUN yarn install
 RUN yarn add tsx
 
+# Pull JS .wasm from S3 and place them in js folders
+RUN wget -P /root/zk-p2p/circuits-circom/build/${PAYMENT_TYPE}_send/${PAYMENT_TYPE}_send_js https://zk-p2p.s3.amazonaws.com/${ZKP2P_VERSION}/${PAYMENT_TYPE}_send/${PAYMENT_TYPE}_send.wasm --quiet
+RUN wget -P /root/zk-p2p/circuits-circom/build/${PAYMENT_TYPE}_registration/${PAYMENT_TYPE}_registration_js https://zk-p2p.s3.amazonaws.com/${ZKP2P_VERSION}/${PAYMENT_TYPE}_registration/${PAYMENT_TYPE}_registration.wasm --quiet
+
+# Pull C .dat from S3 and place them in cpp folders
+RUN wget -P /root/zk-p2p/circuits-circom/build/${PAYMENT_TYPE}_send/${PAYMENT_TYPE}_send_cpp https://zk-p2p.s3.amazonaws.com/${ZKP2P_VERSION}/${PAYMENT_TYPE}_send/${PAYMENT_TYPE}_send.dat --quiet
+RUN wget -P /root/zk-p2p/circuits-circom/build/${PAYMENT_TYPE}_registration/${PAYMENT_TYPE}_registration_cpp https://zk-p2p.s3.amazonaws.com/${ZKP2P_VERSION}/${PAYMENT_TYPE}_registration/${PAYMENT_TYPE}_registration.dat --quiet
+
+# Pull C witness gen binary from S3 and place them in cpp folders
+RUN wget -P /root/zk-p2p/circuits-circom/build/${PAYMENT_TYPE}_send/${PAYMENT_TYPE}_send_cpp https://zk-p2p.s3.amazonaws.com/${ZKP2P_VERSION}/${PAYMENT_TYPE}_send/${PAYMENT_TYPE}_send --quiet
+RUN wget -P /root/zk-p2p/circuits-circom/build/${PAYMENT_TYPE}_registration/${PAYMENT_TYPE}_registration_cpp https://zk-p2p.s3.amazonaws.com/${ZKP2P_VERSION}/${PAYMENT_TYPE}_registration/${PAYMENT_TYPE}_registration --quiet
+
+# Make cpp files executable
+RUN chmod +x /root/zk-p2p/circuits-circom/build/${PAYMENT_TYPE}_send/${PAYMENT_TYPE}_send_cpp/${PAYMENT_TYPE}_send
+RUN chmod +x /root/zk-p2p/circuits-circom/build/${PAYMENT_TYPE}_registration/${PAYMENT_TYPE}_registration_cpp/${PAYMENT_TYPE}_registration
+
 # Pull keys from S3
 RUN wget -P /root/zk-p2p/circuits-circom/build/${PAYMENT_TYPE}_send https://zk-p2p.s3.amazonaws.com/${ZKP2P_VERSION}/${PAYMENT_TYPE}_send/${PAYMENT_TYPE}_send.zkey --quiet
 RUN wget -P /root/zk-p2p/circuits-circom/build/${PAYMENT_TYPE}_registration https://zk-p2p.s3.amazonaws.com/${ZKP2P_VERSION}/${PAYMENT_TYPE}_registration/${PAYMENT_TYPE}_registration.zkey --quiet
-
-# Pull C witness gen binary from S3
-RUN wget -P /root/zk-p2p/circuits-circom/build/${PAYMENT_TYPE}_send/${PAYMENT_TYPE}_send_cpp https://zk-p2p.s3.amazonaws.com/${ZKP2P_VERSION}/${PAYMENT_TYPE}_send/${PAYMENT_TYPE}_send --quiet
-RUN wget -P /root/zk-p2p/circuits-circom/build/${PAYMENT_TYPE}_send/${PAYMENT_TYPE}_send_cpp https://zk-p2p.s3.amazonaws.com/${ZKP2P_VERSION}/${PAYMENT_TYPE}_send/${PAYMENT_TYPE}_send.dat --quiet
-RUN chmod +x /root/zk-p2p/circuits-circom/build/${PAYMENT_TYPE}_send/${PAYMENT_TYPE}_send_cpp/${PAYMENT_TYPE}_send
-RUN wget -P /root/zk-p2p/circuits-circom/build/${PAYMENT_TYPE}_registration/${PAYMENT_TYPE}_registration_cpp https://zk-p2p.s3.amazonaws.com/${ZKP2P_VERSION}/${PAYMENT_TYPE}_registration/${PAYMENT_TYPE}_registration --quiet
-RUN wget -P /root/zk-p2p/circuits-circom/build/${PAYMENT_TYPE}_registration/${PAYMENT_TYPE}_registration_cpp https://zk-p2p.s3.amazonaws.com/${ZKP2P_VERSION}/${PAYMENT_TYPE}_registration/${PAYMENT_TYPE}_registration.dat --quiet
-RUN chmod +x /root/zk-p2p/circuits-circom/build/${PAYMENT_TYPE}_registration/${PAYMENT_TYPE}_registration_cpp/${PAYMENT_TYPE}_registration
 
 # Clone the prover-api repository at the latest commit and set it as the working directory
 RUN git clone --branch ${PROVER_API_BRANCH_NAME} --single-branch https://github.com/zkp2p/prover-api /root/prover-api
