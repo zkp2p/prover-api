@@ -4,7 +4,7 @@
 # /root/
 #       zk-p2p/
 #           circuits-circom/
-#               build/
+#               circuits/${payment_type}/build/
 #                   ${payment_type}_${circuit_type}/
 #                       ${payment_type}_${circuit_type}.wasm
 #                       ${payment_type}_${circuit_type}.zkey
@@ -42,7 +42,7 @@ prover_output_path="${eml_dir_path}/../proofs/"
 circuit_name=${payment_type}_${circuit_type}
 eml_path="${eml_dir_path}/${circuit_name}_${nonce}.eml"
 input_email_path="${eml_dir_path}/../inputs/input_${circuit_name}_${nonce}.json"
-build_dir="${zk_p2p_path}/circuits-circom/build/${circuit_name}"
+build_dir="${zk_p2p_path}/circuits-circom/circuits/build/${payment_type}/${circuit_name}"
 witness_path="${build_dir}/witness_${circuit_name}_${nonce}.wtns"
 proof_path="${prover_output_path}/rapidsnark_proof_${circuit_name}_${nonce}.json"
 public_path="${prover_output_path}/rapidsnark_public_${circuit_name}_${nonce}.json"
