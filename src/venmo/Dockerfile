@@ -104,10 +104,6 @@ WORKDIR /root/prover-api
 # Make necessary files executable
 RUN chmod +x /root/prover-api/circom_proofgen.sh
 
-# Copy .env.example to .env
-RUN cp /root/prover-api/.env.example /root/prover-api/.env
-
-
 # Install pytho, pip and requirements to run coordinator.py (Not required for modal)
 # RUN apt-get install -y python3 python-is-python3 python3-pip python3-venv
 # RUN python3 -m venv /venv
