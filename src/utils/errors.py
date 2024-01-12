@@ -11,6 +11,7 @@ class Errors:
         INVALID_EMAIL_SUBJECT = 6
         PROOF_GEN_FAILED = 7
         INVALID_EMAIL = 8
+        INVALID_SELECTOR = 9
 
     def __init__(self):
         self.error_messages = {
@@ -21,7 +22,8 @@ class Errors:
             self.ErrorCodes.INVALID_FROM_ADDRESS: "Invalid from address",
             self.ErrorCodes.INVALID_EMAIL_SUBJECT: "Invalid email subject",
             self.ErrorCodes.PROOF_GEN_FAILED: "Proof generation failed",
-            self.ErrorCodes.INVALID_EMAIL: "Invalid email"
+            self.ErrorCodes.INVALID_EMAIL: "Invalid email",
+            self.ErrorCodes.INVALID_SELECTOR: "❗️Selector might have changed❗️"
         }
 
     def get_error_message(self, error_code):

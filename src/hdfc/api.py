@@ -20,14 +20,21 @@ load_dotenv('./env')       # Load environment variables from .env file
 # --------- VALIDATE EMAIL ------------
 
 DOMAIN = 'hdfcbank.net'
-DOMAIN_KEY_SELECTOR = 'acls01'  
-DOMAIN_KEY_STORED_ON_CONTRACT = 'p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAnVuCsG1YQI5vudtUECLUc6nd3rwoD7vb/FZy4jQe5I5tnMIaxQ9jDMOmi0Lf9W62wpHJeZRGKgkMR6cx0voWkTnGDxKiDBajSwjP0EoIlQFTldzN7/XjXVANlHS0N4lWCEngPxmIwfCexXr6prxhjthqDeOryhJUvuMlXc8M0iYVm/Bt4aQi0bVXixBBY4NCY1YJH6ZJBKyPwOmuX'
-NAME_PATTERN = r"^[A-Z][a-z'’-]+\s([A-Z][a-z'’-]+\s?)+$"
-TEMPLATE = r"""
-"""
+DOMAIN_KEYS = [
+    {
+        'selector': 'acls01',
+        'key': 'p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAnVuCsG1YQI5vudtUECLUc6nd3rwoD7vb/FZy4jQe5I5tnMIaxQ9jDMOmi0Lf9W62wpHJeZRGKgkMR6cx0voWkTnGDxKiDBajSwjP0EoIlQFTldzN7/XjXVANlHS0N4lWCEngPxmIwfCexXr6prxhjthqDeOryhJUvuMlXc8M0iYVm/Bt4aQi0bVXixBBY4NCY1YJH6ZJBKyPwOmuXUI/p6aFkZm4qY+ymlFQuAgb+jGqd+q/t/gKCBH4M+muCknyA7/gMspMbzPg56WaX/0B0B7RmCmd5FVrDy/XPUQa3kKn78dALQrriVEwnGjggBC2rHAUbzyMeiuWS8+LZTcyeQIDAQAB'
+    },
+    {
+        'selector': 'acls03',
+        'key': 'p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA4zOPFQlc6i6f8L4bjh/g+RAfKgbWD6rFO3ttcAXuKi9knLTqRgtDEmHrjYWD3pT+z9ovnq4LMz6RoHp2x4UG/Y81HBtV7vnq0wBANR3JbRh3amQuFhgi1OYhaKhADYj043PSqspHzL4Mh8/XGFaanLNykbtztt01fy16Sng++7kCpECFEv+iAuIvg7mwV6k5Rj1Xp2kkWHqjmbaJXg9knlSacR9ddN1Ba8r5A9CDyWN/LSpLTaID/3CeRUgKMeY5Pt8tWUHLj6r6h6d1YrR+t3HxV/tklkmkrPyz5Ohy/WdFpJJdIb/j6C2t/FQRamySjg40O1WXviT+1k1IcDkdqQIDAQAB'
+    }
+]
+SELECTORS = [dk['selector'] for dk in DOMAIN_KEYS]
+# NAME_PATTERN = r"^[A-Z][a-z'’-]+\s([A-Z][a-z'’-]+\s?)+$"
 FROM_EMAIL_ADDRESS = "From: HDFC Bank InstaAlerts <alerts@hdfcbank.net>"
 EMAIL_SUBJECT = "Subject: =\?UTF-8\?q\?=E2=9D=97_You_have_done_a_UPI_txn\._Check_details\!\?="
-DOCKER_IMAGE_NAME = '0xsachink/zkp2p:modal-upi-0.1.2-testing-6'
+DOCKER_IMAGE_NAME = '0xsachink/zkp2p:modal-upi-0.1.2-testing-7'
 STUB_NAME = 'zkp2p-modal-upi-0.1.2-staging'
 DEEPVUE_BASE_URL = "https://production.deepvue.tech/v1"
 
@@ -54,13 +61,23 @@ def alert_on_slack(error_code, email_raw_content="", log_subject=False):
 
 def validate_email(email_raw_content):
 
-    # validate domain key
-    # Modify this to support multiple domain keys
-    # domain_key = fetch_domain_key(DOMAIN, DOMAIN_KEY_SELECTOR)
-    # if domain_key is None or domain_key == "" or domain_key != DOMAIN_KEY_STORED_ON_CONTRACT:
-    #     error_code = Error.ErrorCodes.INVALID_DOMAIN_KEY
-    #     alert_on_slack(error_code)
-    #     return False, error_code
+    # Extract the selector from the email
+    # Selector is present in this form in the email 's=acls01; d=hdfcbank.net;'
+    selector = re.search(r's=(.*?); d=hdfcbank.net', email_raw_content).group(1)
+    print("selector", selector)
+
+    # Validate selector
+    if selector not in SELECTORS:
+        error_code = Error.ErrorCodes.INVALID_SELECTOR
+        alert_on_slack(error_code, email_raw_content)
+        return False, error_code
+    
+    # Validate domain key
+    domain_key = fetch_domain_key(DOMAIN, selector)
+    if domain_key == "" or domain_key is None or domain_key != DOMAIN_KEYS[SELECTORS.index(selector)]['key']:
+        error_code = Error.ErrorCodes.INVALID_DOMAIN_KEY
+        alert_on_slack(error_code, email_raw_content)
+        return False, error_code
     
     email_raw_content = replace_message_id_with_x_google_original_message_id(email_raw_content)
 
@@ -141,7 +158,7 @@ def genproof_email(email_data: Dict):
     write_file_to_local(email_raw_data, payment_type, circuit_type, str(nonce))
 
     # Prove
-    run_prove_process(payment_type, circuit_type, str(nonce), intent_hash, "false")
+    run_prove_process(payment_type, circuit_type, str(nonce), intent_hash, "true")
 
     # Read the proof from local
     proof, public_values = read_proof_from_local(payment_type, circuit_type, str(nonce))
