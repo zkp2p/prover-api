@@ -27,7 +27,7 @@ TEMPLATE = r"""
 """
 FROM_EMAIL_ADDRESS = "From: HDFC Bank InstaAlerts <alerts@hdfcbank.net>"
 EMAIL_SUBJECT = "Subject: =\?UTF-8\?q\?=E2=9D=97_You_have_done_a_UPI_txn\._Check_details\!\?="
-DOCKER_IMAGE_NAME = '0xsachink/zkp2p:modal-upi-0.1.3-testing-4'
+DOCKER_IMAGE_NAME = '0xsachink/zkp2p:modal-upi-0.1.2-testing-6'
 STUB_NAME = 'zkp2p-modal-upi-0.1.2-staging'
 DEEPVUE_BASE_URL = "https://production.deepvue.tech/v1"
 
@@ -141,7 +141,7 @@ def genproof_email(email_data: Dict):
     write_file_to_local(email_raw_data, payment_type, circuit_type, str(nonce))
 
     # Prove
-    run_prove_process(payment_type, circuit_type, str(nonce), intent_hash, "true")
+    run_prove_process(payment_type, circuit_type, str(nonce), intent_hash, "false")
 
     # Read the proof from local
     proof, public_values = read_proof_from_local(payment_type, circuit_type, str(nonce))

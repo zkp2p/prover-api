@@ -76,6 +76,8 @@ RUN git clone https://github.com/zkp2p/zk-p2p -b ${ZKP2P_BRANCH_NAME} /root/zk-p
 WORKDIR ${PAYMENT_ROOT_DIR}
 RUN yarn install
 RUN yarn add tsx
+WORKDIR /root/zk-p2p/circuits-circom/package
+RUN yarn install
 
 # Pull JS .wasm from S3 and place them in js folders
 # RUN wget -P ${BUILD_DIR}/${PAYMENT_TYPE}_send/${PAYMENT_TYPE}_send_js https://zk-p2p.s3.amazonaws.com/${ZKP2P_VERSION}/${PAYMENT_TYPE}_send/${PAYMENT_TYPE}_send.wasm --quiet
