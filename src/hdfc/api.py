@@ -34,8 +34,8 @@ SELECTORS = [dk['selector'] for dk in DOMAIN_KEYS]
 # NAME_PATTERN = r"^[A-Z][a-z'’-]+\s([A-Z][a-z'’-]+\s?)+$"
 FROM_EMAIL_ADDRESS = "From: HDFC Bank InstaAlerts <alerts@hdfcbank.net>"
 EMAIL_SUBJECT = "Subject: =\?UTF-8\?q\?=E2=9D=97_You_have_done_a_UPI_txn\._Check_details\!\?="
-DOCKER_IMAGE_NAME = '0xsachink/zkp2p:modal-upi-0.1.2-testing-7'
-STUB_NAME = 'zkp2p-modal-upi-0.1.2-staging'
+DOCKER_IMAGE_NAME = '0xsachink/zkp2p:modal-upi-0.2.0-staging-1'
+STUB_NAME = 'zkp2p-modal-upi-0.2.0-staging'
 DEEPVUE_BASE_URL = "https://production.deepvue.tech/v1"
 
 SLACK_TOKEN = os.getenv('SLACK_TOKEN')
