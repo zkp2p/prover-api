@@ -31,8 +31,8 @@
 
 # Use the official Rust image as the base image
 FROM rust:latest
-ARG ZKP2P_BRANCH_NAME=sachin/refactor-folders
-ARG ZKP2P_VERSION=v2.5/v0.1.2
+ARG ZKP2P_BRANCH_NAME=develop
+ARG ZKP2P_VERSION=v2.5/v0.2.0
 ARG PROVER_API_BRANCH_NAME=sachin/upi
 ARG PAYMENT_TYPE=hdfc
 ARG PAYMENT_ROOT_DIR=/root/zk-p2p/circuits-circom/circuits/${PAYMENT_TYPE}
