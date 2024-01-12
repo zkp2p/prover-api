@@ -179,47 +179,47 @@ def genproof_email(email_data: Dict):
 
 #----------------- Validate UPI ID Endpoint -----------------
 
-def refresh_token():
-    # Read the access token from env variables
-    access_token = os.getenv("DEEPVUE_ACCESS_TOKEN")
-    access_token_expiry = os.getenv("DEEPVUE_ACCESS_TOKEN_EXPIRY")
-    print(access_token, access_token_expiry)
+# def refresh_token():
+#     # Read the access token from env variables
+#     access_token = os.getenv("DEEPVUE_ACCESS_TOKEN")
+#     access_token_expiry = os.getenv("DEEPVUE_ACCESS_TOKEN_EXPIRY")
+#     print(access_token, access_token_expiry)
 
-    if access_token is not None and access_token_expiry is not None and access_token != "" and access_token_expiry != "":
-        if int(time.time()) < int(access_token_expiry):
-            print("Using existing access token")
-            return access_token
-        else:
-            print("Access token expired")
+#     if access_token is not None and access_token_expiry is not None and access_token != "" and access_token_expiry != "":
+#         if int(time.time()) < int(access_token_expiry):
+#             print("Using existing access token")
+#             return access_token
+#         else:
+#             print("Access token expired")
     
-    print("Fetching new access token")
-    url = f"{DEEPVUE_BASE_URL}/authorize"
-    headers = {'Content-Type': 'application/x-www-form-urlencoded'}
-    payload = {'client_id': f"{DEEPVUE_CLIENT_ID}",'client_secret': f"{DEEPVUE_CLIENT_SECRET}"}
-    response = requests.post(url, headers=headers, data=payload)
-    access_token = response.json()['access_token']
-    access_token_expiry = int(time.time()) + 24 * 60 * 60
-    os.environ["DEEPVUE_ACCESS_TOKEN"] = access_token
-    os.environ["DEEPVUE_ACCESS_TOKEN_EXPIRY"] = str(access_token_expiry)
-    return access_token
+#     print("Fetching new access token")
+#     url = f"{DEEPVUE_BASE_URL}/authorize"
+#     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+#     payload = {'client_id': f"{DEEPVUE_CLIENT_ID}",'client_secret': f"{DEEPVUE_CLIENT_SECRET}"}
+#     response = requests.post(url, headers=headers, data=payload)
+#     access_token = response.json()['access_token']
+#     access_token_expiry = int(time.time()) + 24 * 60 * 60
+#     os.environ["DEEPVUE_ACCESS_TOKEN"] = access_token
+#     os.environ["DEEPVUE_ACCESS_TOKEN_EXPIRY"] = str(access_token_expiry)
+#     return access_token
 
-@stub.function(secret=stub['credentials_secret'])
-@modal.web_endpoint(method="GET")
-def verify_upi_id(vpa: str):
-    url = f"{DEEPVUE_BASE_URL}/verification/upi?vpa={vpa}"
+# @stub.function(secret=stub['credentials_secret'])
+# @modal.web_endpoint(method="GET")
+# def verify_upi_id(vpa: str):
+#     url = f"{DEEPVUE_BASE_URL}/verification/upi?vpa={vpa}"
 
-    auth_token = refresh_token()
-    payload = {}
-    headers = {
-        'Authorization': f'Bearer {auth_token}',
-        'x-api-key': f'{DEEPVUE_CLIENT_SECRET}',
-    }
-    response = requests.request("GET", url, headers=headers, data=payload)
+#     auth_token = refresh_token()
+#     payload = {}
+#     headers = {
+#         'Authorization': f'Bearer {auth_token}',
+#         'x-api-key': f'{DEEPVUE_CLIENT_SECRET}',
+#     }
+#     response = requests.request("GET", url, headers=headers, data=payload)
 
-    if response.status_code == 200:
-        return response.json()
-    else:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=response.json()
-        )
+#     if response.status_code == 200:
+#         return response.json()
+#     else:
+#         raise HTTPException(
+#             status_code=status.HTTP_400_BAD_REQUEST,
+#             detail=response.json()
+#         )
