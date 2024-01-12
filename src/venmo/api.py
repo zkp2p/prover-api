@@ -19,18 +19,16 @@ load_dotenv('./env')       # Load environment variables from .env file
 DOMAIN = 'venmo.com'
 DOMAIN_KEYS = [
     # Old key not supported anymore.
-    # {
-    #     'selector': 'yzlavq3ml4jl4lt6dltbgmnoftxftkly',
-    #     'key': 'p='
-    # },
+    {
+        'selector': 'yzlavq3ml4jl4lt6dltbgmnoftxftkly',
+        'key': 'p='
+    },
     {
         'selector': 'lycwyfwp74k6gitv7a7jiergkl3mgkrg',
         'key': 'p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCMh6czdzpSrMH7a5nxQ867R2FqeEkoDdSUszWVL2/06iGLMI4X/mOF23IW31hWBsb5YGkm7vHEwXVltWYpSf1mVGuvqIIyXOb77tOPtVdgkvyfko/z7uUgTT509QYbo3KQyBj6geojrGZF6GN0isLIXxeE11XCz9yKmdh8JK4bAQIDAQAB'
     }
 ]
 SELECTORS = [dk['selector'] for dk in DOMAIN_KEYS]
-DOMAIN_KEY_SELECTOR = 'lycwyfwp74k6gitv7a7jiergkl3mgkrg'
-DOMAIN_KEY_STORED_ON_CONTRACT = 'p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCMh6czdzpSrMH7a5nxQ867R2FqeEkoDdSUszWVL2/06iGLMI4X/mOF23IW31hWBsb5YGkm7vHEwXVltWYpSf1mVGuvqIIyXOb77tOPtVdgkvyfko/z7uUgTT509QYbo3KQyBj6geojrGZF6GN0isLIXxeE11XCz9yKmdh8JK4bAQIDAQAB'
 NAME_PATTERN = r"^[A-Z][a-z'’-]+\s([A-Z][a-z'’-]+\s?)+$"
 SEND_TO_MERCHANT_EMAIL_BODY_SUBSTR = r"""As an obl=\s*
 igor of this payment, PayPal, Inc\. \(855-812-4430\) is liable for non-deliver=\s*
@@ -75,12 +73,13 @@ def validate_email(email_raw_content):
         return False, error_code
     
     # Validate domain key
-    domain_key = fetch_domain_key(DOMAIN, selector)
-    print("Fetched domain_key", domain_key)
-    if domain_key == "" or domain_key is None or domain_key != DOMAIN_KEYS[SELECTORS.index(selector)]['key']:
-        error_code = Error.ErrorCodes.INVALID_DOMAIN_KEY
-        alert_on_slack(error_code, email_raw_content)
-        return False, error_code
+    # Comment out because the old key is not supported anymore.
+    # domain_key = fetch_domain_key(DOMAIN, selector)
+    # print("Fetched domain_key", domain_key)
+    # if domain_key == "" or domain_key is None or domain_key != DOMAIN_KEYS[SELECTORS.index(selector)]['key']:
+    #     error_code = Error.ErrorCodes.INVALID_DOMAIN_KEY
+    #     alert_on_slack(error_code, email_raw_content)
+    #     return False, error_code
 
     # Validate the DKIM signature
     if not validate_dkim(email_raw_content):
