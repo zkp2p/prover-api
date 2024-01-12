@@ -74,6 +74,7 @@ def validate_email(email_raw_content):
     
     # Validate domain key
     domain_key = fetch_domain_key(DOMAIN, selector)
+    print("Fetched domain_key", domain_key)
     if domain_key == "" or domain_key is None or domain_key != DOMAIN_KEYS[SELECTORS.index(selector)]['key']:
         error_code = Error.ErrorCodes.INVALID_DOMAIN_KEY
         alert_on_slack(error_code, email_raw_content)

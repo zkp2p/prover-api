@@ -6,7 +6,8 @@ import hashlib
 def fetch_domain_key(domain, selector='default'):
     try:
         answers = resolver.query(f"{selector}._domainkey.{domain}", 'TXT')
-        return answers[0].strings[0].decode('utf-8')
+        domain_key = ''.join([s.decode('utf-8') for s in answers[0].strings])
+        return domain_key
     except Exception as e:
         print(f"Error fetching domain key: {e}")
         return None
