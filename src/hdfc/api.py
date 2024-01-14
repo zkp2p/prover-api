@@ -63,7 +63,7 @@ def validate_email(email_raw_content):
 
     # Extract the selector from the email
     # Selector is present in this form in the email 's=acls01; d=hdfcbank.net;'
-    selector = re.search(r's=(.*?); d=hdfcbank.net', email_raw_content).group(1)
+    selector = re.search(r's=(.*?);[\s]*d=hdfcbank.net', email_raw_content).group(1)
     print("selector", selector)
 
     # Validate selector
