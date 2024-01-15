@@ -73,6 +73,7 @@ def validate_email(email_raw_content):
         return False, error_code
     
     # Validate domain key
+    # DNS query takes time and slows down the modal. Since this check is already done on the client, we can skip it.
     # Comment out because the old key is not supported anymore.
     # domain_key = fetch_domain_key(DOMAIN, selector)
     # print("Fetched domain_key", domain_key)
