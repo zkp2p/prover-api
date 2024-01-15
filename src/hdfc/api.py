@@ -34,7 +34,7 @@ SELECTORS = [dk['selector'] for dk in DOMAIN_KEYS]
 # NAME_PATTERN = r"^[A-Z][a-z'’-]+\s([A-Z][a-z'’-]+\s?)+$"
 FROM_EMAIL_ADDRESS = "From: HDFC Bank InstaAlerts <alerts@hdfcbank.net>"
 EMAIL_SUBJECT = "Subject: =\?UTF-8\?q\?=E2=9D=97_You_have_done_a_UPI_txn\._Check_details\!\?="
-DOCKER_IMAGE_NAME = '0xsachink/zkp2p:modal-upi-0.2.0-staging-1' # Use the same docker image for prod
+DOCKER_IMAGE_NAME = '0xsachink/zkp2p:modal-upi-0.2.0-prod' # Use the same docker image for prod
 STUB_NAME = 'zkp2p-modal-upi-0.2.0'
 DEEPVUE_BASE_URL = "https://production.deepvue.tech/v1"
 
@@ -61,13 +61,24 @@ def alert_on_slack(error_code, email_raw_content="", log_subject=False):
 
 def validate_email(email_raw_content):
 
+    # Ensure the email is from the domain
+    if not re.search(fr'{FROM_EMAIL_ADDRESS}', email_raw_content):
+        error_code = Error.ErrorCodes.INVALID_FROM_ADDRESS
+        alert_on_slack(error_code, email_raw_content)
+        return False, error_code
+    
+    # Ensure the email is a send email
+    if not re.search(fr'{EMAIL_SUBJECT}', email_raw_content):
+        error_code = Error.ErrorCodes.INVALID_EMAIL_SUBJECT
+        alert_on_slack(error_code, email_raw_content, log_subject=True)
+        return False, error_code
+    
     # Extract the selector from the email
     # Selector is present in this form in the email 's=acls01; d=hdfcbank.net;'
-    selector = re.search(r's=(.*?);[\s]*d=hdfcbank.net', email_raw_content).group(1)
-    print("selector", selector)
+    match = re.search(r's=(.*?);[\s]*d=hdfcbank.net', email_raw_content)
 
     # Validate selector
-    if selector not in SELECTORS:
+    if not match or match.group(1) not in SELECTORS:
         error_code = Error.ErrorCodes.INVALID_SELECTOR
         alert_on_slack(error_code, email_raw_content)
         return False, error_code
@@ -87,18 +98,6 @@ def validate_email(email_raw_content):
     if not validate_dkim(email_raw_content):
         error_code = Error.ErrorCodes.DKIM_VALIDATION_FAILED
         alert_on_slack(error_code, email_raw_content)
-        return False, error_code
-
-    # Ensure the email is from the domain
-    if not re.search(fr'{FROM_EMAIL_ADDRESS}', email_raw_content):
-        error_code = Error.ErrorCodes.INVALID_FROM_ADDRESS
-        alert_on_slack(error_code, email_raw_content)
-        return False, error_code
-    
-    # Ensure the email is a send email
-    if not re.search(fr'{EMAIL_SUBJECT}', email_raw_content):
-        error_code = Error.ErrorCodes.INVALID_EMAIL_SUBJECT
-        alert_on_slack(error_code, email_raw_content, log_subject=True)
         return False, error_code
 
     return True, ""

@@ -19,10 +19,10 @@ load_dotenv('./env')       # Load environment variables from .env file
 DOMAIN = 'venmo.com'
 DOMAIN_KEYS = [
     # Old key not supported anymore.
-    {
-        'selector': 'yzlavq3ml4jl4lt6dltbgmnoftxftkly',
-        'key': 'p='
-    },
+    # {
+    #     'selector': 'yzlavq3ml4jl4lt6dltbgmnoftxftkly',
+    #     'key': 'p='
+    # },
     {
         'selector': 'lycwyfwp74k6gitv7a7jiergkl3mgkrg',
         'key': 'p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCMh6czdzpSrMH7a5nxQ867R2FqeEkoDdSUszWVL2/06iGLMI4X/mOF23IW31hWBsb5YGkm7vHEwXVltWYpSf1mVGuvqIIyXOb77tOPtVdgkvyfko/z7uUgTT509QYbo3KQyBj6geojrGZF6GN0isLIXxeE11XCz9yKmdh8JK4bAQIDAQAB'
@@ -36,7 +36,7 @@ y or delayed delivery of your funds\."""
 
 FROM_EMAIL_ADDRESS = "From: Venmo <venmo@venmo.com>"
 EMAIL_SUBJECT = "Subject: You paid (.+?) \$(.+)"
-DOCKER_IMAGE_NAME = '0xsachink/zkp2p:modal-venmo-0.2.0-staging-1'   # Use the same docker image for prod
+DOCKER_IMAGE_NAME = '0xsachink/zkp2p:modal-venmo-0.2.0-prod'   # Use the same docker image for prod
 STUB_NAME = 'zkp2p-modal-venmo-0.2.0'
 
 SLACK_TOKEN = os.getenv('SLACK_TOKEN')
@@ -61,13 +61,23 @@ def alert_on_slack(error_code, email_raw_content="", log_subject=False):
 
 def validate_email(email_raw_content):
 
+    # Ensure the email is from the domain
+    if not re.search(fr'{FROM_EMAIL_ADDRESS}', email_raw_content):
+        error_code = Error.ErrorCodes.INVALID_FROM_ADDRESS
+        alert_on_slack(error_code, email_raw_content)
+        return False, error_code
+    
+    # Ensure the email is a send email
+    if not re.search(fr'{EMAIL_SUBJECT}', email_raw_content):
+        error_code = Error.ErrorCodes.INVALID_EMAIL_SUBJECT
+        alert_on_slack(error_code, email_raw_content, log_subject=True)
+        return False, error_code
+    
     # Extract the selector from the email
     # Selector is present in this form in the email 's=lycwyfwp74k6gitv7a7jiergkl3mgkrg; d=venmo.com'
-    selector = re.search(r's=(.*?); d=venmo.com', email_raw_content).group(1)
-    print("selector", selector)
+    match = re.search(r's=(.*?); d=venmo.com', email_raw_content)
 
-    # Validate selector
-    if selector not in SELECTORS:
+    if not match or match.group(1) not in SELECTORS:
         error_code = Error.ErrorCodes.INVALID_SELECTOR
         alert_on_slack(error_code, email_raw_content)
         return False, error_code
@@ -86,18 +96,6 @@ def validate_email(email_raw_content):
     if not validate_dkim(email_raw_content):
         error_code = Error.ErrorCodes.DKIM_VALIDATION_FAILED
         alert_on_slack(error_code, email_raw_content)
-        return False, error_code
-
-    # Ensure the email is from the domain
-    if not re.search(fr'{FROM_EMAIL_ADDRESS}', email_raw_content):
-        error_code = Error.ErrorCodes.INVALID_FROM_ADDRESS
-        alert_on_slack(error_code, email_raw_content)
-        return False, error_code
-    
-    # Ensure the email is a send email
-    if not re.search(fr'{EMAIL_SUBJECT}', email_raw_content):
-        error_code = Error.ErrorCodes.INVALID_EMAIL_SUBJECT
-        alert_on_slack(error_code, email_raw_content, log_subject=True)
         return False, error_code
     
     # Ensure the email is not a send to merchant email
