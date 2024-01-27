@@ -32,8 +32,11 @@
 # Use the official Rust image as the base image
 FROM rust:latest
 ARG ZKP2P_BRANCH_NAME=develop
-ARG ZKP2P_VERSION=v0.1.0
-ARG PROVER_API_BRANCH_NAME=sachin/v0.1.0
+ARG ZKP2P_VERSION=v2.5/v0.2.0
+ARG PROVER_API_BRANCH_NAME=sachin/upi
+ARG PAYMENT_TYPE=venmo
+ARG PAYMENT_ROOT_DIR=/root/zk-p2p/circuits-circom/circuits/${PAYMENT_TYPE}
+ARG BUILD_DIR=${PAYMENT_ROOT_DIR}/build
 
 # Update the package list and install necessary dependencies
 RUN apt-get update && \
@@ -70,21 +73,31 @@ WORKDIR /root/
 
 # Clone zk p2p repository at the latest commit and set it as the working directory
 RUN git clone https://github.com/zkp2p/zk-p2p -b ${ZKP2P_BRANCH_NAME} /root/zk-p2p
-WORKDIR /root/zk-p2p/circuits-circom
+WORKDIR ${PAYMENT_ROOT_DIR}
 RUN yarn install
 RUN yarn add tsx
+WORKDIR /root/zk-p2p/circuits-circom/package
+RUN yarn install
+
+# Pull JS .wasm from S3 and place them in js folders
+# RUN wget -P ${BUILD_DIR}/${PAYMENT_TYPE}_send/${PAYMENT_TYPE}_send_js https://zk-p2p.s3.amazonaws.com/${ZKP2P_VERSION}/${PAYMENT_TYPE}_send/${PAYMENT_TYPE}_send.wasm --quiet
+# RUN wget -P ${BUILD_DIR}/${PAYMENT_TYPE}_registration/${PAYMENT_TYPE}_registration_js https://zk-p2p.s3.amazonaws.com/${ZKP2P_VERSION}/${PAYMENT_TYPE}_registration/${PAYMENT_TYPE}_registration.wasm --quiet
+
+# Pull C .dat from S3 and place them in cpp folders
+RUN wget -P ${BUILD_DIR}/${PAYMENT_TYPE}_send/${PAYMENT_TYPE}_send_cpp https://zk-p2p.s3.amazonaws.com/${ZKP2P_VERSION}/${PAYMENT_TYPE}_send/${PAYMENT_TYPE}_send.dat --quiet
+RUN wget -P ${BUILD_DIR}/${PAYMENT_TYPE}_registration/${PAYMENT_TYPE}_registration_cpp https://zk-p2p.s3.amazonaws.com/${ZKP2P_VERSION}/${PAYMENT_TYPE}_registration/${PAYMENT_TYPE}_registration.dat --quiet
+
+# Pull C witness gen binary from S3 and place them in cpp folders
+RUN wget -P ${BUILD_DIR}/${PAYMENT_TYPE}_send/${PAYMENT_TYPE}_send_cpp https://zk-p2p.s3.amazonaws.com/${ZKP2P_VERSION}/${PAYMENT_TYPE}_send/${PAYMENT_TYPE}_send --quiet
+RUN wget -P ${BUILD_DIR}/${PAYMENT_TYPE}_registration/${PAYMENT_TYPE}_registration_cpp https://zk-p2p.s3.amazonaws.com/${ZKP2P_VERSION}/${PAYMENT_TYPE}_registration/${PAYMENT_TYPE}_registration --quiet
+
+# Make cpp files executable
+RUN chmod +x ${BUILD_DIR}/${PAYMENT_TYPE}_send/${PAYMENT_TYPE}_send_cpp/${PAYMENT_TYPE}_send
+RUN chmod +x ${BUILD_DIR}/${PAYMENT_TYPE}_registration/${PAYMENT_TYPE}_registration_cpp/${PAYMENT_TYPE}_registration
 
 # Pull keys from S3
-RUN wget -P /root/zk-p2p/circuits-circom/build/venmo_send https://zk-p2p.s3.amazonaws.com/v2/${ZKP2P_VERSION}/venmo_send/venmo_send.zkey --quiet
-RUN wget -P /root/zk-p2p/circuits-circom/build/venmo_registration https://zk-p2p.s3.amazonaws.com/v2/${ZKP2P_VERSION}/venmo_registration/venmo_registration.zkey --quiet
-
-# Pull C witness gen binary from S3
-RUN wget -P /root/zk-p2p/circuits-circom/build/venmo_send/venmo_send_cpp https://zk-p2p.s3.amazonaws.com/v2/${ZKP2P_VERSION}/venmo_send/venmo_send --quiet
-RUN wget -P /root/zk-p2p/circuits-circom/build/venmo_send/venmo_send_cpp https://zk-p2p.s3.amazonaws.com/v2/${ZKP2P_VERSION}/venmo_send/venmo_send.dat --quiet
-RUN chmod +x /root/zk-p2p/circuits-circom/build/venmo_send/venmo_send_cpp/venmo_send
-RUN wget -P /root/zk-p2p/circuits-circom/build/venmo_registration/venmo_registration_cpp https://zk-p2p.s3.amazonaws.com/v2/${ZKP2P_VERSION}/venmo_registration/venmo_registration --quiet
-RUN wget -P /root/zk-p2p/circuits-circom/build/venmo_registration/venmo_registration_cpp https://zk-p2p.s3.amazonaws.com/v2/${ZKP2P_VERSION}/venmo_registration/venmo_registration.dat --quiet
-RUN chmod +x /root/zk-p2p/circuits-circom/build/venmo_registration/venmo_registration_cpp/venmo_registration
+RUN wget -P ${BUILD_DIR}/${PAYMENT_TYPE}_send https://zk-p2p.s3.amazonaws.com/${ZKP2P_VERSION}/${PAYMENT_TYPE}_send/${PAYMENT_TYPE}_send.zkey --quiet
+RUN wget -P ${BUILD_DIR}/${PAYMENT_TYPE}_registration https://zk-p2p.s3.amazonaws.com/${ZKP2P_VERSION}/${PAYMENT_TYPE}_registration/${PAYMENT_TYPE}_registration.zkey --quiet
 
 # Clone the prover-api repository at the latest commit and set it as the working directory
 RUN git clone --branch ${PROVER_API_BRANCH_NAME} --single-branch https://github.com/zkp2p/prover-api /root/prover-api
@@ -93,12 +106,9 @@ WORKDIR /root/prover-api
 # Make necessary files executable
 RUN chmod +x /root/prover-api/circom_proofgen.sh
 
-# Copy .env.example to .env
-RUN cp /root/prover-api/.env.example /root/prover-api/.env
-
-
 # Install pytho, pip and requirements to run coordinator.py (Not required for modal)
 # RUN apt-get install -y python3 python-is-python3 python3-pip python3-venv
 # RUN python3 -m venv /venv
 # # Activate the virtual environment and install requirements
 # RUN /venv/bin/pip install --no-cache-dir -r /root/prover-api/requirements.txt
+# RUN apt-get install vim -y

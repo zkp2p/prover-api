@@ -4,50 +4,52 @@
 # /root/
 #       zk-p2p/
 #           circuits-circom/
-#               build/
-#                   venmo_${email_type}/
-#                       venmo_${email_type}.wasm
-#                       venmo_${email_type}.zkey
-#                       venmo_${email_type}_js/
+#               circuits/${payment_type}/build/
+#                   ${payment_type}_${circuit_type}/
+#                       ${payment_type}_${circuit_type}.wasm
+#                       ${payment_type}_${circuit_type}.zkey
+#                       ${payment_type}_${circuit_type}_js/
 #                           generate_witness.js
-#                           witness_${email_type}_${nonce}.wtns
-#                       venmo_${email_type}_cpp/
-#                           venmo_${email_type}
-#                       venmo_${email_type}_cpp/
-#                           venmo_${email_type}
+#                           witness_${payment_type}_${circuit_type}_${nonce}.wtns
+#                       ${payment_type}_${circuit_type}_cpp/
+#                           ${payment_type}_${circuit_type}
+#                       ${payment_type}_${circuit_type}_cpp/
+#                           ${payment_type}_${circuit_type}
 #       prover-api/
 #           proofs/
-#               rapidsnark_proof_${email_type}_${nonce}.json
-#               rapidsnark_public_${email_type}_${nonce}.json
+#               rapidsnark_proof_${payment_type}_${circuit_type}_${nonce}.json
+#               rapidsnark_public_${payment_type}_${circuit_type}_${nonce}.json
 #           received_eml/
-#               venmo_${email_type}_${nonce}.eml
+#               ${payment_type}_${circuit_type}_${nonce}.eml
 #           inputs/
-#               input_venmo_${email_type}_${nonce}.json
+#               input_${payment_type}_${circuit_type}_${nonce}.json
 #           circom_proofgen.sh
 #       rapidsnark/
 #           build/
 #               prover
 
-email_type=$1
-nonce=$2
-intent_hash=$3
-c_witness_gen=${4:-true}
+payment_type=$1
+circuit_type=$2
+nonce=$3
+intent_hash=$4
+c_witness_gen=${5:-false}
 
 HOME="${MODAL_HOME_PATH}"
 zk_p2p_path="${MODAL_ZK_P2P_CIRCOM_PATH}"
-venmo_eml_dir_path="${MODAL_INCOMING_EML_PATH}"
-prover_output_path="${venmo_eml_dir_path}/../proofs/"
+eml_dir_path="${MODAL_INCOMING_EML_PATH}"
+prover_output_path="${eml_dir_path}/../proofs/"
 
-circuit_name=venmo_${email_type}
-venmo_eml_path="${venmo_eml_dir_path}/venmo_${email_type}_${nonce}.eml"
-input_email_path="${venmo_eml_dir_path}/../inputs/input_venmo_${email_type}_${nonce}.json"
-build_dir="${zk_p2p_path}/circuits-circom/build/${circuit_name}"
-witness_path="${build_dir}/witness_${email_type}_${nonce}.wtns"
-proof_path="${prover_output_path}/rapidsnark_proof_${email_type}_${nonce}.json"
-public_path="${prover_output_path}/rapidsnark_public_${email_type}_${nonce}.json"
+circuit_name=${payment_type}_${circuit_type}
+eml_path="${eml_dir_path}/${circuit_name}_${nonce}.eml"
+input_email_path="${eml_dir_path}/../inputs/input_${circuit_name}_${nonce}.json"
+payment_dir="${zk_p2p_path}/circuits-circom/circuits/${payment_type}"
+build_dir="${payment_dir}/build/${circuit_name}"
+witness_path="${build_dir}/witness_${circuit_name}_${nonce}.wtns"
+proof_path="${prover_output_path}/rapidsnark_proof_${circuit_name}_${nonce}.json"
+public_path="${prover_output_path}/rapidsnark_public_${circuit_name}_${nonce}.json"
 
-echo "npx ${zk_p2p_path}/circuits-circom/node_modules/.bin/tsx ${zk_p2p_path}/circuits-circom/scripts/generate_input.ts --email_file='${venmo_eml_path}' --email_type='${email_type}' --nonce='${nonce}' --intent_hash='${intent_hash}'"
-npx ${zk_p2p_path}/circuits-circom/node_modules/.bin/tsx "${zk_p2p_path}/circuits-circom/scripts/generate_input.ts" --email_file="${venmo_eml_path}" --email_type="${email_type}" --nonce="${nonce}" --intent_hash="${intent_hash}" | tee /dev/stderr
+echo "npx ${payment_dir}/node_modules/.bin/tsx ${zk_p2p_path}/circuits-circom/package/generate_input.ts --email_file='${eml_path}' --payment_type='${payment_type}' --circuit_type='${circuit_type}' --nonce='${nonce}' --intent_hash='${intent_hash}'"
+npx ${payment_dir}/node_modules/.bin/tsx "${zk_p2p_path}/circuits-circom/package/generate_input.ts" --email_file="${eml_path}" --payment_type="${payment_type}" --circuit_type="${circuit_type}" --nonce="${nonce}" --intent_hash="${intent_hash}" | tee /dev/stderr
 status_inputgen=$?
 
 # Todo: Is status_inputgen set to anything?
@@ -79,16 +81,6 @@ else
         exit 1
     fi
 fi
-
-# echo "/${build_dir}/${circuit_name}_cpp/${circuit_name} ${input_email_path} ${witness_path}"
-# "/${build_dir}/${circuit_name}_cpp/${circuit_name}" "${input_email_path}" "${witness_path}"
-# status_c_wit=$?
-
-# echo "Finished C witness gen! Status: ${status_c_wit}"
-# if [ $status_c_wit -ne 0 ]; then
-#     echo "C based witness gen failed with status (might be on machine specs diff than compilation): ${status_c_wit}"
-#     exit 1
-# fi
 
 echo "ldd ${HOME}/rapidsnark/build/prover"
 ldd "${HOME}/rapidsnark/build/prover"
