@@ -22,14 +22,14 @@ DOMAIN = 'info.garantibbva.com.tr'
 DOMAIN_KEYS = [
     {
         'selector': 'BulkMailSelector1',
-        'key': 'p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAnVuCsG1YQI5vudtUECLUc6nd3rwoD7vb/FZy4jQe5I5tnMIaxQ9jDMOmi0Lf9W62wpHJeZRGKgkMR6cx0voWkTnGDxKiDBajSwjP0EoIlQFTldzN7/XjXVANlHS0N4lWCEngPxmIwfCexXr6prxhjthqDeOryhJUvuMlXc8M0iYVm/Bt4aQi0bVXixBBY4NCY1YJH6ZJBKyPwOmuXUI/p6aFkZm4qY+ymlFQuAgb+jGqd+q/t/gKCBH4M+muCknyA7/gMspMbzPg56WaX/0B0B7RmCmd5FVrDy/XPUQa3kKn78dALQrriVEwnGjggBC2rHAUbzyMeiuWS8+LZTcyeQIDAQAB'
+        'key': ''
     }
 ]
 SELECTORS = [dk['selector'] for dk in DOMAIN_KEYS]
 # NAME_PATTERN = r"^[A-Z][a-z'’-]+\s([A-Z][a-z'’-]+\s?)+$"
 FROM_EMAIL_ADDRESS = "From: Garanti BBVA <garanti@info.garantibbva.com.tr>"
 EMAIL_SUBJECT = "Subject: Para Transferi Bilgilendirmesi"
-DOCKER_IMAGE_NAME = '0xsachink/zkp2p:modal-garanti-0.2.4-staging-testing'
+DOCKER_IMAGE_NAME = '0xsachink/zkp2p:modal-garanti-0.2.4-staging-1'
 STUB_NAME = 'zkp2p-modal-garanti-0.2.4-staging'
 
 SLACK_TOKEN = os.getenv('SLACK_TOKEN')
@@ -149,7 +149,7 @@ def genproof_email(email_data: Dict):
     write_file_to_local(email_raw_data, payment_type, circuit_type, str(nonce))
 
     # Prove
-    run_prove_process(payment_type, circuit_type, str(nonce), intent_hash, "true")
+    run_prove_process(payment_type, circuit_type, str(nonce), intent_hash, "false")
 
     # Read the proof from local
     proof, public_values = read_proof_from_local(payment_type, circuit_type, str(nonce))

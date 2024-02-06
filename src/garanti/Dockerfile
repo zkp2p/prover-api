@@ -69,7 +69,8 @@ RUN npm install -g typescript
 # WORKDIR /root/
 
 # Copy over latest original rapidsnark prover from ../../../rapidsnark/package/bin/prover
-COPY ../../../rapidsnark/package/bin/prover /root/rapidsnark/build
+COPY ./build/prover /root/rapidsnark/build/prover
+RUN chmod +x /root/rapidsnark/build/prover
 
 # Clone zk p2p repository at the latest commit and set it as the working directory
 RUN git clone https://github.com/zkp2p/zk-p2p -b ${ZKP2P_BRANCH_NAME} /root/zk-p2p
@@ -110,10 +111,16 @@ COPY ./build/${PAYMENT_TYPE}_body_suffix_hasher/${PAYMENT_TYPE}_body_suffix_hash
 # WORKDIR /root/prover-api
 
 # Copy the prover-api repository at the latest commit and set it as the working directory
-COPY ../../circom_proofgen.sh /root/prover-api/circom_proofgen.sh
+RUN mkdir /root/prover-api/received_eml
+RUN mkdir /root/prover-api/proofs
+RUN mkdir /root/prover-api/inputs
+COPY ./build/circom_proofgen.sh /root/prover-api/circom_proofgen.sh
 COPY ./api.py /root/prover-api/src/${PAYMENT_TYPE}/api.py
 
-# Install pytho, pip and requirements to run coordinator.py (Not required for modal)
+# Create the necessary directories
+WORKDIR /root/prover-api
+
+# Install python, pip and requirements to run coordinator.py (Not required for modal)
 # RUN apt-get install -y python3 python-is-python3 python3-pip python3-venv
 # RUN python3 -m venv /venv
 # # Activate the virtual environment and install requirements
