@@ -111,9 +111,9 @@ COPY ./build/${PAYMENT_TYPE}_body_suffix_hasher/${PAYMENT_TYPE}_body_suffix_hash
 # WORKDIR /root/prover-api
 
 # Copy the prover-api repository at the latest commit and set it as the working directory
-RUN mkdir /root/prover-api/received_eml
-RUN mkdir /root/prover-api/proofs
-RUN mkdir /root/prover-api/inputs
+RUN mkdir -p /root/prover-api/received_eml
+RUN mkdir -p /root/prover-api/proofs
+RUN mkdir -p /root/prover-api/inputs
 COPY ./build/circom_proofgen.sh /root/prover-api/circom_proofgen.sh
 COPY ./api.py /root/prover-api/src/${PAYMENT_TYPE}/api.py
 
