@@ -29,7 +29,7 @@ SELECTORS = [dk['selector'] for dk in DOMAIN_KEYS]
 # NAME_PATTERN = r"^[A-Z][a-z'’-]+\s([A-Z][a-z'’-]+\s?)+$"
 FROM_EMAIL_ADDRESS = "From: Garanti BBVA <garanti@info.garantibbva.com.tr>"
 EMAIL_SUBJECT = "Subject: Para Transferi Bilgilendirmesi"
-DOCKER_IMAGE_NAME = '0xsachink/zkp2p:modal-garanti-0.2.4-staging-1'
+DOCKER_IMAGE_NAME = '0xsachink/zkp2p:modal-garanti-0.2.4-staging-2'
 STUB_NAME = 'zkp2p-modal-garanti-0.2.4-staging'
 
 SLACK_TOKEN = os.getenv('SLACK_TOKEN')
