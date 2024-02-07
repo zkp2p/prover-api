@@ -32,8 +32,8 @@
 # Use the official Rust image as the base image
 FROM rust:latest
 ARG ZKP2P_BRANCH_NAME=develop
-ARG ZKP2P_VERSION=v2.5/v0.2.2
-ARG PROVER_API_BRANCH_NAME=sachin/upi
+ARG ZKP2P_VERSION=v2.5/v0.2.4
+ARG PROVER_API_BRANCH_NAME=sachin/update-to-2.4
 ARG PAYMENT_TYPE=hdfc
 ARG PAYMENT_ROOT_DIR=/root/zk-p2p/circuits-circom/circuits/${PAYMENT_TYPE}
 ARG BUILD_DIR=${PAYMENT_ROOT_DIR}/build
