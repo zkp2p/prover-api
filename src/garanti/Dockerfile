@@ -31,7 +31,7 @@
 
 # Use the official Rust image as the base image
 FROM rust:latest
-ARG ZKP2P_BRANCH_NAME=sachin/fix-garanti
+ARG ZKP2P_BRANCH_NAME=develop
 ARG ZKP2P_VERSION=v2.5/v0.2.4
 ARG PROVER_API_BRANCH_NAME=garanti
 ARG PAYMENT_TYPE=garanti
