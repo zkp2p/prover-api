@@ -97,14 +97,14 @@ RUN yarn install
 # RUN chmod +x ${BUILD_DIR}/${PAYMENT_TYPE}_registration/${PAYMENT_TYPE}_registration_cpp/${PAYMENT_TYPE}_registration
 
 # Pull keys from S3
-# RUN wget -P ${BUILD_DIR}/${PAYMENT_TYPE}_send https://zk-p2p.s3.amazonaws.com/${ZKP2P_VERSION}/${PAYMENT_TYPE}_send/${PAYMENT_TYPE}_send.zkey --quiet
-# RUN wget -P ${BUILD_DIR}/${PAYMENT_TYPE}_registration https://zk-p2p.s3.amazonaws.com/${ZKP2P_VERSION}/${PAYMENT_TYPE}_registration/${PAYMENT_TYPE}_registration.zkey --quiet
-# RUN wget -P ${BUILD_DIR}/${PAYMENT_TYPE}_body_suffix_hasher https://zk-p2p.s3.amazonaws.com/${ZKP2P_VERSION}/${PAYMENT_TYPE}_body_suffix_hasher/${PAYMENT_TYPE}_body_suffix_hasher.zkey --quiet
+RUN wget -P ${BUILD_DIR}/${PAYMENT_TYPE}_send https://zk-p2p.s3.amazonaws.com/${ZKP2P_VERSION}/${PAYMENT_TYPE}_send/${PAYMENT_TYPE}_send.zkey --quiet
+RUN wget -P ${BUILD_DIR}/${PAYMENT_TYPE}_registration https://zk-p2p.s3.amazonaws.com/${ZKP2P_VERSION}/${PAYMENT_TYPE}_registration/${PAYMENT_TYPE}_registration.zkey --quiet
+RUN wget -P ${BUILD_DIR}/${PAYMENT_TYPE}_body_suffix_hasher https://zk-p2p.s3.amazonaws.com/${ZKP2P_VERSION}/${PAYMENT_TYPE}_body_suffix_hasher/${PAYMENT_TYPE}_body_suffix_hasher.zkey --quiet
 
 # Copy over keys from local (Pull them once and place them in the ./build folder)
-COPY ./build/${PAYMENT_TYPE}_send/${PAYMENT_TYPE}_send.zkey ${BUILD_DIR}/${PAYMENT_TYPE}_send
-COPY ./build/${PAYMENT_TYPE}_registration/${PAYMENT_TYPE}_registration.zkey ${BUILD_DIR}/${PAYMENT_TYPE}_registration
-COPY ./build/${PAYMENT_TYPE}_body_suffix_hasher/${PAYMENT_TYPE}_body_suffix_hasher.zkey ${BUILD_DIR}/${PAYMENT_TYPE}_body_suffix_hasher
+# COPY ./build/${PAYMENT_TYPE}_send/${PAYMENT_TYPE}_send.zkey ${BUILD_DIR}/${PAYMENT_TYPE}_send
+# COPY ./build/${PAYMENT_TYPE}_registration/${PAYMENT_TYPE}_registration.zkey ${BUILD_DIR}/${PAYMENT_TYPE}_registration
+# COPY ./build/${PAYMENT_TYPE}_body_suffix_hasher/${PAYMENT_TYPE}_body_suffix_hasher.zkey ${BUILD_DIR}/${PAYMENT_TYPE}_body_suffix_hasher
 
 # # Clone the prover-api repository at the latest commit and set it as the working directory
 # RUN git clone --branch ${PROVER_API_BRANCH_NAME} --single-branch https://github.com/zkp2p/prover-api /root/prover-api
