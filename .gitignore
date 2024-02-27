@@ -9,4 +9,8 @@ __pycache__/*
 */__pycache__/*
 */*/__pycache__/*
 
+
 src/*/build/
+tlsn-verifier/target
+tlsn-verifier/*.txt
+
