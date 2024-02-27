@@ -18,7 +18,7 @@ load_dotenv('./env')       # Load environment variables from .env file
 # --------- VALIDATE EMAIL ------------
 
 DOMAIN = 'wise.com'
-DOCKER_IMAGE_NAME = '0xsachink/zkp2p:modal-wise-0.2.5-testing-3' #'0xsachink/zkp2p:modal-wise-0.2.5'      # Add verifier to the docker name
+DOCKER_IMAGE_NAME = '0xsachink/zkp2p:modal-wise-verifier-0.2.5-testing-1' #'0xsachink/zkp2p:modal-wise-0.2.5'      # Add verifier to the docker name
 STUB_NAME = 'zkp2p-wise-verifier-0.2.5'
 
 SLACK_TOKEN = os.getenv('SLACK_TOKEN')
@@ -112,7 +112,7 @@ def verify_proof(proof_data: Dict):
     run_verify_process(payment_type, circuit_type, str(nonce))
 
     sent_data, recv_data = read_tlsn_verify_output_from_local(payment_type, circuit_type, str(nonce))
-    print(recv_data)
+    print('recv_data', recv_data)
 
     # If verification passes; then extract out relevant data from the response and sign on it
     keys = [
@@ -123,7 +123,9 @@ def verify_proof(proof_data: Dict):
         'hasActiveIssues',
         'status'
     ]
+    print('searching for public values in the response')
     public_values = extract_values_from_response(recv_data, keys)
+
     public_values.append(intent_hash)
     print(public_values)
 
