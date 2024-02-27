@@ -50,16 +50,24 @@ def run_verify_process(payment_type:str, circuit_type:str, nonce: str):
     return result
 
 
-
 def extract_values_from_response(input_blob, keys):
-    # Split the input blob into lines
-    lines = input_blob.split('\n')
+    # Find the start of the JSON object by looking for '{"id":'
+    start_index = input_blob.find('{"id":')
+    if start_index == -1:
+        # If '{"id":' is not found, return an empty list or handle as needed
+        return []
 
-    # Find the empty line separating headers from the body, then join the body parts
-    json_body = '\n'.join(lines[lines.index('')+1:-1])
+    # Instead of finding the first '}', find the last '}' to ensure capturing the entire JSON object
+    end_index = input_blob.rfind('}')
+    if end_index == -1:
+        # If no closing '}' is found, return an empty list or handle as needed
+        return []
 
-    # Parse the JSON body
-    data = json.loads(json_body)
+    # Extract the JSON string from start_index to end_index, inclusive of the closing '}'
+    json_str = input_blob[start_index:end_index+1]
+
+    # Parse the JSON string
+    data = json.loads(json_str)
 
     # Extract the values for the specified keys
     values = [data[key] for key in keys if key in data]
