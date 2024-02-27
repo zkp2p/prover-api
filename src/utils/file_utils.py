@@ -39,3 +39,51 @@ def read_proof_from_local(payment_type, circuit_type, nonce):
         public_values = file.read()
     
     return proof, public_values
+
+tlsn_verify_send_data_path = "/root/prover-api/tlsn_verify_outputs/send_data_[payment_type]_[circuit_type]_[nonce].txt"
+tlsn_verify_recv_data_path = "/root/prover-api/tlsn_verify_outputs/recv_data_[payment_type]_[circuit_type]_[nonce].txt"
+tlsn_proof_file_path = "/root/prover-api/proofs/tlsn_proof_[payment_type]_[circuit_type]_[nonce].json"
+
+def get_tlsn_send_data_file_path(payment_type, circuit_type, nonce):
+    return tlsn_verify_send_data_path\
+        .replace("[payment_type]", payment_type)\
+        .replace("[circuit_type]", circuit_type)\
+        .replace("[nonce]", nonce)
+
+def get_tlsn_recv_data_file_path(payment_type, circuit_type, nonce):
+    return tlsn_verify_recv_data_path\
+        .replace("[payment_type]", payment_type)\
+        .replace("[circuit_type]", circuit_type)\
+        .replace("[nonce]", nonce)
+
+def get_tlsn_proof_file_path(payment_type, circuit_type, nonce):
+    return tlsn_proof_file_path\
+        .replace("[payment_type]", payment_type)\
+        .replace("[circuit_type]", circuit_type)\
+        .replace("[nonce]", nonce)
+    
+
+def write_tlsn_proof_to_local(file_contents, payment_type, circuit_type, nonce):
+    file_path = get_tlsn_proof_file_path(payment_type, circuit_type, nonce)
+    with open(file_path, 'w') as file:
+        file.write(file_contents)
+    return file_path
+
+def read_tlsn_verify_output_from_local(payment_type, circuit_type, nonce):
+    send_data = ""
+    recv_data = ""
+
+    send_data_file_path = get_tlsn_send_data_file_path(payment_type, circuit_type, nonce)
+    recv_data_file_path = get_tlsn_recv_data_file_path(payment_type, circuit_type, nonce)
+
+    # check if the file exists
+    if not os.path.isfile(send_data_file_path) or not os.path.isfile(recv_data_file_path):
+        print("Send/Recv outuput file does not exist")
+        
+    with open(send_data_file_path, 'r') as file:
+        send_data = file.read()
+    
+    with open(recv_data_file_path, 'r') as file:
+        recv_data = file.read()
+
+    return send_data, recv_data
