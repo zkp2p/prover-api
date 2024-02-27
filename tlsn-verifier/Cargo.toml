@@ -1,0 +1,53 @@
+[package]
+name = "tlsn-verifier"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+tlsn-core = { git = "https://github.com/tlsnotary/tlsn", tag = "v0.1.0-alpha.4" }
+tlsn-verifier = { git = "https://github.com/tlsnotary/tlsn", tag = "v0.1.0-alpha.4" }
+tlsn-prover = { git = "https://github.com/tlsnotary/tlsn", tag = "v0.1.0-alpha.4" }
+tlsn-tls-core = { git = "https://github.com/tlsnotary/tlsn", tag = "v0.1.0-alpha.4" }
+tlsn-tls-client = { git = "https://github.com/tlsnotary/tlsn", tag = "v0.1.0-alpha.4" }
+tlsn-examples = { git = "https://github.com/tlsnotary/tlsn", tag = "v0.1.0-alpha.4" }
+notary-server = { git = "https://github.com/tlsnotary/tlsn", tag = "v0.1.0-alpha.4" }
+
+mpz-core = { git = "https://github.com/privacy-scaling-explorations/mpz", rev = "ecb8c54" }
+
+p256 = { features = ["ecdsa"] }
+elliptic-curve = { version = "0.13.5", features = ["pkcs8"] }
+webpki-roots = "0.26"
+base64 = "0.21.5"
+
+rustls = { version = "0.21" }
+rustls-pemfile = { version = "1.0.2" }
+tokio-rustls = { version = "0.24.1" }
+async-tls = { version = "0.12", default-features = false, features = [
+    "client",
+] }
+
+futures = "0.3"
+tokio-util = { version = "0.7", features = ["compat"] }
+tokio = { version = "1", features = [
+    "macros",
+    "rt",
+    "rt-multi-thread",
+    "time",
+] }
+
+
+hyper = { version = "1.1", features = ["client", "http1"] }
+http-body-util = "0.1"
+hyper-util = { version = "0.1", features = ["full"] }
+chrono = "0.4"
+
+tracing = "0.1"
+tracing-subscriber = "0.3"
+
+serde = { version = "1.0.147", features = ["derive"] }
+serde_json = "1.0"
+eyre = "0.6.8"
+dotenv = "0.15.0"
+
