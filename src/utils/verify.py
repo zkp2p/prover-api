@@ -1,28 +1,43 @@
-import json
+from utils.helpers import sha256_hash
+from utils.regex_helpers import extract_values
+from utils.sign import sign_values_with_private_key
+from utils.file_utils import write_tlsn_proof_to_local, read_tlsn_verify_output_from_local
+from utils.file_utils import get_tlsn_proof_file_path, get_tlsn_recv_data_file_path, get_tlsn_send_data_file_path
+
+# Verifies the notaries signature on the encoded session data, decodes session data and extracts the 
+# payment details from it. Outputs a signature proof and public signals.
+def verify_tlsn_proof(proof_data, send_regex_patterns, registration_regex_patterns):
+    proof_raw_data = proof_data["proof"]
+    payment_type = proof_data["payment_type"]
+    circuit_type = proof_data["circuit_type"]
+    intent_hash = proof_data["intent_hash"]
+    
+    nonce = int(sha256_hash(proof_raw_data), 16)
+
+    # Write file to local
+    write_tlsn_proof_to_local(proof_raw_data, payment_type, circuit_type, str(nonce))
+
+    # Verify the notaries signature on encoded data using the rust verifier
+    run_verify_process(payment_type, circuit_type, str(nonce))
+
+    # Read the decoded session data output by the rust verifier
+    send_data, recv_data = read_tlsn_verify_output_from_local(payment_type, circuit_type, str(nonce))
+
+    # Extract payment details from session data
+    regex_patterns = send_regex_patterns if circuit_type == "send" else registration_regex_patterns
+    public_values = extract_values(
+        input=send_data + recv_data,
+        regex_patterns=regex_patterns
+    )
+    public_values.append(intent_hash)
+
+    # Sign on payment details using verifier private key
+    signature = sign_values_with_private_key('VERIFIER_PRIVATE_KEY', public_values)
+    
+    return signature, public_values
 
 
-tlsn_verify_send_data_path = "/root/prover-api/tlsn_verify_outputs/send_data_[payment_type]_[circuit_type]_[nonce].txt"
-tlsn_verify_recv_data_path = "/root/prover-api/tlsn_verify_outputs/recv_data_[payment_type]_[circuit_type]_[nonce].txt"
-tlsn_proof_file_path = "/root/prover-api/proofs/tlsn_proof_[payment_type]_[circuit_type]_[nonce].json"
-
-def get_tlsn_send_data_file_path(payment_type, circuit_type, nonce):
-    return tlsn_verify_send_data_path\
-        .replace("[payment_type]", payment_type)\
-        .replace("[circuit_type]", circuit_type)\
-        .replace("[nonce]", nonce)
-
-def get_tlsn_recv_data_file_path(payment_type, circuit_type, nonce):
-    return tlsn_verify_recv_data_path\
-        .replace("[payment_type]", payment_type)\
-        .replace("[circuit_type]", circuit_type)\
-        .replace("[nonce]", nonce)
-
-def get_tlsn_proof_file_path(payment_type, circuit_type, nonce):
-    return tlsn_proof_file_path\
-        .replace("[payment_type]", payment_type)\
-        .replace("[circuit_type]", circuit_type)\
-        .replace("[nonce]", nonce)
-
+# Call wasm binary to verify TLSN proof
 def run_verify_process(payment_type:str, circuit_type:str, nonce: str):
 
     import subprocess
@@ -48,29 +63,3 @@ def run_verify_process(payment_type:str, circuit_type:str, nonce: str):
 
     print(result.stdout)
     return result
-
-
-def extract_values_from_response(input_blob, keys):
-    # Find the start of the JSON object by looking for '{"id":'
-    start_index = input_blob.find('{"id":')
-    if start_index == -1:
-        # If '{"id":' is not found, return an empty list or handle as needed
-        return []
-
-    # Instead of finding the first '}', find the last '}' to ensure capturing the entire JSON object
-    end_index = input_blob.rfind('}')
-    if end_index == -1:
-        # If no closing '}' is found, return an empty list or handle as needed
-        return []
-
-    # Extract the JSON string from start_index to end_index, inclusive of the closing '}'
-    json_str = input_blob[start_index:end_index+1]
-
-    # Parse the JSON string
-    data = json.loads(json_str)
-
-    # Extract the values for the specified keys
-    values = [data[key] for key in keys if key in data]
-
-    return values
-

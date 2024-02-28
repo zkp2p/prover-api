@@ -1,6 +1,7 @@
 .env
 received_eml/*.eml
 received_eml/*.json
+proofs/*.json
 
 venv/
 inputs/*.json
