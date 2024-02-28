@@ -130,6 +130,19 @@ def post_processing_public_values(pub_values, regex_types, circuit_type, proof_d
 
     return pub_values, local_target_types
 
+# --------- SANITY CHECK INPUT ----------
+
+
+def validate_proof(proof_raw):
+
+    # Todo: What sanity check should we perform here?
+    # Should we check for any malcicious injected data in the proof here?
+    # Anything that is not checked on either the Smart contract or by the verifier 
+    # should be checked here.
+
+    return True, ""
+
+
 # ----------------- API -----------------
 
 @stub.function(cpu=48, memory=16000, secrets=[credentials_secret]) 
