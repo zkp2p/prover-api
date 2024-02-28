@@ -7,10 +7,10 @@ from dotenv import load_dotenv
 
 load_dotenv('./.env')
 
-TEST_PAYMENT_TYPE = "wise"
-TEST_CIRCUIT_TYPE = "send"
-TEST_PROOF_PATH = "./received_eml/wise_transfer_proof.json"
-MODAL_ENDPOINT = "https://zkp2p--zkp2p-wise-verifier-0-2-5-verify-proof-dev.modal.run"
+TEST_PAYMENT_TYPE = os.getenv("TEST_TLSN_PAYMENT_TYPE")
+TEST_CIRCUIT_TYPE = os.getenv("TEST_TLSN_CIRCUIT_TYPE")
+TEST_PROOF_PATH = os.getenv("TEST_TLSN_PROOF_PATH")
+MODAL_ENDPOINT = os.getenv("MODAL_ENDPOINT")
 
 
 if __name__ == "__main__":
