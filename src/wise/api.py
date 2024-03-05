@@ -47,6 +47,13 @@ stub['credentials_secret'] = modal.Secret.from_dict(env_credentials)
 
 def validate_proof(proof_raw):
 
+    # Validate all the values here before invoking the wasm verifier to verify registration. 
+    # Can we decode in python??? :think:
+
+
+    # TODO: VERIFY EMPTY KEYS, AND ENSURE NOTE ISN'T USED USED TO ATTACK VERFIFICATION.
+
+
     # Todo: What sanity check should we perform here?
     # Should we check for any malcicious injected data in the proof here?
     # Anything that is not checked on either the Smart contract or by the verifier 
@@ -55,37 +62,43 @@ def validate_proof(proof_raw):
     return True, ""
 
 
-# ----------------- API -----------------
+# ----------------- REGEXES -----------------
 
 # Emulating zk-regex config files in python
 
-get_endpoint_regex_pattern = r"GET (https:\/\/api\.transferwise\.com\/[^\s]+)" # Endpoint
-endpoint_type_regex_pattern = r"(GET|POST|PUT|DELETE) https:\/\/api\.transferwise\.com" # Endpoint type
+get_endpoint_regex_pattern = r"GET (https:\/\/wise\.com\/[^\s]+)" # Get endpoint
+post_endpoint_regex_pattern = r"POST (https:\/\/wise\.com\/[^\s]+)" # Post endpoint
+endpoint_type_regex_pattern = r"(GET|POST|PUT|DELETE) https:\/\/wise\.com" # Endpoint type
 host_regex_pattern = r"host: ([\w\.-]+)" # Host
 
-send_regex_patterns = [
+send_regexes = [
     get_endpoint_regex_pattern,
     endpoint_type_regex_pattern,
     host_regex_pattern,
-    r'"id":\s*(\d+)', # Transfer id
-    r'"sourceAccount":\s*(\d+)', # Source account
-    r'"targetAccount":\s*(\d+)', # Target account
-    r'"created":"([^"]+)"', # Created
-    r'"targetCurrency":"([A-Z]{3})"', # Target currency
-    r'"targetValue":([0-9\.]+)', # Target value
-    r'"hasActiveIssues":(false|true)', # hasActiveIssues
-    r'"status":"([^"]+)"' # Status
 ]
 
-registration_regex_patterns = [
+send_keys = [
+    "id",
+    "profileId",
+    "targetRecipientId",
+    "targetCurrency",
+    "state",
+    ["stateHistory", "date"]        # Fix this to extract date corresponding to final outgoing payment sent
+]
+
+registration_regexes = [
     get_endpoint_regex_pattern,
     endpoint_type_regex_pattern,
     host_regex_pattern,
-    r'"recipientId":\s*(\d+)',  # recipientId
-    r'"active":\s*(true|false)',  # active
-    r'"eligible":\s*(true|false)'  # eligible
 ]
 
+registration_keys = [
+    # r'"recipientId":\s*(\d+)',  # recipientId
+    # r'"active":\s*(true|false)',  # active
+    # r'"eligible":\s*(true|false)'  # eligible
+]
+
+# ----------------- API -----------------
 
 @stub.function(cpu=48, memory=16000, secret=stub['credentials_secret'])
 @modal.web_endpoint(method="POST")
@@ -110,8 +123,6 @@ def verify_proof(proof_data: Dict):
             status_code=status.HTTP_400_BAD_REQUEST, 
             detail=Error.get_error_response(Error.ErrorCodes.INVALID_CIRCUIT_TYPE)
         )
-
-    # TODO: Confirm intent_hash is included.
 
     # Validate proof structure
     valid_proof, error_code = validate_proof(proof_raw_data)
