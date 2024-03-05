@@ -135,6 +135,13 @@ def post_processing_public_values(pub_values, regex_types, circuit_type, proof_d
 
 def validate_proof(proof_raw):
 
+    # Validate all the values here before invoking the wasm verifier to verify registration. 
+    # Can we decode in python??? :think:
+
+
+    # TODO: VERIFY EMPTY KEYS, AND ENSURE NOTE ISN'T USED USED TO ATTACK VERFIFICATION.
+
+
     # Todo: What sanity check should we perform here?
     # Should we check for any malcicious injected data in the proof here?
     # Anything that is not checked on either the Smart contract or by the verifier 
@@ -143,7 +150,7 @@ def validate_proof(proof_raw):
     return True, ""
 
 
-# ----------------- API -----------------
+# ----------------- REGEXES -----------------
 
 @stub.function(cpu=48, memory=16000, secrets=[credentials_secret]) 
 @modal.web_endpoint(method="POST")

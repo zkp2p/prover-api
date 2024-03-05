@@ -10,7 +10,8 @@ def verify_tlsn_proof(proof_data, send_regex_patterns, registration_regex_patter
     proof_raw_data = proof_data["proof"]
     payment_type = proof_data["payment_type"]
     circuit_type = proof_data["circuit_type"]
-    intent_hash = proof_data["intent_hash"]
+    if payment_type == "send":
+        intent_hash = proof_data["intent_hash"]
     
     nonce = int(sha256_hash(proof_raw_data), 16)
 
@@ -29,7 +30,8 @@ def verify_tlsn_proof(proof_data, send_regex_patterns, registration_regex_patter
         input=send_data + recv_data,
         regex_patterns=regex_patterns
     )
-    public_values.append(intent_hash)
+    if payment_type == "send":
+        public_values.append(intent_hash)
 
     # Sign on payment details using verifier private key
     signature = sign_values_with_private_key('VERIFIER_PRIVATE_KEY', public_values)
@@ -46,8 +48,6 @@ def run_verify_process(payment_type:str, circuit_type:str, nonce: str):
     send_data_file_path = get_tlsn_send_data_file_path(payment_type, circuit_type, nonce)
     recv_data_file_path = get_tlsn_recv_data_file_path(payment_type, circuit_type, nonce)
 
-    print(send_data_file_path, 'send_data_file_path')
-
     result = subprocess.run(
         [
             '/root/prover-api/tlsn-verifier/target/release/tlsn-verifier',
@@ -58,8 +58,6 @@ def run_verify_process(payment_type:str, circuit_type:str, nonce: str):
         capture_output=True,
         text=True
     )
-
-    print('done executin')
 
     print(result.stdout)
     return result
