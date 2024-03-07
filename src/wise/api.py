@@ -141,6 +141,8 @@ def validate_proof(proof_raw):
 
     # TODO: VERIFY EMPTY KEYS, AND ENSURE NOTE ISN'T USED USED TO ATTACK VERFIFICATION.
 
+    # Log on modal for debugging
+    print(proof_raw)
 
     # Todo: What sanity check should we perform here?
     # Should we check for any malcicious injected data in the proof here?
@@ -217,6 +219,23 @@ def core_verify_proof(proof_data):
 
     # Sign on public values using verifier private key
     signature, serialized_values = tlsn_proof_verifier.sign_and_serialize_values(post_processed_public_values, post_processed_target_types)
+
+    # Extract required values from session data
+    data = send_data + recv_data
+    regex_patterns = regex_patterns_map.get(circuit_type, [])
+    public_values = extract_regex_values(data, regex_patterns)
+    if len(public_values) == 0:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, 
+            detail=Error.get_error_response(Error.ErrorCodes.TLSN_VALUES_EXTRACTION_FAILED)
+        )
+
+    if payment_type == "transfer":
+        public_values.append(proof_data["intent_hash"])
+
+
+    # Sign on payment details using verifier private key
+    signature = sign_values_with_private_key('VERIFIER_PRIVATE_KEY', public_values)
 
     response = {
         "proof": signature,
