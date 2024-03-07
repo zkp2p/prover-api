@@ -17,6 +17,7 @@ class Errors:
         # TLSN
         TLSN_INVALID_PROOF = 10
         TLSN_PROOF_VERIFICATION_FAILED = 11
+        TLSN_VALUES_EXTRACTION_FAILED = 12
 
 
     def __init__(self):
@@ -34,7 +35,8 @@ class Errors:
             self.ErrorCodes.INVALID_EMAIL: "Invalid email",
             self.ErrorCodes.INVALID_SELECTOR: "❗️Selector might have changed❗️",
             # TLSN
-            self.ErrorCodes.TLSN_PROOF_VERIFICATION_FAILED: "TLSN Proof verification failed"
+            self.ErrorCodes.TLSN_PROOF_VERIFICATION_FAILED: "TLSN proof verification failed",
+            self.ErrorCodes.TLSN_VALUES_EXTRACTION_FAILED: "TLSN values extraction failed"
         }
 
     def get_error_message(self, error_code):

@@ -9,14 +9,15 @@ from utils.errors import Errors
 from utils.alert import AlertHelper
 from utils.verify import verify_tlsn_proof
 from utils.env_utils import read_env_credentials
-
+from utils.sign import sign_values_with_private_key
+from utils.regex_helpers import extract_regex_values
 
 load_dotenv('./env')       # Load environment variables from .env file
 
 # --------- INITIALIZE HELPERS ------------
 
 DOMAIN = 'wise.com'
-DOCKER_IMAGE_NAME = '0xsachink/zkp2p:modal-wise-verifier-0.2.5-testing-1' #'0xsachink/zkp2p:modal-wise-0.2.5'      # Add verifier to the docker name
+DOCKER_IMAGE_NAME = '0xsachink/zkp2p:modal-wise-verifier-0.2.5-testing-1'
 STUB_NAME = 'zkp2p-wise-verifier-0.2.5'
 
 SLACK_TOKEN = os.getenv('SLACK_TOKEN')
@@ -53,6 +54,8 @@ def validate_proof(proof_raw):
 
     # TODO: VERIFY EMPTY KEYS, AND ENSURE NOTE ISN'T USED USED TO ATTACK VERFIFICATION.
 
+    # Log on modal for debugging
+    print(proof_raw)
 
     # Todo: What sanity check should we perform here?
     # Should we check for any malcicious injected data in the proof here?
@@ -64,39 +67,54 @@ def validate_proof(proof_raw):
 
 # ----------------- REGEXES -----------------
 
-# Emulating zk-regex config files in python
-
-get_endpoint_regex_pattern = r"GET (https:\/\/wise\.com\/[^\s]+)" # Get endpoint
-post_endpoint_regex_pattern = r"POST (https:\/\/wise\.com\/[^\s]+)" # Post endpoint
-endpoint_type_regex_pattern = r"(GET|POST|PUT|DELETE) https:\/\/wise\.com" # Endpoint type
+# We can't convert the response to json and then index out the values using keys
+# because the json structure may no longer be preserved upon redaction. Also, when
+# notarizing websites we wouldn't be receiving json responses. 
+# In contrast, regexes should work for all cases. Also, the same regexes can later
+# be reused insdie circuits
 host_regex_pattern = r"host: ([\w\.-]+)" # Host
 
-send_regexes = [
-    get_endpoint_regex_pattern,
-    endpoint_type_regex_pattern,
+transfer_regexes = [
+    # Send data regexes
+    r'^(GET https://wise\.com/gateway/v3/profiles/(\d+)/transfers)',     # Transfer endpoint
     host_regex_pattern,
+
+    # Recv data regexes
+    r'"id":(\d+)',  # ID
+    r'"profileId":(\d+)',  # Profile Id
+    r'"targetRecipientId":(\d+)',  # Target Account
+    r'"targetAmount":([\d.]+)',  # Target Amount
+    r'"targetCurrency":"([A-Z]{3})"',  # Target Currency
+    r'"state":"(\w+)"',  # State
+    r'"state":"OUTGOING_PAYMENT_SENT","date":(\d+)' # Unix date
 ]
 
-send_keys = [
-    "id",
-    "profileId",
-    "targetRecipientId",
-    "targetCurrency",
-    "state",
-    ["stateHistory", "date"]        # Fix this to extract date corresponding to final outgoing payment sent
-]
-
-registration_regexes = [
-    get_endpoint_regex_pattern,
-    endpoint_type_regex_pattern,
+registration_profile_id_regexes = [
+    # Send data regexes
+    r'^(POST https://wise\.com/gateway/v1/payments)',     # Transfer endpoint,
     host_regex_pattern,
+    r'"profileId":(\d+)',
+
+    # Recv data regexes
+    r'"name":"Your Wisetag","description":"@([^"]+)"'
 ]
 
-registration_keys = [
-    # r'"recipientId":\s*(\d+)',  # recipientId
-    # r'"active":\s*(true|false)',  # active
-    # r'"eligible":\s*(true|false)'  # eligible
+registration_account_id_regexes = [
+    # Send data regexes
+    r'^(GET https://wise\.com/gateway/v3/profiles/(\d+)/transfers)',     # Transfer endpoint,
+    host_regex_pattern,
+
+    # Recv data regexes
+    r'"profileId":(\d+)'
+    r'"refundRecipientId":(\d+)',
 ]
+
+regex_patterns_map = {
+    "transfer": transfer_regexes,
+    "registration_profile_id": registration_profile_id_regexes,
+    "registration_account_id": registration_account_id_regexes,
+}
+
 
 # ----------------- API -----------------
 
@@ -107,7 +125,7 @@ def verify_proof(proof_data: Dict):
     proof_raw_data = proof_data["proof"]
     payment_type = proof_data["payment_type"]
     circuit_type = proof_data["circuit_type"]
-    
+
     if payment_type == "wise":
         pass
     else:
@@ -116,9 +134,7 @@ def verify_proof(proof_data: Dict):
             detail=Error.get_error_response(Error.ErrorCodes.INVALID_PAYMENT_TYPE)
         )
 
-    if circuit_type == "send" or circuit_type == "registration":
-        pass
-    else:
+    if circuit_type not in regex_patterns_map.keys():
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, 
             detail=Error.get_error_response(Error.ErrorCodes.INVALID_CIRCUIT_TYPE)
@@ -133,12 +149,29 @@ def verify_proof(proof_data: Dict):
         )
     
     # Verify proof
-    signature, public_values = verify_tlsn_proof(proof_data, send_regex_patterns, registration_regex_patterns)
-    if signature == "" or public_values == "":
+    send_data, recv_data = verify_tlsn_proof(proof_data)
+    if send_data == "" or recv_data == "":
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
+            status_code=status.HTTP_400_BAD_REQUEST, 
             detail=Error.get_error_response(Error.ErrorCodes.TLSN_PROOF_VERIFICATION_FAILED)
         )
+
+    # Extract required values from session data
+    data = send_data + recv_data
+    regex_patterns = regex_patterns_map.get(circuit_type, [])
+    public_values = extract_regex_values(data, regex_patterns)
+    if len(public_values) == 0:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, 
+            detail=Error.get_error_response(Error.ErrorCodes.TLSN_VALUES_EXTRACTION_FAILED)
+        )
+
+    if payment_type == "transfer":
+        public_values.append(proof_data["intent_hash"])
+
+
+    # Sign on payment details using verifier private key
+    signature = sign_values_with_private_key('VERIFIER_PRIVATE_KEY', public_values)
 
     response = {
         "proof": signature,
