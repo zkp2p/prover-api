@@ -2,7 +2,7 @@ import re
 import json
 
 ## Emulating zk-regex in python
-def extract_values(input, regex_patterns):
+def extract_regex_values(input, regex_patterns):
     matched_values = []
     for pattern in regex_patterns:
         match = re.search(pattern, input)
@@ -11,7 +11,7 @@ def extract_values(input, regex_patterns):
     return matched_values
 
 
-def extract_values_from_response(input_blob, keys):
+def extract_json_values(input_blob, keys):
     # Find the start of the JSON object by looking for '{"id":'
     start_index = input_blob.find('{"id":')
     if start_index == -1:
