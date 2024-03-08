@@ -105,8 +105,8 @@ registration_account_id_regexes = [
     host_regex_pattern,
 
     # Recv data regexes
-    r'"profileId":(\d+)'
-    r'"refundRecipientId":(\d+)',
+    r'"profileId":(\d+)',
+    r'"refundRecipientId":(\d+)'
 ]
 
 regex_patterns_map = {
