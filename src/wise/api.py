@@ -235,7 +235,11 @@ def core_verify_proof(proof_data):
 
 
     # Sign on payment details using verifier private key
-    signature = sign_values_with_private_key('VERIFIER_PRIVATE_KEY', public_values)
+    target_types = regex_target_types.get(circuit_type, [])
+    # Logging
+    print('Public Values:', public_values)
+    print('Value types:', target_types)
+    signature = sign_values_with_private_key('VERIFIER_PRIVATE_KEY', public_values, target_types)
 
     response = {
         "proof": signature,
