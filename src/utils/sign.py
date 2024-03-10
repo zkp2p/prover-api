@@ -1,9 +1,28 @@
 import os
+from web3 import Web3
+from eth_abi import encode
 from eth_account import Account
 from eth_account.messages import encode_defunct
-import hashlib
 
-def sign_values_with_private_key(env_var_name, values):
+def encode_and_hash(args, types):
+    """
+    Encode arguments according to specified types and hash the result using keccak256.
+    
+    :param args: The values to encode.
+    :param types: The Solidity types of the arguments.
+    :return: The keccak256 hash of the encoded arguments.
+    """
+    # Encode the arguments
+    encoded = encode(types, args)
+    print('Encode packed values', encoded)
+
+    # Hash the encoded arguments
+    hashed = Web3.keccak(encoded)
+
+    return hashed.hex()
+
+
+def sign_values_with_private_key(env_var_name, values, types):
     """
     Loads an Ethereum private key from an environment variable,
     signs a concatenated string of the provided values, and returns the signature.
@@ -17,25 +36,14 @@ def sign_values_with_private_key(env_var_name, values):
     if not private_key:
         raise ValueError(f"Environment variable '{env_var_name}' not found or empty.")
 
-    # Concatenate the values into a single string
-    message_str = ''.join(map(str, values))
-
-    # It's common to hash the message before signing for consistency and efficiency
-    message_hashed = hashlib.sha256(message_str.encode('utf-8')).hexdigest()
-
-    # Encode the message in a format that's compatible with Ethereum's signing mechanism
-    message_encoded = encode_defunct(hexstr=message_hashed)
+    # Encode the arguments according to their specified types and hash them
+    message = encode_and_hash(values, types)
+    print('Hashed encoded message:', message)
 
     # Sign the message
+    message_encoded = encode_defunct(hexstr=message)
+    print('Message Encoded (Signed):', message_encoded)
     signed_message = Account.sign_message(message_encoded, private_key=private_key)
 
     # Return the signature in hex format
     return signed_message.signature.hex()
-
-# Usage example:
-# 1. First, ensure you have set the environment variable with your private key.
-#    For example, in your terminal: export MY_ETH_PRIVATE_KEY='yourprivatekeyhere'
-# 2. Then, call the function with the name of your environment variable and the values you want to sign.
-# values_to_sign = ['value1', 'value2', 'value3']
-# signature = sign_values_with_private_key('MY_ETH_PRIVATE_KEY', values_to_sign)
-# print(signature)

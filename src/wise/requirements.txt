@@ -4,3 +4,5 @@ fastapi
 requests
 dkimpy
 eth_account
+eth-abi
+web3

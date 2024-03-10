@@ -74,47 +74,58 @@ def validate_proof(proof_raw):
 # be reused insdie circuits
 host_regex_pattern = r"host: ([\w\.-]+)" # Host
 
-transfer_regexes = [
+transfer_regexes_config = [
     # Send data regexes
-    r'^(GET https://wise\.com/gateway/v3/profiles/(\d+)/transfers)',     # Transfer endpoint
-    host_regex_pattern,
+    (r'^(GET https://wise\.com/gateway/v3/profiles/(\d+)/transfers)', 'string'),     # Transfer endpoint
+    (host_regex_pattern, 'string'),
 
     # Recv data regexes
-    r'"id":(\d+)',  # ID
-    r'"profileId":(\d+)',  # Profile Id
-    r'"targetRecipientId":(\d+)',  # Target Account
-    r'"targetAmount":([\d.]+)',  # Target Amount
-    r'"targetCurrency":"([A-Z]{3})"',  # Target Currency
-    r'"state":"(\w+)"',  # State
-    r'"state":"OUTGOING_PAYMENT_SENT","date":(\d+)' # Unix date
+    (r'"id":(\d+)', 'string'),  # ID
+    (r'"profileId":(\d+)', 'string'),  # Profile Id
+    (r'"targetRecipientId":(\d+)', 'string'),  # Target Account
+    (r'"targetAmount":([\d.]+)', 'string'),  # Target Amount
+    (r'"targetCurrency":"([A-Z]{3})"', 'string'),  # Target Currency
+    (r'"state":"(\w+)"', 'string'),  # State
+    (r'"state":"OUTGOING_PAYMENT_SENT","date":(\d+)', 'string') # Unix date
 ]
 
-registration_profile_id_regexes = [
+registration_profile_id_regexes_config = [
     # Send data regexes
-    r'^(POST https://wise\.com/gateway/v1/payments)',     # Transfer endpoint,
-    host_regex_pattern,
-    r'"profileId":(\d+)',
+    (r'^(POST https://wise\.com/gateway/v1/payments)', 'string'),     # Transfer endpoint,
+    (host_regex_pattern, 'string'),
+    (r'"profileId":(\d+)', 'string'),
 
     # Recv data regexes
-    r'"name":"Your Wisetag","description":"@([^"]+)"'
+    (r'"name":"Your Wisetag","description":"@([^"]+)"', 'string')
 ]
 
-registration_account_id_regexes = [
+registration_account_id_regexes_config = [
     # Send data regexes
-    r'^(GET https://wise\.com/gateway/v3/profiles/(\d+)/transfers)',     # Transfer endpoint,
-    host_regex_pattern,
+    (r'^(GET https://wise\.com/gateway/v3/profiles/(\d+)/transfers)', 'string'),     # Transfer endpoint,
+    (host_regex_pattern, 'string'),
 
     # Recv data regexes
-    r'"profileId":(\d+)',
-    r'"refundRecipientId":(\d+)'
+    (r'"profileId":(\d+)', 'string'),
+    (r'"refundRecipientId":(\d+)', 'string')
 ]
+
+def get_regex_patterns(config):
+    return [t[0] for t in config]
+
+def get_regex_target_types(config):
+    return [t[1] for t in config]
 
 regex_patterns_map = {
-    "transfer": transfer_regexes,
-    "registration_profile_id": registration_profile_id_regexes,
-    "registration_account_id": registration_account_id_regexes,
+    "transfer": get_regex_patterns(transfer_regexes_config),
+    "registration_profile_id": get_regex_patterns(registration_profile_id_regexes_config),
+    "registration_account_id": get_regex_patterns(registration_account_id_regexes_config)
 }
 
+regex_target_types = {
+    "transfer": get_regex_target_types(transfer_regexes_config),
+    "registration_profile_id": get_regex_target_types(registration_profile_id_regexes_config),
+    "registration_account_id": get_regex_target_types(registration_account_id_regexes_config)
+}
 
 # ----------------- API -----------------
 
@@ -171,7 +182,11 @@ def verify_proof(proof_data: Dict):
 
 
     # Sign on payment details using verifier private key
-    signature = sign_values_with_private_key('VERIFIER_PRIVATE_KEY', public_values)
+    target_types = regex_target_types.get(circuit_type, [])
+    # Logging
+    print('Public Values:', public_values)
+    print('Value types:', target_types)
+    signature = sign_values_with_private_key('VERIFIER_PRIVATE_KEY', public_values, target_types)
 
     response = {
         "proof": signature,
