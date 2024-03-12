@@ -9,7 +9,7 @@ from utils.errors import Errors
 from utils.alert import AlertHelper
 from utils.verify import verify_tlsn_proof
 from utils.env_utils import read_env_credentials
-from utils.sign import sign_values_with_private_key
+from utils.sign import sign_values_with_private_key, encode_and_hash
 from utils.regex_helpers import extract_regex_values
 
 load_dotenv('./env')       # Load environment variables from .env file
@@ -177,12 +177,19 @@ def verify_proof(proof_data: Dict):
             detail=Error.get_error_response(Error.ErrorCodes.TLSN_VALUES_EXTRACTION_FAILED)
         )
 
-    if payment_type == "transfer":
-        public_values.append(proof_data["intent_hash"])
-
-
     # Sign on payment details using verifier private key
     target_types = regex_target_types.get(circuit_type, [])
+
+    if circuit_type == "transfer":
+        public_values.append(proof_data["intent_hash"])
+        target_types.append('string')
+
+    if circuit_type == "registration_profile_id":
+        # Todo: find a more cleaner way to do it
+        wisetag = public_values[-1]
+        out_hash = encode_and_hash([wisetag], ['string'])
+        public_values[-1] = str(int(out_hash, 16))
+    
     # Logging
     print('Public Values:', public_values)
     print('Value types:', target_types)
