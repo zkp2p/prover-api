@@ -9,8 +9,8 @@ load_dotenv('./.env')
 
 TEST_PAYMENT_TYPE = "wise"
 TEST_CIRCUIT_TYPE = "transfer"
-TEST_PROOF_PATH = "./proofs/transfer_proof_2.json"
-MODAL_ENDPOINT = "https://zkp2p--zkp2p-wise-verifier-0-2-5-verify-proof-dev.modal.run"
+TEST_PROOF_PATH = "./proofs/transfer_proof_4.json"
+MODAL_ENDPOINT = "https://zkp2p--zkp2p-wise-verifier-0-2-5-verify-proof.modal.run"
 
 
 if __name__ == "__main__":
@@ -26,6 +26,7 @@ if __name__ == "__main__":
         "proof": proof,
         "intent_hash": "12345"
     }
+    print(proof_data)
     print(
         "Payment Type: ", proof_data['payment_type'], 
         "Circuit Type: ", proof_data['circuit_type']

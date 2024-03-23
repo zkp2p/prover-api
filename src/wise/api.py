@@ -4,6 +4,7 @@ import os
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, status
 from typing import Dict
+import json
 
 from utils.errors import Errors
 from utils.alert import AlertHelper
@@ -55,7 +56,7 @@ def validate_proof(proof_raw):
     # TODO: VERIFY EMPTY KEYS, AND ENSURE NOTE ISN'T USED USED TO ATTACK VERFIFICATION.
 
     # Log on modal for debugging
-    print(proof_raw)
+    # print(proof_raw)
 
     # Todo: What sanity check should we perform here?
     # Should we check for any malcicious injected data in the proof here?
@@ -133,7 +134,7 @@ regex_target_types = {
 @modal.web_endpoint(method="POST")
 def verify_proof(proof_data: Dict):
 
-    proof_raw_data = proof_data["proof"]
+    proof_raw_data = json.loads(proof_data["proof"])
     payment_type = proof_data["payment_type"]
     circuit_type = proof_data["circuit_type"]
 

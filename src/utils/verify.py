@@ -8,8 +8,6 @@ def verify_tlsn_proof(proof_data):
     proof_raw_data = proof_data["proof"]
     payment_type = proof_data["payment_type"]
     circuit_type = proof_data["circuit_type"]
-    if payment_type == "send":
-        intent_hash = proof_data["intent_hash"]
     
     nonce = int(sha256_hash(proof_raw_data), 16)
 
@@ -17,9 +15,11 @@ def verify_tlsn_proof(proof_data):
     write_tlsn_proof_to_local(proof_raw_data, payment_type, circuit_type, str(nonce))
 
     # Verify the notaries signature on encoded data using the rust verifier
+    print('Running verify process')
     run_verify_process(payment_type, circuit_type, str(nonce))
 
     # Read the decoded session data output by the rust verifier
+    print('Reading outputs')
     send_data, recv_data = read_tlsn_verify_output_from_local(payment_type, circuit_type, str(nonce))
 
     return send_data, recv_data
@@ -45,5 +45,5 @@ def run_verify_process(payment_type:str, circuit_type:str, nonce: str):
         text=True
     )
 
-    print(result.stdout)
+    print('Result', result.stdout)
     return result
