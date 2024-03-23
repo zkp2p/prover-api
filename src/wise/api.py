@@ -161,7 +161,7 @@ def verify_proof(proof_data: Dict):
 
 def core_verify_proof(proof_data):
 
-    proof_raw_data = proof_data["proof"]
+    proof_raw_data = json.loads(proof_data["proof"])
     payment_type = proof_data["payment_type"]
     circuit_type = proof_data["circuit_type"]
 
