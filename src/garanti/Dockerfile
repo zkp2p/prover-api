@@ -87,14 +87,17 @@ RUN yarn install
 # Pull C .dat from S3 and place them in cpp folders
 RUN wget -P ${BUILD_DIR}/${PAYMENT_TYPE}_send/${PAYMENT_TYPE}_send_cpp https://zk-p2p.s3.amazonaws.com/${ZKP2P_VERSION}/${PAYMENT_TYPE}_send/${PAYMENT_TYPE}_send.dat --quiet
 RUN wget -P ${BUILD_DIR}/${PAYMENT_TYPE}_registration/${PAYMENT_TYPE}_registration_cpp https://zk-p2p.s3.amazonaws.com/${ZKP2P_VERSION}/${PAYMENT_TYPE}_registration/${PAYMENT_TYPE}_registration.dat --quiet
+RUN wget -P ${BUILD_DIR}/${PAYMENT_TYPE}_body_suffix_hasher/${PAYMENT_TYPE}_body_suffix_hasher_cpp https://zk-p2p.s3.amazonaws.com/${ZKP2P_VERSION}/${PAYMENT_TYPE}_body_suffix_hasher/${PAYMENT_TYPE}_body_suffix_hasher.dat --quiet
 
 # Pull C witness gen binary from S3 and place them in cpp folders
 RUN wget -P ${BUILD_DIR}/${PAYMENT_TYPE}_send/${PAYMENT_TYPE}_send_cpp https://zk-p2p.s3.amazonaws.com/${ZKP2P_VERSION}/${PAYMENT_TYPE}_send/${PAYMENT_TYPE}_send --quiet
 RUN wget -P ${BUILD_DIR}/${PAYMENT_TYPE}_registration/${PAYMENT_TYPE}_registration_cpp https://zk-p2p.s3.amazonaws.com/${ZKP2P_VERSION}/${PAYMENT_TYPE}_registration/${PAYMENT_TYPE}_registration --quiet
+RUN wget -P ${BUILD_DIR}/${PAYMENT_TYPE}_body_suffix_hasher/${PAYMENT_TYPE}_body_suffix_hasher_cpp https://zk-p2p.s3.amazonaws.com/${ZKP2P_VERSION}/${PAYMENT_TYPE}_body_suffix_hasher/${PAYMENT_TYPE}_body_suffix_hasher --quiet
 
 # Make cpp files executable
 RUN chmod +x ${BUILD_DIR}/${PAYMENT_TYPE}_send/${PAYMENT_TYPE}_send_cpp/${PAYMENT_TYPE}_send
 RUN chmod +x ${BUILD_DIR}/${PAYMENT_TYPE}_registration/${PAYMENT_TYPE}_registration_cpp/${PAYMENT_TYPE}_registration
+RUN chmod +x ${BUILD_DIR}/${PAYMENT_TYPE}_body_suffix_hasher/${PAYMENT_TYPE}_body_suffix_hasher_cpp/${PAYMENT_TYPE}_body_suffix_hasher
 
 # Pull keys from S3
 RUN wget -P ${BUILD_DIR}/${PAYMENT_TYPE}_send https://zk-p2p.s3.amazonaws.com/${ZKP2P_VERSION}/${PAYMENT_TYPE}_send/${PAYMENT_TYPE}_send.zkey --quiet
