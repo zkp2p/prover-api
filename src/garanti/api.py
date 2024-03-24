@@ -29,8 +29,8 @@ SELECTORS = [dk['selector'] for dk in DOMAIN_KEYS]
 # NAME_PATTERN = r"^[A-Z][a-z'’-]+\s([A-Z][a-z'’-]+\s?)+$"
 FROM_EMAIL_ADDRESS = "From: Garanti BBVA <garanti@info.garantibbva.com.tr>"
 EMAIL_SUBJECT = "Subject: Para Transferi Bilgilendirmesi"
-DOCKER_IMAGE_NAME = '0xsachink/zkp2p:modal-garanti-0.2.4-staging-7'
-STUB_NAME = 'zkp2p-modal-garanti-0.2.4-staging'
+DOCKER_IMAGE_NAME = '0xsachink/zkp2p:modal-garanti-0.2.5-prod-3'
+STUB_NAME = 'zkp2p-modal-garanti-0.2.5'
 
 SLACK_TOKEN = os.getenv('SLACK_TOKEN')
 CHANNEL_ID = os.getenv('CHANNEL_ID')
@@ -149,7 +149,7 @@ def genproof_email(email_data: Dict):
     write_file_to_local(email_raw_data, payment_type, circuit_type, str(nonce))
 
     # Prove
-    run_prove_process(payment_type, circuit_type, str(nonce), intent_hash, "false")
+    run_prove_process(payment_type, circuit_type, str(nonce), intent_hash, "true")
 
     # Read the proof from local
     proof, public_values = read_proof_from_local(payment_type, circuit_type, str(nonce))
