@@ -12,7 +12,6 @@ TEST_CIRCUIT_TYPE = os.getenv("TEST_CIRCUIT_TYPE")
 TEST_EMAIL_PATH = os.getenv("TEST_EMAIL_PATH")
 MODAL_ENDPOINT = os.getenv("MODAL_ENDPOINT")
 
-print(TEST_EMAIL_PATH)
 
 if __name__ == "__main__":
     
@@ -29,7 +28,9 @@ if __name__ == "__main__":
     }
     print(
         "Payment Type: ", email_data['payment_type'], 
-        "Circuit Type: ", email_data['circuit_type']
+        "Circuit Type: ", email_data['circuit_type'],
+        "Email path: ", TEST_EMAIL_PATH,
+        "Modal endpoint: ", MODAL_ENDPOINT
     )
 
 
