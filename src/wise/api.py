@@ -11,7 +11,7 @@ from utils.alert import AlertHelper
 from utils.verify import verify_tlsn_proof
 from utils.env_utils import read_env_credentials
 from utils.sign import sign_values_with_private_key, encode_and_hash
-from utils.regex_helpers import extract_regex_values
+from utils.regex_helpers import extract_regex_values, extract_json
 
 load_dotenv('./env')       # Load environment variables from .env file
 
@@ -47,24 +47,82 @@ stub['credentials_secret'] = modal.Secret.from_dict(env_credentials)
 # --------- SANITY CHECK INPUT ----------
 
 
-def validate_proof(proof_raw):
+"""
+def validate_transfer_response(resp):
+    print('state', resp['state'])
+    if not resp['state'] == 'OUTGOING_PAYMENT_SENT':
+        print('failed here') 
+        return False
+    
+    if not resp['actor'] == 'SENDER':
+        print('failed here 2') 
+        return False
+    
+    if resp['targetRecipientId'] == 'null' or \
+        resp['targetAmount'] == 'null' or \
+        resp['targetCurrency'] == 'null':
+        print('failed here 3') 
+        return False
 
-    # Validate all the values here before invoking the wasm verifier to verify registration. 
-    # Can we decode in python??? :think:
+    return True
+
+def validate_profile_registration_response(resp):
+    return True
+
+def validate_mc_account_registration_response(resp):
+    return validate_transfer_response(resp)
 
 
-    # TODO: VERIFY EMPTY KEYS, AND ENSURE NOTE ISN'T USED USED TO ATTACK VERFIFICATION.
+def validate_decoded_data(send_data, recv_data, circuit_type):
 
-    # Log on modal for debugging
-    # print(proof_raw)
+    error_code = None
+    combined_data = send_data + recv_data
 
-    # Todo: What sanity check should we perform here?
-    # Should we check for any malcicious injected data in the proof here?
-    # Anything that is not checked on either the Smart contract or by the verifier 
-    # should be checked here.
+    if circuit_type == 'transfer': 
+        recv_response = extract_json(combined_data, '{"id":', '}')
+        if not validate_transfer_response(recv_response):
+            error_code = Error.ErrorCodes.TLSN_WISE_INVALID_TRANSFER_RESPONSE
+        
+    if circuit_type == 'registration_profile_id':
+        recv_response = extract_json(combined_data, '{"sections":', '}')
+        if not validate_profile_registration_response(recv_response):
+            error_code = Error.ErrorCodes.TLSN_WISE_INVALID_TRANSFER_RESPONSE
+        
+    if circuit_type == 'registration_account_id':
+        recv_response = extract_json(combined_data, '{"id":', '}')
+        if not validate_mc_account_registration_response(recv_response):
+            error_code = Error.ErrorCodes.TLSN_WISE_INVALID_MC_ACCOUNT_REGISTRATION_RESPONSE
+        
+    if error_code:
+        alert_helper.alert_on_slack(error_code, combined_data)
+        return False, error_code
 
     return True, ""
+"""
 
+
+def validate_extracted_public_values(values, circuit_type):
+
+    valid = True
+
+    if len(values) != len(regex_patterns_map[circuit_type]):
+        valid = False
+
+    for val in values:
+        if str(val) == 'null' or str(val) == "":
+            valid = False
+
+    if not valid:
+        if circuit_type == 'transfer':
+            error_code = Error.ErrorCodes.TLSN_WISE_INVALID_TRANSFER_VALUES
+        elif circuit_type == 'registration_profile_id': 
+            error_code = Error.ErrorCodes.TLSN_WISE_INVALID_PROFILE_REGISTRATION_VALUES
+        elif circuit_type == 'registration_account_id':
+            error_code = Error.ErrorCodes.TLSN_WISE_INVALID_MC_ACCOUNT_REGISTRATION_VALUES
+
+        return False, error_code        
+
+    return True, ""
 
 # ----------------- REGEXES -----------------
 
@@ -152,14 +210,6 @@ def verify_proof(proof_data: Dict):
             detail=Error.get_error_response(Error.ErrorCodes.INVALID_CIRCUIT_TYPE)
         )
 
-    # Validate proof structure
-    valid_proof, error_code = validate_proof(proof_raw_data)
-    if not valid_proof:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, 
-            detail=Error.get_error_response(error_code)
-        )
-    
     # Verify proof
     send_data, recv_data = verify_tlsn_proof(proof_data)
     if send_data == "" or recv_data == "":
@@ -167,15 +217,26 @@ def verify_proof(proof_data: Dict):
             status_code=status.HTTP_400_BAD_REQUEST, 
             detail=Error.get_error_response(Error.ErrorCodes.TLSN_PROOF_VERIFICATION_FAILED)
         )
+    
+    # Validate send and recv data
+    # valid_proof, error_code = validate_decoded_data(send_data, recv_data, circuit_type)
+    # if not valid_proof:
+    #     raise HTTPException(
+    #         status_code=status.HTTP_400_BAD_REQUEST, 
+    #         detail=Error.get_error_response(error_code)
+    #     )
 
     # Extract required values from session data
     data = send_data + recv_data
     regex_patterns = regex_patterns_map.get(circuit_type, [])
     public_values = extract_regex_values(data, regex_patterns)
-    if len(public_values) == 0:
+    
+    valid_values, error_code = validate_extracted_public_values(public_values, circuit_type)
+    if not valid_values:
+        alert_helper.alert_on_slack(error_code, data)
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, 
-            detail=Error.get_error_response(Error.ErrorCodes.TLSN_VALUES_EXTRACTION_FAILED)
+            detail=Error.get_error_response(error_code)
         )
 
     # Sign on payment details using verifier private key

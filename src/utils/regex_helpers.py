@@ -11,24 +11,23 @@ def extract_regex_values(input, regex_patterns):
     return matched_values
 
 
-def extract_json_values(input_blob, keys):
-    # Find the start of the JSON object by looking for '{"id":'
-    start_index = input_blob.find('{"id":')
+def extract_json(input_blob, start_substr, end_substr='}'):
+
+    start_index = input_blob.find(start_substr)
     if start_index == -1:
-        # If '{"id":' is not found, return an empty list or handle as needed
-        return []
+        return {}
 
-    # Instead of finding the first '}', find the last '}' to ensure capturing the entire JSON object
-    end_index = input_blob.rfind('}')
+    end_index = input_blob.rfind(end_substr)
     if end_index == -1:
-        # If no closing '}' is found, return an empty list or handle as needed
-        return []
+        return {}
 
-    # Extract the JSON string from start_index to end_index+1, inclusive of the closing '}'
-    json_str = input_blob[start_index:end_index+1]
-
-    # Parse the JSON string
+    json_str = input_blob[start_index:end_index+len(end_substr)]
+    print('json_str', json_str)
     data = json.loads(json_str)
+    return data
+
+def extract_json_values(input_blob, keys):
+    data = extract_json(input_blob, '{"id":', '}')
 
     values = []
     for key in keys:

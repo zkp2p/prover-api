@@ -15,10 +15,15 @@ class Errors:
         INVALID_EMAIL = 8
         INVALID_SELECTOR = 9    
         # TLSN
-        TLSN_INVALID_PROOF = 10
-        TLSN_PROOF_VERIFICATION_FAILED = 11
-        TLSN_VALUES_EXTRACTION_FAILED = 12
-
+        TLSN_PROOF_VERIFICATION_FAILED = 10
+        TLSN_WISE_INVALID_TRANSFER_VALUES = 11
+        TLSN_WISE_INVALID_PROFILE_REGISTRATION_VALUES = 12
+        TLSN_WISE_INVALID_MC_ACCOUNT_REGISTRATION_VALUES = 13
+            
+        # TLSN_WISE_INVALID_PROFILE_REGISTRATION_RESPONSE = 12
+        # TLSN_WISE_INVALID_MC_ACCOUNT_REGISTRATION_RESPONSE = 13
+        # TLSN_WISE_INVALID_TRANSFER_RESPONSE = 14
+        # TLSN_WISE_INVALID_RESPONSE = 15
 
     def __init__(self):
         self.error_messages = {
@@ -36,7 +41,14 @@ class Errors:
             self.ErrorCodes.INVALID_SELECTOR: "❗️Selector might have changed❗️",
             # TLSN
             self.ErrorCodes.TLSN_PROOF_VERIFICATION_FAILED: "TLSN proof verification failed",
-            self.ErrorCodes.TLSN_VALUES_EXTRACTION_FAILED: "TLSN values extraction failed"
+            self.ErrorCodes.TLSN_WISE_INVALID_TRANSFER_VALUES: "TLSN invalid extracted values for `transfer`",
+            self.ErrorCodes.TLSN_WISE_INVALID_PROFILE_REGISTRATION_VALUES: "TLSN invalid extracted values for `profile registration`",
+            self.ErrorCodes.TLSN_WISE_INVALID_MC_ACCOUNT_REGISTRATION_VALUES: "TLSN invalid extracted values for `mc account registration`",
+            # self.ErrorCodes.TLSN_WISE_INVALID_PROFILE_REGISTRATION_RESPONSE: "TLSN Wise invalid profile registration response",
+            # self.ErrorCodes.TLSN_WISE_INVALID_MC_ACCOUNT_REGISTRATION_RESPONSE: "TLSN Wise invalid account registration response",
+            # self.ErrorCodes.TLSN_WISE_INVALID_TRANSFER_RESPONSE: "TLSN Wise invalid transfer response",
+            # self.ErrorCodes.TLSN_WISE_INVALID_RESPONSE: "TLSN Wise invalid response"
+
         }
 
     def get_error_message(self, error_code):
