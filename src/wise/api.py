@@ -41,6 +41,29 @@ image = modal.Image.from_registry(
 stub = modal.Stub(name=STUB_NAME, image=image)
 credentials_secret = modal.Secret.from_dict(env_credentials)
 
+def validate_extracted_public_values(values, circuit_type):
+
+    valid = True
+
+    if len(values) != len(regex_patterns_map[circuit_type]):
+        valid = False
+
+    for val in values:
+        if str(val) == 'null' or str(val) == "":
+            valid = False
+
+    if not valid:
+        if circuit_type == 'transfer':
+            error_code = Error.ErrorCodes.TLSN_WISE_INVALID_TRANSFER_VALUES
+        elif circuit_type == 'registration_profile_id': 
+            error_code = Error.ErrorCodes.TLSN_WISE_INVALID_PROFILE_REGISTRATION_VALUES
+        elif circuit_type == 'registration_account_id':
+            error_code = Error.ErrorCodes.TLSN_WISE_INVALID_MC_ACCOUNT_REGISTRATION_VALUES
+
+        return False, error_code        
+
+    return True, ""
+
 # ----------------- REGEXES -----------------
 
 # We can't convert the response to json and then index out the values using keys
@@ -195,6 +218,14 @@ def core_verify_proof(proof_data):
             status_code=status.HTTP_400_BAD_REQUEST, 
             detail=Error.get_error_response(Error.ErrorCodes.TLSN_PROOF_VERIFICATION_FAILED)
         )
+    
+    # Validate send and recv data
+    # valid_proof, error_code = validate_decoded_data(send_data, recv_data, circuit_type)
+    # if not valid_proof:
+    #     raise HTTPException(
+    #         status_code=status.HTTP_400_BAD_REQUEST, 
+    #         detail=Error.get_error_response(error_code)
+    #     )
 
     # Extract required values from session data
     public_values, valid_values, error_code = tlsn_proof_verifier.extract_regexes(send_data, recv_data)
@@ -224,10 +255,13 @@ def core_verify_proof(proof_data):
     data = send_data + recv_data
     regex_patterns = regex_patterns_map.get(circuit_type, [])
     public_values = extract_regex_values(data, regex_patterns)
-    if len(public_values) == 0:
+    
+    valid_values, error_code = validate_extracted_public_values(public_values, circuit_type)
+    if not valid_values:
+        alert_helper.alert_on_slack(error_code, data)
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, 
-            detail=Error.get_error_response(Error.ErrorCodes.TLSN_VALUES_EXTRACTION_FAILED)
+            detail=Error.get_error_response(error_code)
         )
 
     # Sign on payment details using verifier private key
