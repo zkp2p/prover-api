@@ -268,8 +268,8 @@ def core_verify_proof(proof_data):
     target_types = regex_target_types.get(circuit_type, [])
 
     if circuit_type == "transfer":
-        public_values.append(proof_data["intent_hash"])
-        target_types.append('string')
+        public_values.append(int(proof_data["intent_hash"]))
+        target_types.append('uint256')
 
     if circuit_type == "registration_profile_id":
         # Todo: find a more cleaner way to do it
