@@ -257,9 +257,10 @@ def verify_proof(proof_data: Dict):
     print('Value types:', target_types)
     signature = sign_values_with_private_key('VERIFIER_PRIVATE_KEY', public_values, target_types)
 
+    serialized_values = [str(v) for v in public_values]
     response = {
         "proof": signature,
-        "public_values": public_values
+        "public_values": serialized_values
     }
 
     return response
