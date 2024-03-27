@@ -282,6 +282,7 @@ def core_verify_proof(proof_data):
     print('Value types:', target_types)
     signature = sign_values_with_private_key('VERIFIER_PRIVATE_KEY', public_values, target_types)
 
+    serialized_values = [str(v) for v in public_values]
     response = {
         "proof": signature,
         "public_values": serialized_values
