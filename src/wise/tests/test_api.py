@@ -22,10 +22,19 @@ def mock_dependencies():
         "payment_type": "wise",
         "circuit_type": "registration_profile_id",
         "intent_hash": "2109098755843864455034980037347310810989244226703714011137935097150268285982"
-     }, {
+    }, {
         "proof": "signature", # Mock signature
         "public_values": ["POST https://wise.com/gateway/v1/payments", "wise.com", "41213881", "61158579531006309039872672420732308054473459091416465738091051601559791768344"]
-     }),
+    }),
+    ({
+        "file_path": "./src/wise/tests/proofs/transfer_eur_1.json", 
+        "payment_type": "wise",
+        "circuit_type": "transfer",
+        "intent_hash": "2109098755843864455034980037347310810989244226703714011137935097150268285982"
+    }, {
+        "proof": "signature", # Mock signature
+        "public_values": ["GET https://wise.com/gateway/v3/profiles/41213881/transfers", "wise.com", "909460084", "41213881", "403384647", "1.0", "EUR", "OUTGOING_PAYMENT_SENT", "1703270934000", "2109098755843864455034980037347310810989244226703714011137935097150268285982"]
+    }),
 ])
 def test_core_verify_proof(mock_dependencies, proof_file, expected_output):
     # Read an email file
