@@ -188,9 +188,7 @@ regex_target_types = {
 
 # ----------------- API -----------------
 
-@stub.function(cpu=48, memory=16000, secret=stub['credentials_secret'])
-@modal.web_endpoint(method="POST")
-def verify_proof(proof_data: Dict):
+def core_verify_proof(proof_data):
 
     proof_raw_data = json.loads(proof_data["proof"])
     payment_type = proof_data["payment_type"]
@@ -265,3 +263,7 @@ def verify_proof(proof_data: Dict):
 
     return response
 
+@stub.function(cpu=48, memory=16000, secret=stub['credentials_secret'])
+@modal.web_endpoint(method="POST")
+def verify_proof(proof_data: Dict):
+    return core_verify_proof(proof_data)

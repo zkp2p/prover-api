@@ -1,3 +1,5 @@
+import os
+
 from utils.helpers import sha256_hash
 from utils.file_utils import write_tlsn_proof_to_local, read_tlsn_verify_output_from_local
 from utils.file_utils import get_tlsn_proof_file_path, get_tlsn_recv_data_file_path, get_tlsn_send_data_file_path
@@ -34,9 +36,10 @@ def run_verify_process(payment_type:str, circuit_type:str, nonce: str):
     send_data_file_path = get_tlsn_send_data_file_path(payment_type, circuit_type, nonce)
     recv_data_file_path = get_tlsn_recv_data_file_path(payment_type, circuit_type, nonce)
 
+    base_path = os.environ.get('CUSTOM_PROOFS_PATH', "/root/prover-api")
     result = subprocess.run(
         [
-            '/root/prover-api/tlsn-verifier/target/release/tlsn-verifier',
+            f"{base_path}/tlsn-verifier/target/release/tlsn-verifier",
             tlsn_proof_file_path_current,
             send_data_file_path,
             recv_data_file_path

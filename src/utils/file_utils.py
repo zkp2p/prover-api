@@ -40,24 +40,30 @@ def read_proof_from_local(payment_type, circuit_type, nonce):
     
     return proof, public_values
 
-tlsn_verify_send_data_path = "/root/prover-api/tlsn_verify_outputs/send_data_[payment_type]_[circuit_type]_[nonce].txt"
-tlsn_verify_recv_data_path = "/root/prover-api/tlsn_verify_outputs/recv_data_[payment_type]_[circuit_type]_[nonce].txt"
-tlsn_proof_file_path = "/root/prover-api/proofs/tlsn_proof_[payment_type]_[circuit_type]_[nonce].json"
+tlsn_verify_send_data_path = "[base_path]/tlsn_verify_outputs/send_data_[payment_type]_[circuit_type]_[nonce].txt"
+tlsn_verify_recv_data_path = "[base_path]/tlsn_verify_outputs/recv_data_[payment_type]_[circuit_type]_[nonce].txt"
+tlsn_proof_file_path = "[base_path]/proofs/tlsn_proof_[payment_type]_[circuit_type]_[nonce].json"
 
 def get_tlsn_send_data_file_path(payment_type, circuit_type, nonce):
+    base_path = os.environ.get('CUSTOM_PROOFS_PATH', "/root/prover-api")
     return tlsn_verify_send_data_path\
+        .replace("[base_path]", base_path)\
         .replace("[payment_type]", payment_type)\
         .replace("[circuit_type]", circuit_type)\
         .replace("[nonce]", nonce)
 
 def get_tlsn_recv_data_file_path(payment_type, circuit_type, nonce):
+    base_path = os.environ.get('CUSTOM_PROOFS_PATH', "/root/prover-api")
     return tlsn_verify_recv_data_path\
+        .replace("[base_path]", base_path)\
         .replace("[payment_type]", payment_type)\
         .replace("[circuit_type]", circuit_type)\
         .replace("[nonce]", nonce)
 
 def get_tlsn_proof_file_path(payment_type, circuit_type, nonce):
+    base_path = os.environ.get('CUSTOM_PROOFS_PATH', "/root/prover-api")
     return tlsn_proof_file_path\
+        .replace("[base_path]", base_path)\
         .replace("[payment_type]", payment_type)\
         .replace("[circuit_type]", circuit_type)\
         .replace("[nonce]", nonce)
