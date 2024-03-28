@@ -261,6 +261,8 @@ def core_verify_proof(proof_data):
         "public_values": serialized_values
     }
 
+    print('Response:', response)
+
     return response
 
 @stub.function(cpu=48, memory=16000, secret=stub['credentials_secret'])
