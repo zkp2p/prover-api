@@ -41,7 +41,7 @@ image = modal.Image.from_registry(
     add_python="3.11"
 ).pip_install_from_requirements("./wise/requirements.txt")
 stub = modal.Stub(name=STUB_NAME, image=image)
-stub['credentials_secret'] = modal.Secret.from_dict(env_credentials)
+credentials_secret = modal.Secret.from_dict(env_credentials)
 
 
 # --------- SANITY CHECK INPUT ----------
@@ -261,11 +261,9 @@ def core_verify_proof(proof_data):
         "public_values": serialized_values
     }
 
-    print('Response:', response)
-
     return response
 
-@stub.function(cpu=48, memory=16000, secret=stub['credentials_secret'])
+@stub.function(cpu=48, memory=16000, secrets=[credentials_secret]) 
 @modal.web_endpoint(method="POST")
 def verify_proof(proof_data: Dict):
     return core_verify_proof(proof_data)

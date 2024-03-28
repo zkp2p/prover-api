@@ -12,7 +12,7 @@ load_dotenv(dotenv_path)
 def mock_dependencies():
     with patch('src.wise.api.alert_helper.alert_on_slack') as mock_alert_on_slack, \
          patch('src.wise.api.sign_values_with_private_key') as mock_sign_values_with_private_key:
-        # TODO: Mock signature
+        # TODO: Currently a mock signature 
         mock_sign_values_with_private_key.return_value = "signature"
         yield
 
