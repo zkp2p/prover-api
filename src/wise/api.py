@@ -1,19 +1,17 @@
 import modal
-import re
 import os
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException, status
+from fastapi import HTTPException, status
 from typing import Dict
 import json
 
 from utils.errors import Errors
 from utils.alert import AlertHelper
-from utils.verify import verify_tlsn_proof
+from utils.tlsn_verifier import TLSNProofVerifier
 from utils.env_utils import read_env_credentials
-from utils.sign import sign_values_with_private_key, encode_and_hash
-from utils.regex_helpers import extract_regex_values, extract_json
+from utils.sign import encode_and_hash
 
-load_dotenv('./env')       # Load environment variables from .env file
+load_dotenv('./env')
 
 # --------- INITIALIZE HELPERS ------------
 
@@ -100,30 +98,6 @@ def validate_decoded_data(send_data, recv_data, circuit_type):
     return True, ""
 """
 
-
-def validate_extracted_public_values(values, circuit_type):
-
-    valid = True
-
-    if len(values) != len(regex_patterns_map[circuit_type]):
-        valid = False
-
-    for val in values:
-        if str(val) == 'null' or str(val) == "":
-            valid = False
-
-    if not valid:
-        if circuit_type == 'transfer':
-            error_code = Error.ErrorCodes.TLSN_WISE_INVALID_TRANSFER_VALUES
-        elif circuit_type == 'registration_profile_id': 
-            error_code = Error.ErrorCodes.TLSN_WISE_INVALID_PROFILE_REGISTRATION_VALUES
-        elif circuit_type == 'registration_account_id':
-            error_code = Error.ErrorCodes.TLSN_WISE_INVALID_MC_ACCOUNT_REGISTRATION_VALUES
-
-        return False, error_code        
-
-    return True, ""
-
 # ----------------- REGEXES -----------------
 
 # We can't convert the response to json and then index out the values using keys
@@ -186,13 +160,45 @@ regex_target_types = {
     "registration_account_id": get_regex_target_types(registration_account_id_regexes_config)
 }
 
+error_codes_map = {
+    "transfer": Error.ErrorCodes.TLSN_WISE_INVALID_TRANSFER_VALUES,
+    "registration_profile_id": Error.ErrorCodes.TLSN_WISE_INVALID_PROFILE_REGISTRATION_VALUES,
+    "registration_account_id": Error.ErrorCodes.TLSN_WISE_INVALID_MC_ACCOUNT_REGISTRATION_VALUES
+}
+
+# --------- POST PROCESSING ------------
+
+def post_processing_public_values(public_values, target_types, circuit_type, proof_data):
+    # Post processing public values
+    target_types = regex_target_types.get(circuit_type, [])
+
+    if circuit_type == "transfer":
+        public_values.append(int(proof_data["intent_hash"]))
+        target_types.append('uint256')
+
+    if circuit_type == "registration_profile_id":
+        # Todo: find a more cleaner way to do it
+        wisetag = public_values[-1]
+        out_hash = encode_and_hash([wisetag], ['string'])
+        public_values[-1] = str(int(out_hash, 16))
+
+    return public_values, target_types
+
 # ----------------- API -----------------
 
 def core_verify_proof(proof_data):
 
-    proof_raw_data = json.loads(proof_data["proof"])
+    proof_raw_data = proof_data["proof"]
     payment_type = proof_data["payment_type"]
     circuit_type = proof_data["circuit_type"]
+
+    tlsn_proof_verifier = TLSNProofVerifier(
+        payment_type=payment_type,
+        circuit_type=circuit_type,
+        regex_patterns_map=regex_patterns_map,
+        regex_target_types=regex_target_types,
+        error_codes_map=error_codes_map
+    )
 
     if payment_type == "wise":
         pass
@@ -209,7 +215,7 @@ def core_verify_proof(proof_data):
         )
 
     # Verify proof
-    send_data, recv_data = verify_tlsn_proof(proof_data)
+    send_data, recv_data = tlsn_proof_verifier.verify_tlsn_proof(proof_raw_data)
     if send_data == "" or recv_data == "":
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, 
@@ -225,37 +231,29 @@ def core_verify_proof(proof_data):
     #     )
 
     # Extract required values from session data
-    data = send_data + recv_data
-    regex_patterns = regex_patterns_map.get(circuit_type, [])
-    public_values = extract_regex_values(data, regex_patterns)
-    
-    valid_values, error_code = validate_extracted_public_values(public_values, circuit_type)
+    public_values, valid_values, error_code = tlsn_proof_verifier.verify_extracted_regexes(send_data, recv_data)
     if not valid_values:
-        alert_helper.alert_on_slack(error_code, data)
+        alert_helper.alert_on_slack(error_code, send_data + recv_data)
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, 
             detail=Error.get_error_response(error_code)
         )
 
-    # Sign on payment details using verifier private key
-    target_types = regex_target_types.get(circuit_type, [])
-
-    if circuit_type == "transfer":
-        public_values.append(int(proof_data["intent_hash"]))
-        target_types.append('uint256')
-
-    if circuit_type == "registration_profile_id":
-        # Todo: find a more cleaner way to do it
-        wisetag = public_values[-1]
-        out_hash = encode_and_hash([wisetag], ['string'])
-        public_values[-1] = str(int(out_hash, 16))
+    # Custom post processing public values defined above
+    post_processed_public_values, post_processed_target_types = post_processing_public_values(
+        public_values,
+        tlsn_proof_verifier.regex_target_types,
+        circuit_type,
+        proof_data
+    )
     
     # Logging
-    print('Public Values:', public_values)
-    print('Value types:', target_types)
-    signature = sign_values_with_private_key('VERIFIER_PRIVATE_KEY', public_values, target_types)
+    print('Public Values:', post_processed_public_values)
+    print('Value types:', post_processed_target_types)
 
-    serialized_values = [str(v) for v in public_values]
+    # Sign on public values using verifier private key
+    signature, serialized_values = tlsn_proof_verifier.sign_and_serialize_values(post_processed_public_values, post_processed_target_types)
+
     response = {
         "proof": signature,
         "public_values": serialized_values
