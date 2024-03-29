@@ -7,7 +7,7 @@ import json
 
 from utils.errors import Errors
 from utils.alert import AlertHelper
-from utils.tlsn_verifier import TLSNProofVerifier
+from utils.tlsn_proof_verifier import TLSNProofVerifier
 from utils.env_utils import read_env_credentials
 from utils.sign import encode_and_hash
 

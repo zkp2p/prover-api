@@ -1,8 +1,6 @@
 import pytest
 import os
-import json
-from unittest.mock import patch, MagicMock
-from src.wise.api import core_verify_proof, Error, regex_patterns_map, regex_target_types  # Update the import path as needed
+from src.wise.api import core_verify_proof
 from dotenv import load_dotenv
 from fastapi.exceptions import HTTPException
 
