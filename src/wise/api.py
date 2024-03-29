@@ -166,7 +166,7 @@ error_codes_map = {
     "registration_account_id": Error.ErrorCodes.TLSN_WISE_INVALID_MC_ACCOUNT_REGISTRATION_VALUES
 }
 
-# --------- POST PROCESSING ------------
+# --------- CUSTOM POST PROCESSING ------------ 
 
 def post_processing_public_values(public_values, target_types, circuit_type, proof_data):
     # Post processing public values
@@ -186,12 +186,18 @@ def post_processing_public_values(public_values, target_types, circuit_type, pro
 
 # ----------------- API -----------------
 
+@stub.function(cpu=48, memory=16000, secrets=[credentials_secret]) 
+@modal.web_endpoint(method="POST")
+def verify_proof(proof_data: Dict):
+    return core_verify_proof(proof_data)
+
 def core_verify_proof(proof_data):
 
     proof_raw_data = proof_data["proof"]
     payment_type = proof_data["payment_type"]
     circuit_type = proof_data["circuit_type"]
 
+    # Instantiate the TLSN proof verifier
     tlsn_proof_verifier = TLSNProofVerifier(
         payment_type=payment_type,
         circuit_type=circuit_type,
@@ -260,8 +266,3 @@ def core_verify_proof(proof_data):
     }
 
     return response
-
-@stub.function(cpu=48, memory=16000, secrets=[credentials_secret]) 
-@modal.web_endpoint(method="POST")
-def verify_proof(proof_data: Dict):
-    return core_verify_proof(proof_data)
