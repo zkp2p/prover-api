@@ -86,14 +86,14 @@ def open_file(file_path):
         "error_code": ""
     })
 ])
-def test_verify_extracted_regexes(inputs, expected_output):
+def test_extract_regexes(inputs, expected_output):
     public_values, valid, error_code = TLSNProofVerifier(
         payment_type=inputs["payment_type"],
         circuit_type=inputs["circuit_type"],
         regex_patterns_map=inputs["regex_patterns_map"],
         regex_target_types=inputs["regex_target_types"],
         error_codes_map=inputs["error_codes_map"]
-    ).verify_extracted_regexes(inputs["send_data"], inputs["recv_data"])
+    ).extract_regexes(inputs["send_data"], inputs["recv_data"])
 
     assert public_values == expected_output["public_values"]
     assert valid == expected_output["valid"]

@@ -41,63 +41,6 @@ image = modal.Image.from_registry(
 stub = modal.Stub(name=STUB_NAME, image=image)
 credentials_secret = modal.Secret.from_dict(env_credentials)
 
-
-# --------- SANITY CHECK INPUT ----------
-
-
-"""
-def validate_transfer_response(resp):
-    print('state', resp['state'])
-    if not resp['state'] == 'OUTGOING_PAYMENT_SENT':
-        print('failed here') 
-        return False
-    
-    if not resp['actor'] == 'SENDER':
-        print('failed here 2') 
-        return False
-    
-    if resp['targetRecipientId'] == 'null' or \
-        resp['targetAmount'] == 'null' or \
-        resp['targetCurrency'] == 'null':
-        print('failed here 3') 
-        return False
-
-    return True
-
-def validate_profile_registration_response(resp):
-    return True
-
-def validate_mc_account_registration_response(resp):
-    return validate_transfer_response(resp)
-
-
-def validate_decoded_data(send_data, recv_data, circuit_type):
-
-    error_code = None
-    combined_data = send_data + recv_data
-
-    if circuit_type == 'transfer': 
-        recv_response = extract_json(combined_data, '{"id":', '}')
-        if not validate_transfer_response(recv_response):
-            error_code = Error.ErrorCodes.TLSN_WISE_INVALID_TRANSFER_RESPONSE
-        
-    if circuit_type == 'registration_profile_id':
-        recv_response = extract_json(combined_data, '{"sections":', '}')
-        if not validate_profile_registration_response(recv_response):
-            error_code = Error.ErrorCodes.TLSN_WISE_INVALID_TRANSFER_RESPONSE
-        
-    if circuit_type == 'registration_account_id':
-        recv_response = extract_json(combined_data, '{"id":', '}')
-        if not validate_mc_account_registration_response(recv_response):
-            error_code = Error.ErrorCodes.TLSN_WISE_INVALID_MC_ACCOUNT_REGISTRATION_RESPONSE
-        
-    if error_code:
-        alert_helper.alert_on_slack(error_code, combined_data)
-        return False, error_code
-
-    return True, ""
-"""
-
 # ----------------- REGEXES -----------------
 
 # We can't convert the response to json and then index out the values using keys
@@ -227,17 +170,9 @@ def core_verify_proof(proof_data):
             status_code=status.HTTP_400_BAD_REQUEST, 
             detail=Error.get_error_response(Error.ErrorCodes.TLSN_PROOF_VERIFICATION_FAILED)
         )
-    
-    # Validate send and recv data
-    # valid_proof, error_code = validate_decoded_data(send_data, recv_data, circuit_type)
-    # if not valid_proof:
-    #     raise HTTPException(
-    #         status_code=status.HTTP_400_BAD_REQUEST, 
-    #         detail=Error.get_error_response(error_code)
-    #     )
 
     # Extract required values from session data
-    public_values, valid_values, error_code = tlsn_proof_verifier.verify_extracted_regexes(send_data, recv_data)
+    public_values, valid_values, error_code = tlsn_proof_verifier.extract_regexes(send_data, recv_data)
     if not valid_values:
         alert_helper.alert_on_slack(error_code, send_data + recv_data)
         raise HTTPException(

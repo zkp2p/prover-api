@@ -27,7 +27,7 @@ class TLSNProofVerifier:
         self.error_codes_map = error_codes_map
         self.base_path = os.environ.get('CUSTOM_PROVER_API_PATH', "/root/prover-api")
 
-    def verify_extracted_regexes(self, send_data, recv_data):
+    def extract_regexes(self, send_data, recv_data):
         regex_patterns = self.regex_patterns_map.get(self.circuit_type, [])
         public_values = extract_regex_values(send_data + recv_data, regex_patterns)
 
