@@ -183,3 +183,72 @@ def test_verify_proof_invalid_values_profile_id(proof_data):
 
     assert exc_info.value.status_code == 400
     assert exc_info.value.detail == {'code': 12, 'message': 'TLSN invalid extracted values for `profile registration`'}
+
+@pytest.mark.parametrize("proof_data", [
+    ({
+        "proof": open_file("./src/wise/tests/proofs/receive_eur_1.json"),  
+        "payment_type": "revolut",
+        "circuit_type": "registration_profile_id",
+        "intent_hash": "2109098755843864455034980037347310810989244226703714011137935097150268285982"
+    }),
+])
+def test_verify_proof_invalid_payment_type(proof_data):
+    # Construct the email data
+    proof_data = {
+        "payment_type": proof_data['payment_type'],
+        "circuit_type": proof_data['circuit_type'],
+        "proof": proof_data['proof'],
+        "intent_hash": proof_data['intent_hash']
+    }
+
+    with pytest.raises(HTTPException) as exc_info:
+        core_verify_proof(proof_data)
+
+    assert exc_info.value.status_code == 400
+    assert exc_info.value.detail == {'code': 1, 'message': 'Invalid payment type'}
+
+@pytest.mark.parametrize("proof_data", [
+    ({
+        "proof": open_file("./src/wise/tests/proofs/receive_eur_1.json"),  
+        "payment_type": "wise",
+        "circuit_type": "invalid_transfer",
+        "intent_hash": "2109098755843864455034980037347310810989244226703714011137935097150268285982"
+    }),
+])
+def test_verify_proof_invalid_circuit_type(proof_data):
+    # Construct the email data
+    proof_data = {
+        "payment_type": proof_data['payment_type'],
+        "circuit_type": proof_data['circuit_type'],
+        "proof": proof_data['proof'],
+        "intent_hash": proof_data['intent_hash']
+    }
+
+    with pytest.raises(HTTPException) as exc_info:
+        core_verify_proof(proof_data)
+
+    assert exc_info.value.status_code == 400
+    assert exc_info.value.detail == {'code': 2, 'message': 'Invalid circuit type. Circuit type should be send or registration'}
+
+@pytest.mark.parametrize("proof_data", [
+    ({
+        "proof": open_file("./src/wise/tests/proofs/invalid_proof.json"),
+        "payment_type": "wise",
+        "circuit_type": "transfer",
+        "intent_hash": "2109098755843864455034980037347310810989244226703714011137935097150268285982"
+    }),
+])
+def test_verify_proof_invalid_proof(proof_data):
+    # Construct the email data
+    proof_data = {
+        "payment_type": proof_data['payment_type'],
+        "circuit_type": proof_data['circuit_type'],
+        "proof": proof_data['proof'],
+        "intent_hash": proof_data['intent_hash']
+    }
+
+    with pytest.raises(HTTPException) as exc_info:
+        core_verify_proof(proof_data)
+
+    assert exc_info.value.status_code == 400
+    assert exc_info.value.detail == {'code': 10, 'message': 'TLSN proof verification failed'}

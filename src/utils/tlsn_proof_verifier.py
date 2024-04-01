@@ -46,13 +46,17 @@ class TLSNProofVerifier:
 
         # Verify the notaries signature on encoded data using the rust verifier
         print('Running verify process')
-        self.run_verify_process(str(nonce))
+        result = self.run_verify_process(str(nonce))
+
+        # Exit early if error is found
+        if result.stderr != "":
+            return "", "", result.stderr
 
         # Read the decoded session data output by the rust verifier
         print('Reading outputs')
         send_data, recv_data = read_tlsn_verify_output_from_local(self.payment_type, self.circuit_type, str(nonce))
 
-        return send_data, recv_data
+        return send_data, recv_data, ""
 
     def run_verify_process(self, nonce):
         tlsn_proof_file_path = get_tlsn_proof_file_path(self.payment_type, self.circuit_type, nonce)
