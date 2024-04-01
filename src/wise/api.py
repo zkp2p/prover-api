@@ -168,21 +168,21 @@ error_codes_map = {
 
 # --------- CUSTOM POST PROCESSING ------------ 
 
-def post_processing_public_values(public_values, target_types, circuit_type, proof_data):
+def post_processing_public_values(pub_values, regex_types, circuit_type, proof_data):
     # Post processing public values
-    target_types = regex_target_types.get(circuit_type, [])
+    local_target_types = regex_types.get(circuit_type, []).copy()
 
     if circuit_type == "transfer":
-        public_values.append(int(proof_data["intent_hash"]))
-        target_types.append('uint256')
+        pub_values.append(int(proof_data["intent_hash"]))
+        local_target_types.append('uint256')
 
     if circuit_type == "registration_profile_id":
         # Todo: find a more cleaner way to do it
-        wisetag = public_values[-1]
+        wisetag = pub_values[-1]
         out_hash = encode_and_hash([wisetag], ['string'])
-        public_values[-1] = str(int(out_hash, 16))
+        pub_values[-1] = str(int(out_hash, 16))
 
-    return public_values, target_types
+    return pub_values, local_target_types
 
 # ----------------- API -----------------
 

@@ -36,6 +36,15 @@ def open_file(file_path):
         "public_values": ["GET https://wise.com/gateway/v3/profiles/41213881/transfers", "wise.com", "909460084", "41213881", "403384647", "1.0", "EUR", "OUTGOING_PAYMENT_SENT", "1703270934000", "2109098755843864455034980037347310810989244226703714011137935097150268285982"]
     }),
     ({
+        "proof": open_file("./src/wise/tests/proofs/transfer_sgd_note.json"),  # NOTE: special characters are not allowed in the custom note to prevent injection attacks
+        "payment_type": "wise",
+        "circuit_type": "transfer",
+        "intent_hash": "2109098755843864455034980037347310810989244226703714011137935097150268285982"
+    }, {
+        "proof": "0xa97022e62b9dee81915f57041c0fefd2566698fddc5656fe21e7fd51edd625786519741756e24820807a2c566c03bbe0d2684f86a2248722f3f4d6068d9ec8501c",
+        "public_values": ["GET https://wise.com/gateway/v3/profiles/41213881/transfers", "wise.com", "1018659478", "41213881", "403384647", "0.1", "SGD", "OUTGOING_PAYMENT_SENT", "1711957984000", "2109098755843864455034980037347310810989244226703714011137935097150268285982"]
+    }),
+    ({
         "proof": open_file("./src/wise/tests/proofs/transfer_eur_1.json"),  
         "payment_type": "wise",
         "circuit_type": "registration_account_id",
