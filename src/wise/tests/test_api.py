@@ -23,8 +23,8 @@ def open_file(file_path):
         "circuit_type": "registration_profile_id",
         "intent_hash": "2109098755843864455034980037347310810989244226703714011137935097150268285982"
     }, {
-        "proof": "0xba03085b486a2f7bab46cef658ea930b2be69368a3f1d547d0afc99ef382cda0384e6e80a15a832c7416dc5882e9b5e05c16c6f33885a4c5794f1e1a058605831b",
-        "public_values": ["POST https://wise.com/gateway/v1/payments", "wise.com", "41213881", "61158579531006309039872672420732308054473459091416465738091051601559791768344"]
+        "proof": "0xf8621a0fad550f6aa643fe901dc76d97bbf60e8f12464d3917b5eb0ba0c041525754357eabc3495568166eca4c6ebf4ff165c0bfad7074927a0befb6d1f0521d1c",
+        "public_values": ["POST https://wise.com/gateway/v1/payments", "wise.com", "41213881", "Thu, 21 Mar 2024 02:27:56 GMT", "61158579531006309039872672420732308054473459091416465738091051601559791768344"]
     }),
     ({
         "proof": open_file("./src/wise/tests/proofs/transfer_eur_1.json"),  
