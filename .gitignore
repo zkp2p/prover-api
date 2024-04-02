@@ -9,9 +9,11 @@ inputs/*.json
 __pycache__/*
 */__pycache__/*
 */*/__pycache__/*
+*/*/*/__pycache__/*
 
 
 src/*/build/
 tlsn-verifier/target
 tlsn-verifier/*.txt
+tlsn_verify_outputs/*.txt
 
