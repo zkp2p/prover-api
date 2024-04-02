@@ -95,6 +95,7 @@ registration_profile_id_regexes_config = [
     (r'"profileId":(\d+)', 'string'),
 
     # Recv data regexes
+    (r'HTTP/1.1 200 OK\nDate: ([^\n]+)', 'string'),  # Date
     (r'"name":"Your Wisetag","description":"@([^"]+)"', 'string')
 ]
 
@@ -184,7 +185,9 @@ def verify_proof(proof_data: Dict):
 
 def core_verify_proof(proof_data):
 
-    proof_raw_data = json.loads(proof_data["proof"])
+def core_verify_proof(proof_data):
+
+    proof_raw_data = proof_data["proof"]
     payment_type = proof_data["payment_type"]
     circuit_type = proof_data["circuit_type"]
 
@@ -218,14 +221,6 @@ def core_verify_proof(proof_data):
             status_code=status.HTTP_400_BAD_REQUEST, 
             detail=Error.get_error_response(Error.ErrorCodes.TLSN_PROOF_VERIFICATION_FAILED)
         )
-    
-    # Validate send and recv data
-    # valid_proof, error_code = validate_decoded_data(send_data, recv_data, circuit_type)
-    # if not valid_proof:
-    #     raise HTTPException(
-    #         status_code=status.HTTP_400_BAD_REQUEST, 
-    #         detail=Error.get_error_response(error_code)
-    #     )
 
     # Extract required values from session data
     public_values, valid_values, error_code = tlsn_proof_verifier.extract_regexes(send_data, recv_data)
@@ -258,31 +253,27 @@ def core_verify_proof(proof_data):
     
     valid_values, error_code = validate_extracted_public_values(public_values, circuit_type)
     if not valid_values:
-        alert_helper.alert_on_slack(error_code, data)
+        alert_helper.alert_on_slack(error_code, send_data + recv_data)
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, 
             detail=Error.get_error_response(error_code)
         )
 
-    # Sign on payment details using verifier private key
-    target_types = regex_target_types.get(circuit_type, [])
-
-    if circuit_type == "transfer":
-        public_values.append(int(proof_data["intent_hash"]))
-        target_types.append('uint256')
-
-    if circuit_type == "registration_profile_id":
-        # Todo: find a more cleaner way to do it
-        wisetag = public_values[-1]
-        out_hash = encode_and_hash([wisetag], ['string'])
-        public_values[-1] = str(int(out_hash, 16))
+    # Custom post processing public values defined above
+    post_processed_public_values, post_processed_target_types = post_processing_public_values(
+        public_values,
+        tlsn_proof_verifier.regex_target_types,
+        circuit_type,
+        proof_data
+    )
     
     # Logging
-    print('Public Values:', public_values)
-    print('Value types:', target_types)
-    signature = sign_values_with_private_key('VERIFIER_PRIVATE_KEY', public_values, target_types)
+    print('Public Values:', post_processed_public_values)
+    print('Value types:', post_processed_target_types)
 
-    serialized_values = [str(v) for v in public_values]
+    # Sign on public values using verifier private key
+    signature, serialized_values = tlsn_proof_verifier.sign_and_serialize_values(post_processed_public_values, post_processed_target_types)
+
     response = {
         "proof": signature,
         "public_values": serialized_values
