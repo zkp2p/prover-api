@@ -8,9 +8,9 @@ from dotenv import load_dotenv
 load_dotenv('./.env')
 
 TEST_PAYMENT_TYPE = "wise"
-TEST_CIRCUIT_TYPE = "transfer"
+TEST_CIRCUIT_TYPE = "registration_account_id"
 TEST_PROOF_PATH = "./proofs/transfer_eur_richard.json"
-MODAL_ENDPOINT = "https://zkp2p--zkp2p-wise-verifier-0-2-5-verify-proof.modal.run"
+MODAL_ENDPOINT = "https://zkp2p--zkp2p-wise-verifier-0-2-5-verify-proof-dev.modal.run"
 
 
 if __name__ == "__main__":
@@ -24,7 +24,8 @@ if __name__ == "__main__":
         "payment_type": TEST_PAYMENT_TYPE,
         "circuit_type": TEST_CIRCUIT_TYPE,
         "proof": proof,
-        "intent_hash": "2109098755843864455034980037347310810989244226703714011137935097150268285982"
+        "intent_hash": "2109098755843864455034980037347310810989244226703714011137935097150268285982",
+        "user_address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
     }
     print(proof_data)
     print(
