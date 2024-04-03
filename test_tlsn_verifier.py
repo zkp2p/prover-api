@@ -8,9 +8,9 @@ from dotenv import load_dotenv
 load_dotenv('./.env')
 
 TEST_PAYMENT_TYPE = "wise"
-TEST_CIRCUIT_TYPE = "registration_account_id"
+TEST_CIRCUIT_TYPE = "transfer"
 TEST_PROOF_PATH = "./proofs/transfer_eur_richard.json"
-MODAL_ENDPOINT = "https://zkp2p--zkp2p-wise-verifier-0-2-5-verify-proof-dev.modal.run"
+MODAL_ENDPOINT = "https://zkp2p--zkp2p-wise-verifier-0-2-5-verify-proof.modal.run"
 
 
 if __name__ == "__main__":
