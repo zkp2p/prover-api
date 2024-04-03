@@ -105,8 +105,7 @@ registration_account_id_regexes_config = [
     (host_regex_pattern, 'string'),
 
     # Recv data regexes
-    (r'"profileId":(\d+)', 'string'),
-    (r'"refundRecipientId":(\d+)', 'string')
+    (r'"profileId":(\d+)', 'string')
 ]
 
 def get_regex_patterns(config):
