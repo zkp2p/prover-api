@@ -82,8 +82,7 @@ registration_account_id_regexes_config = [
     (host_regex_pattern, 'string'),
 
     # Recv data regexes
-    (r'"profileId":(\d+)', 'string'),
-    (r'"refundRecipientId":(\d+)', 'string')
+    (r'"profileId":(\d+)', 'string')
 ]
 
 def get_regex_patterns(config):
@@ -125,6 +124,9 @@ def post_processing_public_values(pub_values, regex_types, circuit_type, proof_d
         wisetag = pub_values[-1]
         out_hash = encode_and_hash([wisetag], ['string'])
         pub_values[-1] = str(int(out_hash, 16))
+
+        pub_values.append(proof_data["user_address"])
+        local_target_types.append('string')
 
     return pub_values, local_target_types
 
