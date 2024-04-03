@@ -57,6 +57,7 @@ transfer_regexes_config = [
 
     # Recv data regexes
     (r'"id":(\d+)', 'string'),  # ID
+    (r'"profileId":(\d+)', 'string'),  # Profile Id
     (r'"targetRecipientId":(\d+)', 'string'),  # Target Account
     (r'"targetAmount":([\d.]+)', 'string'),  # Target Amount
     (r'"targetCurrency":"([A-Z]{3})"', 'string'),  # Target Currency
