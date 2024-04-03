@@ -95,7 +95,6 @@ registration_profile_id_regexes_config = [
     (r'"profileId":(\d+)', 'string'),
 
     # Recv data regexes
-    (r'HTTP/1.1 200 OK\nDate: ([^\n]+)', 'string'),  # Date
     (r'"name":"Your Wisetag","description":"@([^"]+)"', 'string')
 ]
 
