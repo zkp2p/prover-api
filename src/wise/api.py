@@ -57,7 +57,6 @@ transfer_regexes_config = [
 
     # Recv data regexes
     (r'"id":(\d+)', 'string'),  # ID
-    (r'"profileId":(\d+)', 'string'),  # Profile Id
     (r'"targetRecipientId":(\d+)', 'string'),  # Target Account
     (r'"targetAmount":([\d.]+)', 'string'),  # Target Amount
     (r'"targetCurrency":"([A-Z]{3})"', 'string'),  # Target Currency
@@ -81,7 +80,8 @@ registration_account_id_regexes_config = [
     (host_regex_pattern, 'string'),
 
     # Recv data regexes
-    (r'"profileId":(\d+)', 'string')
+    (r'"profileId":(\d+)', 'string'),
+    (r'"refundRecipientId":(\d+)', 'string')
 ]
 
 def get_regex_patterns(config):
