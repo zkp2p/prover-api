@@ -126,7 +126,7 @@ def post_processing_public_values(pub_values, regex_types, circuit_type, proof_d
         pub_values[-1] = str(int(out_hash, 16))
 
         pub_values.append(proof_data["user_address"])
-        local_target_types.append('string')
+        local_target_types.append('address')
 
     return pub_values, local_target_types
 
