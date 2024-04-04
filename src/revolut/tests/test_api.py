@@ -36,7 +36,29 @@ def open_file(file_path):
     }, {
         "proof": "0x1a6db4989f793387da4045ea28c33cfa4e1cdc68f32637ff221f8c1dd785d4d559803367c00264de10b337f5c38db58cfb447e305ae5ec48a3ec3cd35943a0711b",
         "public_values": ["GET https://app.revolut.com/api/retail/transaction/65fd0142-7155-a0b7-8136-86e1fcc5455e", "app.revolut.com", "65fd0142-7155-a0b7-8136-86e1fcc5455e", "alexgx7gy", "-100", "EUR", "COMPLETED", "1711079746280", "2109098755843864455034980037347310810989244226703714011137935097150268285982"]
-    })
+    }),
+    # NOTE: Receiving a transfer can also be verified correctly
+    ({
+        "proof": open_file("./src/revolut/tests/proofs/receive_usd_1.json"),  
+        "payment_type": "revolut",
+        "circuit_type": "transfer",
+        "intent_hash": "2109098755843864455034980037347310810989244226703714011137935097150268285982",
+        "user_address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+    },{
+        "proof": "0xf5eafc35635be28c551174ef56fbd69b375268bb7189d20c6e2c7d9823ddb310362c8728f78ddc14ea8482a1152c5da0c4d6792fb08ce4a7cca2d68c67d3fb6d1b",
+        "public_values": ["GET https://app.revolut.com/api/retail/transaction/656a0b92-2554-a83e-962c-25a85edad060", "app.revolut.com", "656a0b92-2554-a83e-962c-25a85edad060", "alexgx7gy", "100", "USD", "COMPLETED", "1701448594254", "2109098755843864455034980037347310810989244226703714011137935097150268285982"]
+    }),
+    # NOTE: Transfering USD with note containing " and comma
+    ({
+        "proof": open_file("./src/revolut/tests/proofs/transfer_usd_with_note.json"),  
+        "payment_type": "revolut",
+        "circuit_type": "transfer",
+        "intent_hash": "2109098755843864455034980037347310810989244226703714011137935097150268285982",
+        "user_address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+    },{
+        "proof": "0x522f5f1cb740c53f11bf9ecf3b233ff66e43c86fa91a3f041e0ffc83b2c994472fe1f0d56ae43286eebd5fd7c667f003b551d5953c87dd003e76e332554092541b",
+        "public_values": ["GET https://app.revolut.com/api/retail/transaction/660e6386-0a63-a388-80be-32d1f7672787", "app.revolut.com", "660e6386-0a63-a388-80be-32d1f7672787", "alexgx7gy", "-100", "USD", "COMPLETED", "1712219014734", "2109098755843864455034980037347310810989244226703714011137935097150268285982"]
+    }),
 ])
 def test_verify_proof(proof_data, expected_output):
     # Construct the email data
