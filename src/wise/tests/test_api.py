@@ -215,11 +215,16 @@ def test_verify_proof_invalid_values_transfer(proof_data):
         "circuit_type": proof_data['circuit_type'],
         "proof": proof_data['proof'],
 <<<<<<< HEAD
+<<<<<<< HEAD
         "intent_hash": proof_data['intent_hash'],
         "user_address": proof_data['user_address']
 =======
         "intent_hash": proof_data['intent_hash']
 >>>>>>> 2dfc622 (Initial Wise verifier and unit tests (#12))
+=======
+        "intent_hash": proof_data['intent_hash'],
+        "user_address": proof_data['user_address']
+>>>>>>> 6c69c6b (fix tests)
     }
 
     with pytest.raises(HTTPException) as exc_info:
@@ -285,11 +290,16 @@ def test_verify_proof_invalid_values_account_id(proof_data):
         "circuit_type": proof_data['circuit_type'],
         "proof": proof_data['proof'],
 <<<<<<< HEAD
+<<<<<<< HEAD
         "intent_hash": proof_data['intent_hash'],
         "user_address": proof_data['user_address']
 =======
         "intent_hash": proof_data['intent_hash']
 >>>>>>> 2dfc622 (Initial Wise verifier and unit tests (#12))
+=======
+        "intent_hash": proof_data['intent_hash'],
+        "user_address": proof_data['user_address']
+>>>>>>> 6c69c6b (fix tests)
     }
 
     with pytest.raises(HTTPException) as exc_info:
@@ -371,11 +381,16 @@ def test_verify_proof_invalid_values_profile_id(proof_data):
         "circuit_type": proof_data['circuit_type'],
         "proof": proof_data['proof'],
 <<<<<<< HEAD
+<<<<<<< HEAD
         "intent_hash": proof_data['intent_hash'],
         "user_address": proof_data['user_address']
 =======
         "intent_hash": proof_data['intent_hash']
 >>>>>>> 2dfc622 (Initial Wise verifier and unit tests (#12))
+=======
+        "intent_hash": proof_data['intent_hash'],
+        "user_address": proof_data['user_address']
+>>>>>>> 6c69c6b (fix tests)
     }
 
     with pytest.raises(HTTPException) as exc_info:
@@ -409,11 +424,16 @@ def test_verify_proof_invalid_payment_type(proof_data):
         "circuit_type": proof_data['circuit_type'],
         "proof": proof_data['proof'],
 <<<<<<< HEAD
+<<<<<<< HEAD
         "intent_hash": proof_data['intent_hash'],
         "user_address": proof_data['user_address']
 =======
         "intent_hash": proof_data['intent_hash']
 >>>>>>> 2dfc622 (Initial Wise verifier and unit tests (#12))
+=======
+        "intent_hash": proof_data['intent_hash'],
+        "user_address": proof_data['user_address']
+>>>>>>> 6c69c6b (fix tests)
     }
 
     with pytest.raises(HTTPException) as exc_info:
@@ -447,11 +467,16 @@ def test_verify_proof_invalid_circuit_type(proof_data):
         "circuit_type": proof_data['circuit_type'],
         "proof": proof_data['proof'],
 <<<<<<< HEAD
+<<<<<<< HEAD
         "intent_hash": proof_data['intent_hash'],
         "user_address": proof_data['user_address']
 =======
         "intent_hash": proof_data['intent_hash']
 >>>>>>> 2dfc622 (Initial Wise verifier and unit tests (#12))
+=======
+        "intent_hash": proof_data['intent_hash'],
+        "user_address": proof_data['user_address']
+>>>>>>> 6c69c6b (fix tests)
     }
 
     with pytest.raises(HTTPException) as exc_info:
@@ -485,11 +510,16 @@ def test_verify_proof_invalid_proof(proof_data):
         "circuit_type": proof_data['circuit_type'],
         "proof": proof_data['proof'],
 <<<<<<< HEAD
+<<<<<<< HEAD
         "intent_hash": proof_data['intent_hash'],
         "user_address": proof_data['user_address']
 =======
         "intent_hash": proof_data['intent_hash']
 >>>>>>> 2dfc622 (Initial Wise verifier and unit tests (#12))
+=======
+        "intent_hash": proof_data['intent_hash'],
+        "user_address": proof_data['user_address']
+>>>>>>> 6c69c6b (fix tests)
     }
 
     with pytest.raises(HTTPException) as exc_info:
