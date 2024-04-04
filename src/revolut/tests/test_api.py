@@ -37,17 +37,6 @@ def open_file(file_path):
         "proof": "0x1a6db4989f793387da4045ea28c33cfa4e1cdc68f32637ff221f8c1dd785d4d559803367c00264de10b337f5c38db58cfb447e305ae5ec48a3ec3cd35943a0711b",
         "public_values": ["GET https://app.revolut.com/api/retail/transaction/65fd0142-7155-a0b7-8136-86e1fcc5455e", "app.revolut.com", "65fd0142-7155-a0b7-8136-86e1fcc5455e", "alexgx7gy", "-100", "EUR", "COMPLETED", "1711079746280", "2109098755843864455034980037347310810989244226703714011137935097150268285982"]
     }),
-    # NOTE: Receiving a transfer can also be verified correctly
-    ({
-        "proof": open_file("./src/revolut/tests/proofs/receive_usd_1.json"),  
-        "payment_type": "revolut",
-        "circuit_type": "transfer",
-        "intent_hash": "2109098755843864455034980037347310810989244226703714011137935097150268285982",
-        "user_address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
-    },{
-        "proof": "0xf5eafc35635be28c551174ef56fbd69b375268bb7189d20c6e2c7d9823ddb310362c8728f78ddc14ea8482a1152c5da0c4d6792fb08ce4a7cca2d68c67d3fb6d1b",
-        "public_values": ["GET https://app.revolut.com/api/retail/transaction/656a0b92-2554-a83e-962c-25a85edad060", "app.revolut.com", "656a0b92-2554-a83e-962c-25a85edad060", "alexgx7gy", "100", "USD", "COMPLETED", "1701448594254", "2109098755843864455034980037347310810989244226703714011137935097150268285982"]
-    }),
     # NOTE: Transfering USD with note containing " and comma
     ({
         "proof": open_file("./src/revolut/tests/proofs/transfer_usd_with_note.json"),  
@@ -81,7 +70,14 @@ def test_verify_proof(proof_data, expected_output):
         "circuit_type": "transfer",
         "intent_hash": "2109098755843864455034980037347310810989244226703714011137935097150268285982",
         "user_address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
-    })
+    }),
+    ({
+        "proof": open_file("./src/revolut/tests/proofs/receive_usd_1.json"),  
+        "payment_type": "revolut",
+        "circuit_type": "transfer",
+        "intent_hash": "2109098755843864455034980037347310810989244226703714011137935097150268285982",
+        "user_address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+    }),
 ])
 def test_verify_proof_invalid_values_transfer(proof_data):
     # Construct the email data
@@ -123,3 +119,78 @@ def test_verify_proof_invalid_values_revtag(proof_data):
 
     assert exc_info.value.status_code == 400
     assert exc_info.value.detail == {'code': 12, 'message': 'TLSN invalid extracted values for `profile registration`'}
+
+@pytest.mark.parametrize("proof_data", [
+    ({
+        "proof": open_file("./src/revolut/tests/proofs/revtag_registration_1.json"),  
+        "payment_type": "wise",
+        "circuit_type": "registration_revtag_id",
+        "intent_hash": "2109098755843864455034980037347310810989244226703714011137935097150268285982",
+        "user_address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+    }),
+])
+def test_verify_proof_invalid_payment_type(proof_data):
+    # Construct the email data
+    proof_data = {
+        "payment_type": proof_data['payment_type'],
+        "circuit_type": proof_data['circuit_type'],
+        "proof": proof_data['proof'],
+        "intent_hash": proof_data['intent_hash'],
+        "user_address": proof_data['user_address']
+    }
+
+    with pytest.raises(HTTPException) as exc_info:
+        core_verify_proof(proof_data)
+
+    assert exc_info.value.status_code == 400
+    assert exc_info.value.detail == {'code': 1, 'message': 'Invalid payment type'}
+
+@pytest.mark.parametrize("proof_data", [
+    ({
+        "proof": open_file("./src/revolut/tests/proofs/revtag_registration_1.json"),  
+        "payment_type": "revolut",
+        "circuit_type": "invalid_transfer",
+        "intent_hash": "2109098755843864455034980037347310810989244226703714011137935097150268285982",
+        "user_address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+    }),
+])
+def test_verify_proof_invalid_circuit_type(proof_data):
+    # Construct the email data
+    proof_data = {
+        "payment_type": proof_data['payment_type'],
+        "circuit_type": proof_data['circuit_type'],
+        "proof": proof_data['proof'],
+        "intent_hash": proof_data['intent_hash'],
+        "user_address": proof_data['user_address']
+    }
+
+    with pytest.raises(HTTPException) as exc_info:
+        core_verify_proof(proof_data)
+
+    assert exc_info.value.status_code == 400
+    assert exc_info.value.detail == {'code': 2, 'message': 'Invalid circuit type. Circuit type should be send or registration'}
+
+@pytest.mark.parametrize("proof_data", [
+    ({
+        "proof": open_file("./src/revolut/tests/proofs/invalid_proof.json"),
+        "payment_type": "revolut",
+        "circuit_type": "transfer",
+        "intent_hash": "2109098755843864455034980037347310810989244226703714011137935097150268285982",
+        "user_address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+    }),
+])
+def test_verify_proof_invalid_proof(proof_data):
+    # Construct the email data
+    proof_data = {
+        "payment_type": proof_data['payment_type'],
+        "circuit_type": proof_data['circuit_type'],
+        "proof": proof_data['proof'],
+        "intent_hash": proof_data['intent_hash'],
+        "user_address": proof_data['user_address']
+    }
+
+    with pytest.raises(HTTPException) as exc_info:
+        core_verify_proof(proof_data)
+
+    assert exc_info.value.status_code == 400
+    assert exc_info.value.detail == {'code': 10, 'message': 'TLSN proof verification failed'}
