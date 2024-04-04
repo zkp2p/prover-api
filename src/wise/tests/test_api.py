@@ -118,7 +118,8 @@ def test_verify_proof_invalid_values_transfer(proof_data):
         "payment_type": proof_data['payment_type'],
         "circuit_type": proof_data['circuit_type'],
         "proof": proof_data['proof'],
-        "intent_hash": proof_data['intent_hash']
+        "intent_hash": proof_data['intent_hash'],
+        "user_address": proof_data['user_address']
     }
 
     with pytest.raises(HTTPException) as exc_info:
@@ -156,7 +157,8 @@ def test_verify_proof_invalid_values_account_id(proof_data):
         "payment_type": proof_data['payment_type'],
         "circuit_type": proof_data['circuit_type'],
         "proof": proof_data['proof'],
-        "intent_hash": proof_data['intent_hash']
+        "intent_hash": proof_data['intent_hash'],
+        "user_address": proof_data['user_address']
     }
 
     with pytest.raises(HTTPException) as exc_info:
@@ -201,7 +203,8 @@ def test_verify_proof_invalid_values_profile_id(proof_data):
         "payment_type": proof_data['payment_type'],
         "circuit_type": proof_data['circuit_type'],
         "proof": proof_data['proof'],
-        "intent_hash": proof_data['intent_hash']
+        "intent_hash": proof_data['intent_hash'],
+        "user_address": proof_data['user_address']
     }
 
     with pytest.raises(HTTPException) as exc_info:
@@ -225,7 +228,8 @@ def test_verify_proof_invalid_payment_type(proof_data):
         "payment_type": proof_data['payment_type'],
         "circuit_type": proof_data['circuit_type'],
         "proof": proof_data['proof'],
-        "intent_hash": proof_data['intent_hash']
+        "intent_hash": proof_data['intent_hash'],
+        "user_address": proof_data['user_address']
     }
 
     with pytest.raises(HTTPException) as exc_info:
@@ -249,7 +253,8 @@ def test_verify_proof_invalid_circuit_type(proof_data):
         "payment_type": proof_data['payment_type'],
         "circuit_type": proof_data['circuit_type'],
         "proof": proof_data['proof'],
-        "intent_hash": proof_data['intent_hash']
+        "intent_hash": proof_data['intent_hash'],
+        "user_address": proof_data['user_address']
     }
 
     with pytest.raises(HTTPException) as exc_info:
@@ -273,7 +278,8 @@ def test_verify_proof_invalid_proof(proof_data):
         "payment_type": proof_data['payment_type'],
         "circuit_type": proof_data['circuit_type'],
         "proof": proof_data['proof'],
-        "intent_hash": proof_data['intent_hash']
+        "intent_hash": proof_data['intent_hash'],
+        "user_address": proof_data['user_address']
     }
 
     with pytest.raises(HTTPException) as exc_info:
