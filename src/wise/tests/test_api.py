@@ -56,17 +56,7 @@ def open_file(file_path):
     }, {
         "proof": "0xf7f5982ae351d80e6be4029899d152a43ad554380bd4aa9a335316f11757003423209e545af86c2835ebcb4e6b5ff60748a49e3bc73129772f04f633c2fe989c1b",
         "public_values": ["GET https://wise.com/gateway/v3/profiles/41213881/transfers", "wise.com", "41213881", "402863684"]
-    }),
-    ({
-        "proof": open_file("./src/wise/tests/proofs/cancel_transfer_1.json"), # NOTE: we allow a cancel transfer proof to pass
-        "payment_type": "wise",
-        "circuit_type": "registration_account_id",
-        "intent_hash": "2109098755843864455034980037347310810989244226703714011137935097150268285982",
-        "user_address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
-    }, {
-        "proof": "0xf7f5982ae351d80e6be4029899d152a43ad554380bd4aa9a335316f11757003423209e545af86c2835ebcb4e6b5ff60748a49e3bc73129772f04f633c2fe989c1b",
-        "public_values": ["GET https://wise.com/gateway/v3/profiles/41213881/transfers", "wise.com", "41213881", "402863684"]
-    }),
+    })
 ])
 def test_verify_proof(proof_data, expected_output):
     # Construct the email data
@@ -149,7 +139,14 @@ def test_verify_proof_invalid_values_transfer(proof_data):
         "circuit_type": "registration_account_id",
         "intent_hash": "2109098755843864455034980037347310810989244226703714011137935097150268285982",
         "user_address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
-    })
+    }),
+    ({
+        "proof": open_file("./src/wise/tests/proofs/cancel_transfer_1.json"),
+        "payment_type": "wise",
+        "circuit_type": "registration_account_id",
+        "intent_hash": "2109098755843864455034980037347310810989244226703714011137935097150268285982",
+        "user_address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+    }),
 ])
 def test_verify_proof_invalid_values_account_id(proof_data):
     # Construct the email data

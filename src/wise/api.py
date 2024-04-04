@@ -56,13 +56,13 @@ transfer_regexes_config = [
     (host_regex_pattern, 'string'),
 
     # Recv data regexes
-    (r'"id":(\d+)', 'string'),  # ID
-    (r'"profileId":(\d+)', 'string'),  # Profile Id
-    (r'"targetRecipientId":(\d+)', 'string'),  # Target Account
-    (r'"targetAmount":([\d.]+)', 'string'),  # Target Amount
-    (r'"targetCurrency":"([A-Z]{3})"', 'string'),  # Target Currency
-    (r'"state":"(\w+)"', 'string'),  # State
-    (r'"state":"OUTGOING_PAYMENT_SENT","date":(\d+)', 'string') # Unix date
+    (r'"id":(\d+),"userId":[X]+,"profileId":(\d+),"actor":"SENDER","quoteId":"[^"]+","state":"OUTGOING_PAYMENT_SENT","stateHistory":', 'string'),  # ID
+    (r'"profileId":(\d+),"actor":"SENDER","quoteId":"[^"]+","state":"OUTGOING_PAYMENT_SENT","stateHistory":\[{"state":"WAITING_FOR_PAYMENT","date":(\d+)},', 'string'),  # Profile Id
+    (r'"targetRecipientId":(\d+),"refundRecipientId":(\d+),"issues":\[\],"paymentReference":', 'string'),  # Target Account
+    (r'"targetAmount":([\d.]+),"targetCurrency":"([A-Z]{3})","feeAmount":([\d.]+),"discountAmount":(\d+)', 'string'),  # Target Amount
+    (r'"targetCurrency":"([A-Z]{3})","feeAmount":[0-9.]+,"discountAmount":(\d+)', 'string'),  # Target Currency
+    (r'"state":"(\w+)","stateHistory":\[{"state":"WAITING_FOR_PAYMENT","date":(\d+)},', 'string'),  # State
+    (r'"state":"OUTGOING_PAYMENT_SENT","date":(\d+)}\],"sourceAmount":([\d.]+),"invoiceAmount":', 'string') # Unix date
 ]
 
 registration_profile_id_regexes_config = [
@@ -72,7 +72,7 @@ registration_profile_id_regexes_config = [
     (r'"profileId":(\d+)', 'string'),
 
     # Recv data regexes
-    (r'"name":"Your Wisetag","description":"@([^"]+)"', 'string')
+    (r'"modules":\[{"name":"Your Wisetag","description":"@([^"]+)","urn":"urn:wise:wisetag","trackingName":"Wisetag","type":"WISETAG"}', 'string')
 ]
 
 registration_account_id_regexes_config = [
@@ -81,8 +81,8 @@ registration_account_id_regexes_config = [
     (host_regex_pattern, 'string'),
 
     # Recv data regexes
-    (r'"profileId":(\d+)', 'string'),
-    (r'"refundRecipientId":(\d+)', 'string')
+    (r'"profileId":(\d+),"actor":"SENDER","quoteId":"[^"]+","state":"OUTGOING_PAYMENT_SENT","stateHistory":\[{"state":"WAITING_FOR_PAYMENT","date":(\d+)},', 'string'),
+    (r'"refundRecipientId":(\d+),"issues":\[\],"paymentReference":', 'string')
 ]
 
 def get_regex_patterns(config):
