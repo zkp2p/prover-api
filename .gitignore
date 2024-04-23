@@ -1,6 +1,7 @@
 .env
 received_eml/*.eml
 received_eml/*.json
+proofs/*.json
 
 venv/
 inputs/*.json
@@ -8,5 +9,11 @@ inputs/*.json
 __pycache__/*
 */__pycache__/*
 */*/__pycache__/*
+*/*/*/__pycache__/*
+
 
 src/*/build/
+tlsn-verifier/target
+tlsn-verifier/*.txt
+tlsn_verify_outputs/*.txt
+
