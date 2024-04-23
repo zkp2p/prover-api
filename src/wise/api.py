@@ -41,29 +41,6 @@ image = modal.Image.from_registry(
 stub = modal.Stub(name=STUB_NAME, image=image)
 credentials_secret = modal.Secret.from_dict(env_credentials)
 
-def validate_extracted_public_values(values, circuit_type):
-
-    valid = True
-
-    if len(values) != len(regex_patterns_map[circuit_type]):
-        valid = False
-
-    for val in values:
-        if str(val) == 'null' or str(val) == "":
-            valid = False
-
-    if not valid:
-        if circuit_type == 'transfer':
-            error_code = Error.ErrorCodes.TLSN_WISE_INVALID_TRANSFER_VALUES
-        elif circuit_type == 'registration_profile_id': 
-            error_code = Error.ErrorCodes.TLSN_WISE_INVALID_PROFILE_REGISTRATION_VALUES
-        elif circuit_type == 'registration_account_id':
-            error_code = Error.ErrorCodes.TLSN_WISE_INVALID_MC_ACCOUNT_REGISTRATION_VALUES
-
-        return False, error_code        
-
-    return True, ""
-
 # ----------------- REGEXES -----------------
 
 # We can't convert the response to json and then index out the values using keys
@@ -153,27 +130,6 @@ def post_processing_public_values(pub_values, regex_types, circuit_type, proof_d
 
     return pub_values, local_target_types
 
-# --------- SANITY CHECK INPUT ----------
-
-
-def validate_proof(proof_raw):
-
-    # Validate all the values here before invoking the wasm verifier to verify registration. 
-    # Can we decode in python??? :think:
-
-
-    # TODO: VERIFY EMPTY KEYS, AND ENSURE NOTE ISN'T USED USED TO ATTACK VERFIFICATION.
-
-    # Log on modal for debugging
-    print(proof_raw)
-
-    # Todo: What sanity check should we perform here?
-    # Should we check for any malcicious injected data in the proof here?
-    # Anything that is not checked on either the Smart contract or by the verifier 
-    # should be checked here.
-
-    return True, ""
-
 
 # ----------------- REGEXES -----------------
 
@@ -181,8 +137,6 @@ def validate_proof(proof_raw):
 @modal.web_endpoint(method="POST")
 def verify_proof(proof_data: Dict):
     return core_verify_proof(proof_data)
-
-def core_verify_proof(proof_data):
 
 def core_verify_proof(proof_data):
 
@@ -223,34 +177,6 @@ def core_verify_proof(proof_data):
 
     # Extract required values from session data
     public_values, valid_values, error_code = tlsn_proof_verifier.extract_regexes(send_data, recv_data)
-    if not valid_values:
-        alert_helper.alert_on_slack(error_code, send_data + recv_data)
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, 
-            detail=Error.get_error_response(error_code)
-        )
-
-    # Custom post processing public values defined above
-    post_processed_public_values, post_processed_target_types = post_processing_public_values(
-        public_values,
-        tlsn_proof_verifier.regex_target_types,
-        circuit_type,
-        proof_data
-    )
-    
-    # Logging
-    print('Public Values:', post_processed_public_values)
-    print('Value types:', post_processed_target_types)
-
-    # Sign on public values using verifier private key
-    signature, serialized_values = tlsn_proof_verifier.sign_and_serialize_values(post_processed_public_values, post_processed_target_types)
-
-    # Extract required values from session data
-    data = send_data + recv_data
-    regex_patterns = regex_patterns_map.get(circuit_type, [])
-    public_values = extract_regex_values(data, regex_patterns)
-    
-    valid_values, error_code = validate_extracted_public_values(public_values, circuit_type)
     if not valid_values:
         alert_helper.alert_on_slack(error_code, send_data + recv_data)
         raise HTTPException(
