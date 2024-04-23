@@ -152,8 +152,8 @@ def core_verify_proof(proof_data):
         )
 
     # Verify proof
-    send_data, recv_data, error_code = tlsn_proof_verifier.verify_tlsn_proof(proof_raw_data)
-    if send_data == "" or recv_data == "":
+    send_data, recv_data, tlsn_verify_error = tlsn_proof_verifier.verify_tlsn_proof(proof_raw_data)
+    if tlsn_verify_error != "" or send_data == "" or recv_data == "":
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, 
             detail=Error.get_error_response(Error.ErrorCodes.TLSN_PROOF_VERIFICATION_FAILED)
