@@ -130,8 +130,7 @@ def post_processing_public_values(pub_values, regex_types, circuit_type, proof_d
 
     return pub_values, local_target_types
 
-
-# ----------------- REGEXES -----------------
+# ----------------- API -----------------
 
 @stub.function(cpu=48, memory=16000, secrets=[credentials_secret]) 
 @modal.web_endpoint(method="POST")
