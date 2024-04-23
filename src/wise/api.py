@@ -17,7 +17,7 @@ load_dotenv('./env')
 
 DOMAIN = 'wise.com'
 DOCKER_IMAGE_NAME = '0xsachink/zkp2p:modal-wise-verifier-0.2.5-testing-1'
-STUB_NAME = 'zkp2p-wise-verifier-0.2.5'
+STUB_NAME = 'zkp2p-wise-verifier-0.2.5-staging'
 
 SLACK_TOKEN = os.getenv('SLACK_TOKEN')
 CHANNEL_ID = os.getenv('CHANNEL_ID')
