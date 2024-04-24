@@ -16,8 +16,8 @@ load_dotenv('./env')
 # --------- INITIALIZE HELPERS ------------
 
 DOMAIN = 'api.revolut.com'
-DOCKER_IMAGE_NAME = '' # TODO
-STUB_NAME = 'zkp2p-revolut-verifier-0.2.5'
+DOCKER_IMAGE_NAME = '0xsachink/zkp2p:modal-wise-verifier-0.2.5-testing-1'
+STUB_NAME = 'zkp2p-revolut-staging-verifier-0.2.5'
 
 SLACK_TOKEN = os.getenv('SLACK_TOKEN')
 CHANNEL_ID = os.getenv('CHANNEL_ID')
@@ -64,13 +64,13 @@ transfer_regexes_config = [
     (r'"completedDate":(\d+),"createdDate":(\d+),"currency":"([A-Z]{3})","amount":([\d.-]+),"fee":(\d+),"balance":([X]+),"description":([X]+),', 'string') # Unix date
 ]
 
-registration_revtag_id_regexes_config = [
+registration_individual_id_regexes_config = [
     # Send data regexes
     (r'^(GET https://app.revolut.com/api/retail/user/current)', 'string'),
     (host_regex_pattern, 'string'),
 
     # Recv data regexes
-    (r'"username":"(\w+)","identityDetails"', 'string')
+    (r'"individualId":"([a-fA-F0-9-]+)","createdDate":(\d+),"address":{', 'string')
 ]
 
 def get_regex_patterns(config):
@@ -81,17 +81,17 @@ def get_regex_target_types(config):
 
 regex_patterns_map = {
     "transfer": get_regex_patterns(transfer_regexes_config),
-    "registration_revtag_id": get_regex_patterns(registration_revtag_id_regexes_config)
+    "registration_individual_id": get_regex_patterns(registration_individual_id_regexes_config)
 }
 
 regex_target_types = {
     "transfer": get_regex_target_types(transfer_regexes_config),
-    "registration_revtag_id": get_regex_target_types(registration_revtag_id_regexes_config)
+    "registration_individual_id": get_regex_target_types(registration_individual_id_regexes_config)
 }
 
 error_codes_map = {
     "transfer": Error.ErrorCodes.TLSN_WISE_INVALID_TRANSFER_VALUES,
-    "registration_revtag_id": Error.ErrorCodes.TLSN_WISE_INVALID_PROFILE_REGISTRATION_VALUES
+    "registration_individual_id": Error.ErrorCodes.TLSN_WISE_INVALID_PROFILE_REGISTRATION_VALUES
 }
 
 # --------- CUSTOM POST PROCESSING ------------ 
@@ -104,10 +104,10 @@ def post_processing_public_values(pub_values, regex_types, circuit_type, proof_d
         pub_values.append(int(proof_data["intent_hash"]))
         local_target_types.append('uint256')
 
-    if circuit_type == "registration_revtag_id":
+    if circuit_type == "registration_individual_id":
         # Todo: find a more cleaner way to do it
-        revtag = pub_values[-1]
-        out_hash = encode_and_hash([revtag], ['string'])
+        individual_id = pub_values[-1]
+        out_hash = encode_and_hash([individual_id], ['string'])
         pub_values[-1] = str(int(out_hash, 16))
 
         pub_values.append(proof_data["user_address"])
