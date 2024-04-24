@@ -3,6 +3,6 @@ python-dotenv==1.0.0
 fastapi
 requests
 dkimpy
-eth_account
+eth_account>=0.12.0
 eth-abi
 web3
