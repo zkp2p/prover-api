@@ -48,6 +48,17 @@ def open_file(file_path):
         "proof": "522f5f1cb740c53f11bf9ecf3b233ff66e43c86fa91a3f041e0ffc83b2c994472fe1f0d56ae43286eebd5fd7c667f003b551d5953c87dd003e76e332554092541b",
         "public_values": ["GET https://app.revolut.com/api/retail/transaction/660e6386-0a63-a388-80be-32d1f7672787", "app.revolut.com", "660e6386-0a63-a388-80be-32d1f7672787", "alexgx7gy", "-100", "USD", "COMPLETED", "1712219014734", "2109098755843864455034980037347310810989244226703714011137935097150268285982"]
     }),
+    # NOTE: Transfering USD with formatted quotes
+    ({
+        "proof": open_file("./src/revolut/tests/proofs/transfer_usd_with_note_2.json"),  
+        "payment_type": "revolut",
+        "circuit_type": "transfer",
+        "intent_hash": "2109098755843864455034980037347310810989244226703714011137935097150268285982",
+        "user_address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+    },{
+        "proof": "522f5f1cb740c53f11bf9ecf3b233ff66e43c86fa91a3f041e0ffc83b2c994472fe1f0d56ae43286eebd5fd7c667f003b551d5953c87dd003e76e332554092541b",
+        "public_values": ["GET https://app.revolut.com/api/retail/transaction/660e6386-0a63-a388-80be-32d1f7672787", "app.revolut.com", "66292307-f9c8-afbf-aac5-9d432cd7da24", "alexgx7gy", "-100", "USD", "COMPLETED", "1713971975510", "2109098755843864455034980037347310810989244226703714011137935097150268285982"]
+    }),
     # NOTE: Updated revtag, but should still keep same individual ID
     ({
         "proof": open_file("./src/revolut/tests/proofs/registration_username_change.json"),  
