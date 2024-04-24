@@ -140,7 +140,7 @@ def test_verify_proof(inputs, expected_output):
         "public_values": ["value1", 123],
         "target_types": ["string", "uint256"],
     }, {
-        "signature": "de25ff04e3201f94c8ef37131158cf1ba0472aa9380c08f7d845cddbea8afda3380ffc7052a822baa1ab92ad96831fb30f8cf08db775535698b18ff4e510dae11c",
+        "signature": "0xde25ff04e3201f94c8ef37131158cf1ba0472aa9380c08f7d845cddbea8afda3380ffc7052a822baa1ab92ad96831fb30f8cf08db775535698b18ff4e510dae11c",
         "serialized_values": ["value1", "123"]
     }),
 ])
