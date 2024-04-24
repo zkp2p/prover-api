@@ -1,15 +1,15 @@
 import os
 import subprocess
-from utils.helpers import sha256_hash
-from utils.file_utils import (
+from ..utils.helpers import sha256_hash
+from ..utils.file_utils import (
     write_tlsn_proof_to_local, 
     read_tlsn_verify_output_from_local, 
     get_tlsn_proof_file_path, 
     get_tlsn_recv_data_file_path, 
     get_tlsn_send_data_file_path
 )
-from utils.regex_helpers import extract_regex_values
-from utils.sign import sign_values_with_private_key
+from ..utils.regex_helpers import extract_regex_values
+from ..utils.sign import sign_values_with_private_key
 
 class TLSNProofVerifier:
     def __init__(

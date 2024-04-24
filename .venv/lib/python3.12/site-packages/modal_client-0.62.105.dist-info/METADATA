@@ -1,0 +1,13 @@
+Metadata-Version: 2.1
+Name: modal-client
+Version: 0.62.105
+Summary: Legacy name for the Modal client
+Author: Modal Labs
+Author-email: support@modal.com
+Project-URL: Homepage, https://modal.com
+Description-Content-Type: text/markdown
+Requires-Dist: modal (==0.62.105)
+
+This is a legacy compatibility package that just requires the `modal` client library.
+In versions before 0.51, the official name of the client library was called `modal-client`.
+We have renamed it to `modal`, but this library is kept updated for compatibility.
