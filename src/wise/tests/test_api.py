@@ -1,6 +1,6 @@
 import pytest
 import os
-from src.wise.api import core_verify_proof
+from wise.api import core_verify_proof
 from dotenv import load_dotenv
 from fastapi.exceptions import HTTPException
 
@@ -18,7 +18,7 @@ def open_file(file_path):
 
 @pytest.mark.parametrize("proof_data, expected_output", [
     ({
-        "proof": open_file("./src/wise/tests/proofs/registration_profile_id_1.json"),  
+        "proof": open_file("./wise/tests/proofs/registration_profile_id_1.json"),  
         "payment_type": "wise",
         "circuit_type": "registration_profile_id",
         "intent_hash": "2109098755843864455034980037347310810989244226703714011137935097150268285982",
@@ -28,7 +28,7 @@ def open_file(file_path):
         "public_values": ["POST https://wise.com/gateway/v1/payments", "wise.com", "41213881", "61158579531006309039872672420732308054473459091416465738091051601559791768344","0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"]
     }),
     ({
-        "proof": open_file("./src/wise/tests/proofs/transfer_eur_1.json"),  
+        "proof": open_file("./wise/tests/proofs/transfer_eur_1.json"),  
         "payment_type": "wise",
         "circuit_type": "transfer",
         "intent_hash": "2109098755843864455034980037347310810989244226703714011137935097150268285982",
@@ -38,7 +38,7 @@ def open_file(file_path):
         "public_values": ["GET https://wise.com/gateway/v3/profiles/41213881/transfers", "wise.com", "909460084", "41213881", "403384647", "1.0", "EUR", "OUTGOING_PAYMENT_SENT", "1703270934000", "2109098755843864455034980037347310810989244226703714011137935097150268285982"]
     }),
     ({
-        "proof": open_file("./src/wise/tests/proofs/transfer_sgd_note.json"),  # NOTE: special characters are not allowed in the custom note to prevent injection attacks
+        "proof": open_file("./wise/tests/proofs/transfer_sgd_note.json"),  # NOTE: special characters are not allowed in the custom note to prevent injection attacks
         "payment_type": "wise",
         "circuit_type": "transfer",
         "intent_hash": "2109098755843864455034980037347310810989244226703714011137935097150268285982",
@@ -48,7 +48,7 @@ def open_file(file_path):
         "public_values": ["GET https://wise.com/gateway/v3/profiles/41213881/transfers", "wise.com", "1018659478", "41213881", "403384647", "0.1", "SGD", "OUTGOING_PAYMENT_SENT", "1711957984000", "2109098755843864455034980037347310810989244226703714011137935097150268285982"]
     }),
     ({
-        "proof": open_file("./src/wise/tests/proofs/transfer_eur_1.json"),  
+        "proof": open_file("./wise/tests/proofs/transfer_eur_1.json"),  
         "payment_type": "wise",
         "circuit_type": "registration_account_id",
         "intent_hash": "2109098755843864455034980037347310810989244226703714011137935097150268285982",
@@ -58,7 +58,7 @@ def open_file(file_path):
         "public_values": ["GET https://wise.com/gateway/v3/profiles/41213881/transfers", "wise.com", "41213881", "402863684"]
     }),
     ({
-        "proof": open_file("./src/wise/tests/proofs/cancel_transfer_1.json"), # NOTE: we allow a cancel transfer proof to pass
+        "proof": open_file("./wise/tests/proofs/cancel_transfer_1.json"), # NOTE: we allow a cancel transfer proof to pass
         "payment_type": "wise",
         "circuit_type": "registration_account_id",
         "intent_hash": "2109098755843864455034980037347310810989244226703714011137935097150268285982",
@@ -84,28 +84,28 @@ def test_verify_proof(proof_data, expected_output):
 
 @pytest.mark.parametrize("proof_data", [
     ({
-        "proof": open_file("./src/wise/tests/proofs/registration_profile_id_1.json"),  
+        "proof": open_file("./wise/tests/proofs/registration_profile_id_1.json"),  
         "payment_type": "wise",
         "circuit_type": "transfer",
         "intent_hash": "2109098755843864455034980037347310810989244226703714011137935097150268285982",
         "user_address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
     }),
     ({
-        "proof": open_file("./src/wise/tests/proofs/receive_eur_1.json"),  
+        "proof": open_file("./wise/tests/proofs/receive_eur_1.json"),  
         "payment_type": "wise",
         "circuit_type": "transfer",
         "intent_hash": "2109098755843864455034980037347310810989244226703714011137935097150268285982",
         "user_address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
     }),
     ({
-        "proof": open_file("./src/wise/tests/proofs/move_balance_1.json"),  
+        "proof": open_file("./wise/tests/proofs/move_balance_1.json"),  
         "payment_type": "wise",
         "circuit_type": "transfer",
         "intent_hash": "2109098755843864455034980037347310810989244226703714011137935097150268285982",
         "user_address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
     }),
     ({
-        "proof": open_file("./src/wise/tests/proofs/cancel_transfer_1.json"),  
+        "proof": open_file("./wise/tests/proofs/cancel_transfer_1.json"),  
         "payment_type": "wise",
         "circuit_type": "transfer",
         "intent_hash": "2109098755843864455034980037347310810989244226703714011137935097150268285982",
@@ -130,21 +130,21 @@ def test_verify_proof_invalid_values_transfer(proof_data):
 
 @pytest.mark.parametrize("proof_data", [
     ({
-        "proof": open_file("./src/wise/tests/proofs/registration_profile_id_1.json"),  
+        "proof": open_file("./wise/tests/proofs/registration_profile_id_1.json"),  
         "payment_type": "wise",
         "circuit_type": "registration_account_id",
         "intent_hash": "2109098755843864455034980037347310810989244226703714011137935097150268285982",
         "user_address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
     }),
     ({
-        "proof": open_file("./src/wise/tests/proofs/receive_eur_1.json"),  
+        "proof": open_file("./wise/tests/proofs/receive_eur_1.json"),  
         "payment_type": "wise",
         "circuit_type": "registration_account_id",
         "intent_hash": "2109098755843864455034980037347310810989244226703714011137935097150268285982",
         "user_address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
     }),
     ({
-        "proof": open_file("./src/wise/tests/proofs/move_balance_1.json"),  
+        "proof": open_file("./wise/tests/proofs/move_balance_1.json"),  
         "payment_type": "wise",
         "circuit_type": "registration_account_id",
         "intent_hash": "2109098755843864455034980037347310810989244226703714011137935097150268285982",
@@ -169,28 +169,28 @@ def test_verify_proof_invalid_values_account_id(proof_data):
 
 @pytest.mark.parametrize("proof_data", [
     ({
-        "proof": open_file("./src/wise/tests/proofs/receive_eur_1.json"),  
+        "proof": open_file("./wise/tests/proofs/receive_eur_1.json"),  
         "payment_type": "wise",
         "circuit_type": "registration_profile_id",
         "intent_hash": "2109098755843864455034980037347310810989244226703714011137935097150268285982",
         "user_address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
     }),
     ({
-        "proof": open_file("./src/wise/tests/proofs/move_balance_1.json"),  
+        "proof": open_file("./wise/tests/proofs/move_balance_1.json"),  
         "payment_type": "wise",
         "circuit_type": "registration_profile_id",
         "intent_hash": "2109098755843864455034980037347310810989244226703714011137935097150268285982",
         "user_address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
     }),
     ({
-        "proof": open_file("./src/wise/tests/proofs/cancel_transfer_1.json"),  
+        "proof": open_file("./wise/tests/proofs/cancel_transfer_1.json"),  
         "payment_type": "wise",
         "circuit_type": "registration_profile_id",
         "intent_hash": "2109098755843864455034980037347310810989244226703714011137935097150268285982",
         "user_address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
     }),
     ({
-        "proof": open_file("./src/wise/tests/proofs/transfer_eur_1.json"),  
+        "proof": open_file("./wise/tests/proofs/transfer_eur_1.json"),  
         "payment_type": "wise",
         "circuit_type": "registration_profile_id",
         "intent_hash": "2109098755843864455034980037347310810989244226703714011137935097150268285982",
@@ -215,7 +215,7 @@ def test_verify_proof_invalid_values_profile_id(proof_data):
 
 @pytest.mark.parametrize("proof_data", [
     ({
-        "proof": open_file("./src/wise/tests/proofs/receive_eur_1.json"),  
+        "proof": open_file("./wise/tests/proofs/receive_eur_1.json"),  
         "payment_type": "revolut",
         "circuit_type": "registration_profile_id",
         "intent_hash": "2109098755843864455034980037347310810989244226703714011137935097150268285982",
@@ -240,7 +240,7 @@ def test_verify_proof_invalid_payment_type(proof_data):
 
 @pytest.mark.parametrize("proof_data", [
     ({
-        "proof": open_file("./src/wise/tests/proofs/receive_eur_1.json"),  
+        "proof": open_file("./wise/tests/proofs/receive_eur_1.json"),  
         "payment_type": "wise",
         "circuit_type": "invalid_transfer",
         "intent_hash": "2109098755843864455034980037347310810989244226703714011137935097150268285982",
@@ -265,7 +265,7 @@ def test_verify_proof_invalid_circuit_type(proof_data):
 
 @pytest.mark.parametrize("proof_data", [
     ({
-        "proof": open_file("./src/wise/tests/proofs/invalid_proof.json"),
+        "proof": open_file("./wise/tests/proofs/invalid_proof.json"),
         "payment_type": "wise",
         "circuit_type": "transfer",
         "intent_hash": "2109098755843864455034980037347310810989244226703714011137935097150268285982",

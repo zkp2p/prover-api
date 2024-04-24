@@ -1,6 +1,6 @@
 import pytest
 import os
-from src.revolut.api import core_verify_proof
+from revolut.api import core_verify_proof
 from dotenv import load_dotenv
 from fastapi.exceptions import HTTPException
 
@@ -18,7 +18,7 @@ def open_file(file_path):
 
 @pytest.mark.parametrize("proof_data, expected_output", [
     ({
-        "proof": open_file("./src/revolut/tests/proofs/registration_1.json"),  
+        "proof": open_file("./revolut/tests/proofs/registration_1.json"),  
         "payment_type": "revolut",
         "circuit_type": "registration_individual_id",
         "intent_hash": "2109098755843864455034980037347310810989244226703714011137935097150268285982",
@@ -28,7 +28,7 @@ def open_file(file_path):
         "public_values": ["GET https://app.revolut.com/api/retail/user/current", "app.revolut.com", "55990530848032332592411724135893856847123084097520685404734279999550883729894", "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"]
     }),
     ({
-        "proof": open_file("./src/revolut/tests/proofs/transfer_eur_1.json"),  
+        "proof": open_file("./revolut/tests/proofs/transfer_eur_1.json"),  
         "payment_type": "revolut",
         "circuit_type": "transfer",
         "intent_hash": "2109098755843864455034980037347310810989244226703714011137935097150268285982",
@@ -39,7 +39,7 @@ def open_file(file_path):
     }),
     # NOTE: Transfering USD with note containing " and comma
     ({
-        "proof": open_file("./src/revolut/tests/proofs/transfer_usd_with_note.json"),  
+        "proof": open_file("./revolut/tests/proofs/transfer_usd_with_note.json"),  
         "payment_type": "revolut",
         "circuit_type": "transfer",
         "intent_hash": "2109098755843864455034980037347310810989244226703714011137935097150268285982",
@@ -50,18 +50,18 @@ def open_file(file_path):
     }),
     # NOTE: Transfering USD with formatted quotes
     ({
-        "proof": open_file("./src/revolut/tests/proofs/transfer_usd_with_note_2.json"),  
+        "proof": open_file("./revolut/tests/proofs/transfer_usd_with_note_2.json"),  
         "payment_type": "revolut",
         "circuit_type": "transfer",
         "intent_hash": "2109098755843864455034980037347310810989244226703714011137935097150268285982",
         "user_address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
     },{
-        "proof": "522f5f1cb740c53f11bf9ecf3b233ff66e43c86fa91a3f041e0ffc83b2c994472fe1f0d56ae43286eebd5fd7c667f003b551d5953c87dd003e76e332554092541b",
-        "public_values": ["GET https://app.revolut.com/api/retail/transaction/660e6386-0a63-a388-80be-32d1f7672787", "app.revolut.com", "66292307-f9c8-afbf-aac5-9d432cd7da24", "alexgx7gy", "-100", "USD", "COMPLETED", "1713971975510", "2109098755843864455034980037347310810989244226703714011137935097150268285982"]
+        "proof": "ab39c4e8aec8e885a08cc217b91c8b6b07aaa47799e56ee44d3d4c8398c5521b02c7d2537ab3d8121bd1a77fb753a268091c9671173efe978f018cf4a1329f351c",
+        "public_values": ["GET https://app.revolut.com/api/retail/transaction/66292307-f9c8-afbf-aac5-9d432cd7da24", "app.revolut.com", "66292307-f9c8-afbf-aac5-9d432cd7da24", "alexgx7gy", "-100", "USD", "COMPLETED", "1713971975510", "2109098755843864455034980037347310810989244226703714011137935097150268285982"]
     }),
     # NOTE: Updated revtag, but should still keep same individual ID
     ({
-        "proof": open_file("./src/revolut/tests/proofs/registration_username_change.json"),  
+        "proof": open_file("./revolut/tests/proofs/registration_username_change.json"),  
         "payment_type": "revolut",
         "circuit_type": "registration_individual_id",
         "intent_hash": "2109098755843864455034980037347310810989244226703714011137935097150268285982",
@@ -87,14 +87,14 @@ def test_verify_proof(proof_data, expected_output):
 
 @pytest.mark.parametrize("proof_data", [
     ({
-        "proof": open_file("./src/revolut/tests/proofs/registration_1.json"),  
+        "proof": open_file("./revolut/tests/proofs/registration_1.json"),  
         "payment_type": "revolut",
         "circuit_type": "transfer",
         "intent_hash": "2109098755843864455034980037347310810989244226703714011137935097150268285982",
         "user_address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
     }),
     ({
-        "proof": open_file("./src/revolut/tests/proofs/receive_usd_1.json"),  
+        "proof": open_file("./revolut/tests/proofs/receive_usd_1.json"),  
         "payment_type": "revolut",
         "circuit_type": "transfer",
         "intent_hash": "2109098755843864455034980037347310810989244226703714011137935097150268285982",
@@ -119,7 +119,7 @@ def test_verify_proof_invalid_values_transfer(proof_data):
 
 @pytest.mark.parametrize("proof_data", [
     ({
-        "proof": open_file("./src/revolut/tests/proofs/transfer_eur_1.json"),  
+        "proof": open_file("./revolut/tests/proofs/transfer_eur_1.json"),  
         "payment_type": "revolut",
         "circuit_type": "registration_individual_id",
         "intent_hash": "2109098755843864455034980037347310810989244226703714011137935097150268285982",
@@ -144,7 +144,7 @@ def test_verify_proof_invalid_values_revtag(proof_data):
 
 @pytest.mark.parametrize("proof_data", [
     ({
-        "proof": open_file("./src/revolut/tests/proofs/registration_1.json"),  
+        "proof": open_file("./revolut/tests/proofs/registration_1.json"),  
         "payment_type": "wise",
         "circuit_type": "registration_individual_id",
         "intent_hash": "2109098755843864455034980037347310810989244226703714011137935097150268285982",
@@ -169,7 +169,7 @@ def test_verify_proof_invalid_payment_type(proof_data):
 
 @pytest.mark.parametrize("proof_data", [
     ({
-        "proof": open_file("./src/revolut/tests/proofs/registration_1.json"),  
+        "proof": open_file("./revolut/tests/proofs/registration_1.json"),  
         "payment_type": "revolut",
         "circuit_type": "invalid_transfer",
         "intent_hash": "2109098755843864455034980037347310810989244226703714011137935097150268285982",
@@ -194,7 +194,7 @@ def test_verify_proof_invalid_circuit_type(proof_data):
 
 @pytest.mark.parametrize("proof_data", [
     ({
-        "proof": open_file("./src/revolut/tests/proofs/invalid_proof.json"),
+        "proof": open_file("./revolut/tests/proofs/invalid_proof.json"),
         "payment_type": "revolut",
         "circuit_type": "transfer",
         "intent_hash": "2109098755843864455034980037347310810989244226703714011137935097150268285982",

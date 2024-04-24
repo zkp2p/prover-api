@@ -1,4 +1,4 @@
-from ..utils.slack_utils import upload_file_to_slack
+from utils.slack_utils import upload_file_to_slack
 
 class AlertHelper():
 
