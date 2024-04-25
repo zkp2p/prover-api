@@ -57,7 +57,7 @@ transfer_regexes_config = [
 
     # Recv data regexes
     (r'"id":"([a-fA-F0-9-]+)","legId":"([a-fA-F0-9-]+)","type":"TRANSFER","state":"COMPLETED","startedDate":(\d+),"updatedDate":(\d+)', 'string'),  # Transaction ID
-    (r'"username":"(\w+)","code":"(\w+)","account":{"id":"([a-fA-F0-9-]+)","type":"CURRENT"}},"localisedDescription":{"key":"transaction.description.generic.name","params":\[[X]+\]', 'string'),  # Target RevID
+    (r'"code":"(\w+)","account":{"id":"([a-fA-F0-9-]+)","type":"CURRENT"}},"localisedDescription":{"key":"transaction.description.generic.name","params":\[[X]+\]', 'string'),  # Target RevID
     (r'"amount":([\d.-]+),"fee":(\d+),"balance":([X]+),"description":([X]+),', 'string'),  # Target Amount
     (r'"currency":"([A-Z]{3})","amount":([\d.-]+),"fee":(\d+),"balance":([X]+),"description":([X]+),', 'string'),  # Target Currency
     (r'"type":"TRANSFER","state":"(\w+)","startedDate":(\d+),"updatedDate":(\d+)', 'string'),  # State
@@ -70,7 +70,7 @@ registration_individual_id_regexes_config = [
     (host_regex_pattern, 'string'),
 
     # Recv data regexes
-    (r'"individualId":"([a-fA-F0-9-]+)","createdDate":(\d+),"address":{', 'string')
+    (r'"code":"(\w+)","kyc":"PASSED","underReview":false', 'string')
 ]
 
 def get_regex_patterns(config):

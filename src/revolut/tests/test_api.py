@@ -24,8 +24,8 @@ def open_file(file_path):
         "intent_hash": "2109098755843864455034980037347310810989244226703714011137935097150268285982",
         "user_address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
     }, {
-        "proof": "0x89744209cbc46ef9a472d18ae1405030cc996b7bad62dcb3042bbe837e4bdbf65438f59cad5500012f59e7c72e53edc94f2eaddcdfbf785bdd75292e37cceed91b",
-        "public_values": ["GET https://app.revolut.com/api/retail/user/current", "app.revolut.com", "55990530848032332592411724135893856847123084097520685404734279999550883729894", "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"]
+        "proof": "0x876dfdafcd4fb59d791afda6cb536fb9d22560318f83b94c7f45b1c0a7e7bf6304e50778b1068140df9fb1b5333ffd6d76fc6639e23b961e3416722f26103c721b",
+        "public_values": ["GET https://app.revolut.com/api/retail/user/current", "app.revolut.com", "21441300878620834626555326528464320548303703202526115662730864900894611908769", "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"]
     }),
     ({
         "proof": open_file("./revolut/tests/proofs/transfer_eur_1.json"),  
@@ -67,8 +67,8 @@ def open_file(file_path):
         "intent_hash": "2109098755843864455034980037347310810989244226703714011137935097150268285982",
         "user_address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
     },{
-        "proof": "0x89744209cbc46ef9a472d18ae1405030cc996b7bad62dcb3042bbe837e4bdbf65438f59cad5500012f59e7c72e53edc94f2eaddcdfbf785bdd75292e37cceed91b",
-        "public_values": ["GET https://app.revolut.com/api/retail/user/current", "app.revolut.com", "55990530848032332592411724135893856847123084097520685404734279999550883729894", "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"]
+        "proof": "0x876dfdafcd4fb59d791afda6cb536fb9d22560318f83b94c7f45b1c0a7e7bf6304e50778b1068140df9fb1b5333ffd6d76fc6639e23b961e3416722f26103c721b",
+        "public_values": ["GET https://app.revolut.com/api/retail/user/current", "app.revolut.com", "21441300878620834626555326528464320548303703202526115662730864900894611908769", "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"]
     }),
 ])
 def test_verify_proof(proof_data, expected_output):
