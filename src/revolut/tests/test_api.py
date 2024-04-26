@@ -59,7 +59,7 @@ def open_file(file_path):
         "proof": "0xab39c4e8aec8e885a08cc217b91c8b6b07aaa47799e56ee44d3d4c8398c5521b02c7d2537ab3d8121bd1a77fb753a268091c9671173efe978f018cf4a1329f351c",
         "public_values": ["GET https://app.revolut.com/api/retail/transaction/66292307-f9c8-afbf-aac5-9d432cd7da24", "app.revolut.com", "66292307-f9c8-afbf-aac5-9d432cd7da24", "alexgx7gy", "-100", "USD", "COMPLETED", "1713971975510", "2109098755843864455034980037347310810989244226703714011137935097150268285982"]
     }),
-    # NOTE: Updated revtag, but should still keep same individual ID
+    # NOTE: Updated revtag, but should still keep same code
     ({
         "proof": open_file("./revolut/tests/proofs/registration_username_change.json"),  
         "payment_type": "revolut",
