@@ -20,7 +20,7 @@ def open_file(file_path):
     ({
         "proof": open_file("./revolut/tests/proofs/registration_1.json"),  
         "payment_type": "revolut",
-        "circuit_type": "registration_individual_id",
+        "circuit_type": "registration",
         "intent_hash": "2109098755843864455034980037347310810989244226703714011137935097150268285982",
         "user_address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
     }, {
@@ -63,7 +63,7 @@ def open_file(file_path):
     ({
         "proof": open_file("./revolut/tests/proofs/registration_username_change.json"),  
         "payment_type": "revolut",
-        "circuit_type": "registration_individual_id",
+        "circuit_type": "registration",
         "intent_hash": "2109098755843864455034980037347310810989244226703714011137935097150268285982",
         "user_address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
     },{
@@ -121,7 +121,7 @@ def test_verify_proof_invalid_values_transfer(proof_data):
     ({
         "proof": open_file("./revolut/tests/proofs/transfer_eur_1.json"),  
         "payment_type": "revolut",
-        "circuit_type": "registration_individual_id",
+        "circuit_type": "registration",
         "intent_hash": "2109098755843864455034980037347310810989244226703714011137935097150268285982",
         "user_address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
     })
@@ -146,7 +146,7 @@ def test_verify_proof_invalid_values_revtag(proof_data):
     ({
         "proof": open_file("./revolut/tests/proofs/registration_1.json"),  
         "payment_type": "wise",
-        "circuit_type": "registration_individual_id",
+        "circuit_type": "registration",
         "intent_hash": "2109098755843864455034980037347310810989244226703714011137935097150268285982",
         "user_address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
     }),
