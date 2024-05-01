@@ -57,20 +57,20 @@ transfer_regexes_config = [
 
     # Recv data regexes
     (r'"id":"([a-fA-F0-9-]+)","legId":"([a-fA-F0-9-]+)","type":"TRANSFER","state":"COMPLETED","startedDate":(\d+),"updatedDate":(\d+)', 'string'),  # Transaction ID
-    (r'"username":"(\w+)","code":"(\w+)","account":{"id":"([a-fA-F0-9-]+)","type":"CURRENT"}},"localisedDescription":{"key":"transaction.description.generic.name","params":\[[X]+\]', 'string'),  # Target RevID
+    (r'"code":"(\w+)","account":{"id":"([a-fA-F0-9-]+)","type":"CURRENT"}},"localisedDescription":{"key":"transaction.description.generic.name","params":\[[X]+\]', 'string'),  # Target RevID
     (r'"amount":([\d.-]+),"fee":(\d+),"balance":([X]+),"description":([X]+),', 'string'),  # Target Amount
     (r'"currency":"([A-Z]{3})","amount":([\d.-]+),"fee":(\d+),"balance":([X]+),"description":([X]+),', 'string'),  # Target Currency
     (r'"type":"TRANSFER","state":"(\w+)","startedDate":(\d+),"updatedDate":(\d+)', 'string'),  # State
     (r'"completedDate":(\d+),"createdDate":(\d+),"currency":"([A-Z]{3})","amount":([\d.-]+),"fee":(\d+),"balance":([X]+),"description":([X]+),', 'string') # Unix date
 ]
 
-registration_individual_id_regexes_config = [
+registration_regexes_config = [
     # Send data regexes
     (r'^(GET https://app.revolut.com/api/retail/user/current)', 'string'),
     (host_regex_pattern, 'string'),
 
     # Recv data regexes
-    (r'"individualId":"([a-fA-F0-9-]+)","createdDate":(\d+),"address":{', 'string')
+    (r'"code":"(\w+)","kyc":"PASSED","underReview":false', 'string')
 ]
 
 def get_regex_patterns(config):
@@ -81,17 +81,17 @@ def get_regex_target_types(config):
 
 regex_patterns_map = {
     "transfer": get_regex_patterns(transfer_regexes_config),
-    "registration_individual_id": get_regex_patterns(registration_individual_id_regexes_config)
+    "registration": get_regex_patterns(registration_regexes_config)
 }
 
 regex_target_types = {
     "transfer": get_regex_target_types(transfer_regexes_config),
-    "registration_individual_id": get_regex_target_types(registration_individual_id_regexes_config)
+    "registration": get_regex_target_types(registration_regexes_config)
 }
 
 error_codes_map = {
     "transfer": Error.ErrorCodes.TLSN_WISE_INVALID_TRANSFER_VALUES,
-    "registration_individual_id": Error.ErrorCodes.TLSN_WISE_INVALID_PROFILE_REGISTRATION_VALUES
+    "registration": Error.ErrorCodes.TLSN_WISE_INVALID_PROFILE_REGISTRATION_VALUES
 }
 
 # --------- CUSTOM POST PROCESSING ------------ 
@@ -104,7 +104,7 @@ def post_processing_public_values(pub_values, regex_types, circuit_type, proof_d
         pub_values.append(int(proof_data["intent_hash"]))
         local_target_types.append('uint256')
 
-    if circuit_type == "registration_individual_id":
+    if circuit_type == "registration":
         # Todo: find a more cleaner way to do it
         individual_id = pub_values[-1]
         out_hash = encode_and_hash([individual_id], ['string'])
