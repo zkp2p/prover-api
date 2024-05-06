@@ -16,8 +16,8 @@ load_dotenv('./env')
 # --------- INITIALIZE HELPERS ------------
 
 DOMAIN = 'api.revolut.com'
-DOCKER_IMAGE_NAME = '0xsachink/zkp2p:modal-wise-verifier-0.2.5-testing-1'
-STUB_NAME = 'zkp2p-revolut-staging-verifier-0.2.5'
+DOCKER_IMAGE_NAME = '0xsachink/zkp2p:modal-verifier-v0.1.0-alpha.5-prod'
+STUB_NAME = 'zkp2p-revolut-verifier-0.2.5'
 
 SLACK_TOKEN = os.getenv('SLACK_TOKEN')
 CHANNEL_ID = os.getenv('CHANNEL_ID')

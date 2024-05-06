@@ -771,7 +771,7 @@ dependencies = [
 [[package]]
 name = "clmul"
 version = "0.1.0"
-source = "git+https://github.com/privacy-scaling-explorations/mpz?rev=850636f#850636fae4b327d2dba3924c9fa7a8c4c9003ab1"
+source = "git+https://github.com/privacy-scaling-explorations/mpz?rev=9f7403b#9f7403be410839767701b1a6817274715d90ae55"
 dependencies = [
  "bytemuck",
  "cfg-if",
@@ -1344,6 +1344,18 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1676f435fc1dadde4d03e43f5d62b259e1ce5f40bd4ffb21db2b42ebe59c1382"
 
 [[package]]
+name = "filetime"
+version = "0.2.23"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1ee447700ac8aa0b2f2bd7bc4462ad686ba06baa6727ac149a2d6277f0d240fd"
+dependencies = [
+ "cfg-if",
+ "libc",
+ "redox_syscall",
+ "windows-sys 0.52.0",
+]
+
+[[package]]
 name = "fnv"
 version = "1.0.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1857,6 +1869,26 @@ dependencies = [
 ]
 
 [[package]]
+name = "inotify"
+version = "0.9.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f8069d3ec154eb856955c1c0fbffefbf5f3c40a104ec912d4797314c1801abff"
+dependencies = [
+ "bitflags 1.3.2",
+ "inotify-sys",
+ "libc",
+]
+
+[[package]]
+name = "inotify-sys"
+version = "0.1.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e05c02b5e89bff3b946cedeca278abc628fe811e604f027c45a8aa3cf793d0eb"
+dependencies = [
+ "libc",
+]
+
+[[package]]
 name = "inout"
 version = "0.1.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1916,6 +1948,26 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "406cda4b368d531c842222cf9d2600a9a4acce8d29423695379c6868a143a9ee"
 dependencies = [
  "wasm-bindgen",
+]
+
+[[package]]
+name = "kqueue"
+version = "1.0.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7447f1ca1b7b563588a205fe93dea8df60fd981423a768bc1c0ded35ed147d0c"
+dependencies = [
+ "kqueue-sys",
+ "libc",
+]
+
+[[package]]
+name = "kqueue-sys"
+version = "1.0.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ed9625ffda8729b85e45cf04090035ac368927b8cebc34898e7c120f52e4838b"
+dependencies = [
+ "bitflags 1.3.2",
+ "libc",
 ]
 
 [[package]]
@@ -2021,7 +2073,7 @@ checksum = "0e7465ac9959cc2b1404e8e2367b43684a6d13790fe23056cc8c6c5a6b7bcb94"
 [[package]]
 name = "matrix-transpose"
 version = "0.1.0"
-source = "git+https://github.com/privacy-scaling-explorations/mpz?rev=850636f#850636fae4b327d2dba3924c9fa7a8c4c9003ab1"
+source = "git+https://github.com/privacy-scaling-explorations/mpz?rev=9f7403b#9f7403be410839767701b1a6817274715d90ae55"
 dependencies = [
  "thiserror",
 ]
@@ -2054,6 +2106,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8f3d0b296e374a4e6f3c7b0a1f5a51d748a0d34c85e7dc48fc3fa9a87657fe09"
 dependencies = [
  "libc",
+ "log",
  "wasi",
  "windows-sys 0.48.0",
 ]
@@ -2061,7 +2114,7 @@ dependencies = [
 [[package]]
 name = "mpz-circuits"
 version = "0.1.0"
-source = "git+https://github.com/privacy-scaling-explorations/mpz?rev=850636f#850636fae4b327d2dba3924c9fa7a8c4c9003ab1"
+source = "git+https://github.com/privacy-scaling-explorations/mpz?rev=9f7403b#9f7403be410839767701b1a6817274715d90ae55"
 dependencies = [
  "bincode",
  "itybity",
@@ -2078,7 +2131,7 @@ dependencies = [
 [[package]]
 name = "mpz-circuits-macros"
 version = "0.1.0"
-source = "git+https://github.com/privacy-scaling-explorations/mpz?rev=850636f#850636fae4b327d2dba3924c9fa7a8c4c9003ab1"
+source = "git+https://github.com/privacy-scaling-explorations/mpz?rev=9f7403b#9f7403be410839767701b1a6817274715d90ae55"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -2088,7 +2141,7 @@ dependencies = [
 [[package]]
 name = "mpz-core"
 version = "0.1.0"
-source = "git+https://github.com/privacy-scaling-explorations/mpz?rev=850636f#850636fae4b327d2dba3924c9fa7a8c4c9003ab1"
+source = "git+https://github.com/privacy-scaling-explorations/mpz?rev=9f7403b#9f7403be410839767701b1a6817274715d90ae55"
 dependencies = [
  "aes 0.8.4",
  "bcs",
@@ -2096,7 +2149,7 @@ dependencies = [
  "bytemuck",
  "cfg-if",
  "cipher 0.4.4",
- "clmul 0.1.0 (git+https://github.com/privacy-scaling-explorations/mpz?rev=850636f)",
+ "clmul 0.1.0 (git+https://github.com/privacy-scaling-explorations/mpz?rev=9f7403b)",
  "generic-array",
  "itybity",
  "once_cell",
@@ -2134,9 +2187,25 @@ dependencies = [
 ]
 
 [[package]]
+name = "mpz-fields"
+version = "0.1.0"
+source = "git+https://github.com/privacy-scaling-explorations/mpz?rev=9f7403b#9f7403be410839767701b1a6817274715d90ae55"
+dependencies = [
+ "ark-ff",
+ "ark-secp256r1",
+ "ark-serialize",
+ "itybity",
+ "mpz-core 0.1.0 (git+https://github.com/privacy-scaling-explorations/mpz?rev=9f7403b)",
+ "num-bigint",
+ "opaque-debug",
+ "rand",
+ "serde",
+]
+
+[[package]]
 name = "mpz-garble"
 version = "0.1.0"
-source = "git+https://github.com/privacy-scaling-explorations/mpz?rev=850636f#850636fae4b327d2dba3924c9fa7a8c4c9003ab1"
+source = "git+https://github.com/privacy-scaling-explorations/mpz?rev=9f7403b#9f7403be410839767701b1a6817274715d90ae55"
 dependencies = [
  "aes 0.8.4",
  "async-trait",
@@ -2146,7 +2215,7 @@ dependencies = [
  "futures-util",
  "itybity",
  "mpz-circuits",
- "mpz-core 0.1.0 (git+https://github.com/privacy-scaling-explorations/mpz?rev=850636f)",
+ "mpz-core 0.1.0 (git+https://github.com/privacy-scaling-explorations/mpz?rev=9f7403b)",
  "mpz-garble-core",
  "mpz-ot",
  "opaque-debug",
@@ -2163,7 +2232,7 @@ dependencies = [
 [[package]]
 name = "mpz-garble-core"
 version = "0.1.0"
-source = "git+https://github.com/privacy-scaling-explorations/mpz?rev=850636f#850636fae4b327d2dba3924c9fa7a8c4c9003ab1"
+source = "git+https://github.com/privacy-scaling-explorations/mpz?rev=9f7403b#9f7403be410839767701b1a6817274715d90ae55"
 dependencies = [
  "aes 0.8.4",
  "blake3",
@@ -2171,7 +2240,7 @@ dependencies = [
  "derive_builder 0.11.2",
  "itybity",
  "mpz-circuits",
- "mpz-core 0.1.0 (git+https://github.com/privacy-scaling-explorations/mpz?rev=850636f)",
+ "mpz-core 0.1.0 (git+https://github.com/privacy-scaling-explorations/mpz?rev=9f7403b)",
  "once_cell",
  "rand",
  "rand_chacha",
@@ -2184,7 +2253,7 @@ dependencies = [
 [[package]]
 name = "mpz-ot"
 version = "0.1.0"
-source = "git+https://github.com/privacy-scaling-explorations/mpz?rev=850636f#850636fae4b327d2dba3924c9fa7a8c4c9003ab1"
+source = "git+https://github.com/privacy-scaling-explorations/mpz?rev=9f7403b#9f7403be410839767701b1a6817274715d90ae55"
 dependencies = [
  "aes 0.8.4",
  "async-trait",
@@ -2194,7 +2263,7 @@ dependencies = [
  "futures",
  "futures-util",
  "itybity",
- "mpz-core 0.1.0 (git+https://github.com/privacy-scaling-explorations/mpz?rev=850636f)",
+ "mpz-core 0.1.0 (git+https://github.com/privacy-scaling-explorations/mpz?rev=9f7403b)",
  "mpz-ot-core",
  "opaque-debug",
  "prost",
@@ -2210,21 +2279,21 @@ dependencies = [
 [[package]]
 name = "mpz-ot-core"
 version = "0.1.0"
-source = "git+https://github.com/privacy-scaling-explorations/mpz?rev=850636f#850636fae4b327d2dba3924c9fa7a8c4c9003ab1"
+source = "git+https://github.com/privacy-scaling-explorations/mpz?rev=9f7403b#9f7403be410839767701b1a6817274715d90ae55"
 dependencies = [
  "aes 0.8.4",
  "blake3",
  "bytemuck",
  "cfg-if",
  "cipher 0.4.4",
- "clmul 0.1.0 (git+https://github.com/privacy-scaling-explorations/mpz?rev=850636f)",
+ "clmul 0.1.0 (git+https://github.com/privacy-scaling-explorations/mpz?rev=9f7403b)",
  "ctr 0.9.2",
  "curve25519-dalek",
  "derive_builder 0.11.2",
  "enum-try-as-inner",
  "itybity",
  "matrix-transpose",
- "mpz-core 0.1.0 (git+https://github.com/privacy-scaling-explorations/mpz?rev=850636f)",
+ "mpz-core 0.1.0 (git+https://github.com/privacy-scaling-explorations/mpz?rev=9f7403b)",
  "opaque-debug",
  "rand",
  "rand_chacha",
@@ -2238,12 +2307,13 @@ dependencies = [
 [[package]]
 name = "mpz-share-conversion"
 version = "0.1.0"
-source = "git+https://github.com/privacy-scaling-explorations/mpz?rev=850636f#850636fae4b327d2dba3924c9fa7a8c4c9003ab1"
+source = "git+https://github.com/privacy-scaling-explorations/mpz?rev=9f7403b#9f7403be410839767701b1a6817274715d90ae55"
 dependencies = [
  "async-trait",
  "derive_builder 0.11.2",
  "futures",
- "mpz-core 0.1.0 (git+https://github.com/privacy-scaling-explorations/mpz?rev=850636f)",
+ "mpz-core 0.1.0 (git+https://github.com/privacy-scaling-explorations/mpz?rev=9f7403b)",
+ "mpz-fields",
  "mpz-ot",
  "mpz-share-conversion-core",
  "rand",
@@ -2256,18 +2326,12 @@ dependencies = [
 [[package]]
 name = "mpz-share-conversion-core"
 version = "0.1.0"
-source = "git+https://github.com/privacy-scaling-explorations/mpz?rev=850636f#850636fae4b327d2dba3924c9fa7a8c4c9003ab1"
+source = "git+https://github.com/privacy-scaling-explorations/mpz?rev=9f7403b#9f7403be410839767701b1a6817274715d90ae55"
 dependencies = [
- "ark-ff",
- "ark-secp256r1",
- "ark-serialize",
  "itybity",
- "mpz-core 0.1.0 (git+https://github.com/privacy-scaling-explorations/mpz?rev=850636f)",
- "num-bigint",
- "opaque-debug",
+ "mpz-fields",
  "rand",
  "serde",
- "thiserror",
 ]
 
 [[package]]
@@ -2296,8 +2360,8 @@ checksum = "2bf50223579dc7cdcfb3bfcacf7069ff68243f8c363f62ffa99cf000a6b9c451"
 
 [[package]]
 name = "notary-server"
-version = "0.1.0-alpha.4"
-source = "git+https://github.com/tlsnotary/tlsn?tag=v0.1.0-alpha.4#309c37fdecd719d8837ec617646a2d394ac3386f"
+version = "0.1.0-alpha.5"
+source = "git+https://github.com/tlsnotary/tlsn?tag=v0.1.0-alpha.5#68b9474015b817255c226fec38e80addd16191d1"
 dependencies = [
  "async-trait",
  "async-tungstenite 0.22.2",
@@ -2312,6 +2376,7 @@ dependencies = [
  "futures-util",
  "http 0.2.11",
  "hyper 0.14.28",
+ "notify",
  "opentelemetry",
  "p256",
  "rstest",
@@ -2323,7 +2388,7 @@ dependencies = [
  "sha1",
  "structopt",
  "thiserror",
- "tlsn-verifier 0.1.0-alpha.4",
+ "tlsn-verifier 0.1.0-alpha.5",
  "tokio",
  "tokio-rustls",
  "tokio-util",
@@ -2334,6 +2399,23 @@ dependencies = [
  "tracing-subscriber",
  "uuid",
  "ws_stream_tungstenite",
+]
+
+[[package]]
+name = "notify"
+version = "6.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6205bd8bb1e454ad2e27422015fb5e4f2bcc7e08fa8f27058670d208324a4d2d"
+dependencies = [
+ "bitflags 2.4.2",
+ "filetime",
+ "inotify",
+ "kqueue",
+ "libc",
+ "log",
+ "mio",
+ "walkdir",
+ "windows-sys 0.48.0",
 ]
 
 [[package]]
@@ -3099,6 +3181,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e86697c916019a8588c99b5fac3cead74ec0b4b819707a682fd4d23fa0ce1ba1"
 
 [[package]]
+name = "same-file"
+version = "1.0.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "93fc1dc3aaa9bfed95e02e6eadabb4baf7e3078b0bd1b4d7b6b0b68378900502"
+dependencies = [
+ "winapi-util",
+]
+
+[[package]]
 name = "schannel"
 version = "0.1.23"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3530,13 +3621,13 @@ checksum = "1f3ccbac311fea05f86f61904b462b55fb3df8837a366dfc601a0161d0532f20"
 
 [[package]]
 name = "tlsn-aead"
-version = "0.1.0-alpha.4"
-source = "git+https://github.com/tlsnotary/tlsn?tag=v0.1.0-alpha.4#309c37fdecd719d8837ec617646a2d394ac3386f"
+version = "0.1.0-alpha.5"
+source = "git+https://github.com/tlsnotary/tlsn?tag=v0.1.0-alpha.5#68b9474015b817255c226fec38e80addd16191d1"
 dependencies = [
  "async-trait",
  "derive_builder 0.12.0",
  "futures",
- "mpz-core 0.1.0 (git+https://github.com/privacy-scaling-explorations/mpz?rev=850636f)",
+ "mpz-core 0.1.0 (git+https://github.com/privacy-scaling-explorations/mpz?rev=9f7403b)",
  "mpz-garble",
  "serde",
  "thiserror",
@@ -3549,8 +3640,8 @@ dependencies = [
 
 [[package]]
 name = "tlsn-block-cipher"
-version = "0.1.0-alpha.4"
-source = "git+https://github.com/tlsnotary/tlsn?tag=v0.1.0-alpha.4#309c37fdecd719d8837ec617646a2d394ac3386f"
+version = "0.1.0-alpha.5"
+source = "git+https://github.com/tlsnotary/tlsn?tag=v0.1.0-alpha.5#68b9474015b817255c226fec38e80addd16191d1"
 dependencies = [
  "async-trait",
  "derive_builder 0.12.0",
@@ -3563,8 +3654,8 @@ dependencies = [
 
 [[package]]
 name = "tlsn-common"
-version = "0.1.0-alpha.4"
-source = "git+https://github.com/tlsnotary/tlsn?tag=v0.1.0-alpha.4#309c37fdecd719d8837ec617646a2d394ac3386f"
+version = "0.1.0-alpha.5"
+source = "git+https://github.com/tlsnotary/tlsn?tag=v0.1.0-alpha.5#68b9474015b817255c226fec38e80addd16191d1"
 dependencies = [
  "futures",
  "tlsn-utils-aio",
@@ -3573,14 +3664,14 @@ dependencies = [
 
 [[package]]
 name = "tlsn-core"
-version = "0.1.0-alpha.4"
-source = "git+https://github.com/tlsnotary/tlsn?tag=v0.1.0-alpha.4#309c37fdecd719d8837ec617646a2d394ac3386f"
+version = "0.1.0-alpha.5"
+source = "git+https://github.com/tlsnotary/tlsn?tag=v0.1.0-alpha.5#68b9474015b817255c226fec38e80addd16191d1"
 dependencies = [
  "bimap",
  "bytes",
  "getrandom",
  "mpz-circuits",
- "mpz-core 0.1.0 (git+https://github.com/privacy-scaling-explorations/mpz?rev=850636f)",
+ "mpz-core 0.1.0 (git+https://github.com/privacy-scaling-explorations/mpz?rev=9f7403b)",
  "mpz-garble-core",
  "opaque-debug",
  "p256",
@@ -3597,7 +3688,7 @@ dependencies = [
 [[package]]
 name = "tlsn-examples"
 version = "0.0.0"
-source = "git+https://github.com/tlsnotary/tlsn?tag=v0.1.0-alpha.4#309c37fdecd719d8837ec617646a2d394ac3386f"
+source = "git+https://github.com/tlsnotary/tlsn?tag=v0.1.0-alpha.5#68b9474015b817255c226fec38e80addd16191d1"
 dependencies = [
  "async-tls",
  "chrono",
@@ -3608,9 +3699,10 @@ dependencies = [
  "http-body-util",
  "hyper 1.2.0",
  "hyper-util",
- "mpz-core 0.1.0 (git+https://github.com/privacy-scaling-explorations/mpz?rev=850636f)",
+ "mpz-core 0.1.0 (git+https://github.com/privacy-scaling-explorations/mpz?rev=9f7403b)",
  "notary-server",
  "p256",
+ "regex",
  "rustls 0.21.10",
  "rustls-pemfile",
  "serde",
@@ -3619,7 +3711,8 @@ dependencies = [
  "tlsn-prover",
  "tlsn-tls-client",
  "tlsn-tls-core",
- "tlsn-verifier 0.1.0-alpha.4",
+ "tlsn-utils",
+ "tlsn-verifier 0.1.0-alpha.5",
  "tokio",
  "tokio-rustls",
  "tokio-util",
@@ -3630,8 +3723,8 @@ dependencies = [
 
 [[package]]
 name = "tlsn-formats"
-version = "0.1.0-alpha.4"
-source = "git+https://github.com/tlsnotary/tlsn?tag=v0.1.0-alpha.4#309c37fdecd719d8837ec617646a2d394ac3386f"
+version = "0.1.0-alpha.5"
+source = "git+https://github.com/tlsnotary/tlsn?tag=v0.1.0-alpha.5#68b9474015b817255c226fec38e80addd16191d1"
 dependencies = [
  "bytes",
  "serde",
@@ -3643,8 +3736,8 @@ dependencies = [
 
 [[package]]
 name = "tlsn-hmac-sha256"
-version = "0.1.0-alpha.4"
-source = "git+https://github.com/tlsnotary/tlsn?tag=v0.1.0-alpha.4#309c37fdecd719d8837ec617646a2d394ac3386f"
+version = "0.1.0-alpha.5"
+source = "git+https://github.com/tlsnotary/tlsn?tag=v0.1.0-alpha.5#68b9474015b817255c226fec38e80addd16191d1"
 dependencies = [
  "async-trait",
  "derive_builder 0.12.0",
@@ -3660,8 +3753,8 @@ dependencies = [
 
 [[package]]
 name = "tlsn-hmac-sha256-circuits"
-version = "0.1.0-alpha.4"
-source = "git+https://github.com/tlsnotary/tlsn?tag=v0.1.0-alpha.4#309c37fdecd719d8837ec617646a2d394ac3386f"
+version = "0.1.0-alpha.5"
+source = "git+https://github.com/tlsnotary/tlsn?tag=v0.1.0-alpha.5#68b9474015b817255c226fec38e80addd16191d1"
 dependencies = [
  "mpz-circuits",
  "tracing",
@@ -3669,13 +3762,14 @@ dependencies = [
 
 [[package]]
 name = "tlsn-key-exchange"
-version = "0.1.0-alpha.4"
-source = "git+https://github.com/tlsnotary/tlsn?tag=v0.1.0-alpha.4#309c37fdecd719d8837ec617646a2d394ac3386f"
+version = "0.1.0-alpha.5"
+source = "git+https://github.com/tlsnotary/tlsn?tag=v0.1.0-alpha.5#68b9474015b817255c226fec38e80addd16191d1"
 dependencies = [
  "async-trait",
  "derive_builder 0.12.0",
  "futures",
  "mpz-circuits",
+ "mpz-fields",
  "mpz-garble",
  "mpz-ot",
  "mpz-share-conversion-core",
@@ -3689,11 +3783,12 @@ dependencies = [
 
 [[package]]
 name = "tlsn-point-addition"
-version = "0.1.0-alpha.4"
-source = "git+https://github.com/tlsnotary/tlsn?tag=v0.1.0-alpha.4#309c37fdecd719d8837ec617646a2d394ac3386f"
+version = "0.1.0-alpha.5"
+source = "git+https://github.com/tlsnotary/tlsn?tag=v0.1.0-alpha.5#68b9474015b817255c226fec38e80addd16191d1"
 dependencies = [
  "async-trait",
- "mpz-core 0.1.0 (git+https://github.com/privacy-scaling-explorations/mpz?rev=850636f)",
+ "mpz-core 0.1.0 (git+https://github.com/privacy-scaling-explorations/mpz?rev=9f7403b)",
+ "mpz-fields",
  "mpz-share-conversion",
  "mpz-share-conversion-core",
  "p256",
@@ -3703,14 +3798,14 @@ dependencies = [
 
 [[package]]
 name = "tlsn-prover"
-version = "0.1.0-alpha.4"
-source = "git+https://github.com/tlsnotary/tlsn?tag=v0.1.0-alpha.4#309c37fdecd719d8837ec617646a2d394ac3386f"
+version = "0.1.0-alpha.5"
+source = "git+https://github.com/tlsnotary/tlsn?tag=v0.1.0-alpha.5#68b9474015b817255c226fec38e80addd16191d1"
 dependencies = [
  "bytes",
  "derive_builder 0.12.0",
  "futures",
  "getrandom",
- "mpz-core 0.1.0 (git+https://github.com/privacy-scaling-explorations/mpz?rev=850636f)",
+ "mpz-core 0.1.0 (git+https://github.com/privacy-scaling-explorations/mpz?rev=9f7403b)",
  "mpz-garble",
  "mpz-garble-core",
  "mpz-ot",
@@ -3735,8 +3830,8 @@ dependencies = [
 
 [[package]]
 name = "tlsn-stream-cipher"
-version = "0.1.0-alpha.4"
-source = "git+https://github.com/tlsnotary/tlsn?tag=v0.1.0-alpha.4#309c37fdecd719d8837ec617646a2d394ac3386f"
+version = "0.1.0-alpha.5"
+source = "git+https://github.com/tlsnotary/tlsn?tag=v0.1.0-alpha.5#68b9474015b817255c226fec38e80addd16191d1"
 dependencies = [
  "aes 0.8.4",
  "async-trait",
@@ -3752,8 +3847,8 @@ dependencies = [
 
 [[package]]
 name = "tlsn-tls-backend"
-version = "0.1.0-alpha.4"
-source = "git+https://github.com/tlsnotary/tlsn?tag=v0.1.0-alpha.4#309c37fdecd719d8837ec617646a2d394ac3386f"
+version = "0.1.0-alpha.5"
+source = "git+https://github.com/tlsnotary/tlsn?tag=v0.1.0-alpha.5#68b9474015b817255c226fec38e80addd16191d1"
 dependencies = [
  "async-trait",
  "futures",
@@ -3763,8 +3858,8 @@ dependencies = [
 
 [[package]]
 name = "tlsn-tls-client"
-version = "0.1.0-alpha.4"
-source = "git+https://github.com/tlsnotary/tlsn?tag=v0.1.0-alpha.4#309c37fdecd719d8837ec617646a2d394ac3386f"
+version = "0.1.0-alpha.5"
+source = "git+https://github.com/tlsnotary/tlsn?tag=v0.1.0-alpha.5#68b9474015b817255c226fec38e80addd16191d1"
 dependencies = [
  "aes-gcm",
  "async-trait",
@@ -3786,8 +3881,8 @@ dependencies = [
 
 [[package]]
 name = "tlsn-tls-client-async"
-version = "0.1.0-alpha.4"
-source = "git+https://github.com/tlsnotary/tlsn?tag=v0.1.0-alpha.4#309c37fdecd719d8837ec617646a2d394ac3386f"
+version = "0.1.0-alpha.5"
+source = "git+https://github.com/tlsnotary/tlsn?tag=v0.1.0-alpha.5#68b9474015b817255c226fec38e80addd16191d1"
 dependencies = [
  "bytes",
  "futures",
@@ -3799,8 +3894,8 @@ dependencies = [
 
 [[package]]
 name = "tlsn-tls-core"
-version = "0.1.0-alpha.4"
-source = "git+https://github.com/tlsnotary/tlsn?tag=v0.1.0-alpha.4#309c37fdecd719d8837ec617646a2d394ac3386f"
+version = "0.1.0-alpha.5"
+source = "git+https://github.com/tlsnotary/tlsn?tag=v0.1.0-alpha.5#68b9474015b817255c226fec38e80addd16191d1"
 dependencies = [
  "futures",
  "hmac",
@@ -3818,15 +3913,15 @@ dependencies = [
 
 [[package]]
 name = "tlsn-tls-mpc"
-version = "0.1.0-alpha.4"
-source = "git+https://github.com/tlsnotary/tlsn?tag=v0.1.0-alpha.4#309c37fdecd719d8837ec617646a2d394ac3386f"
+version = "0.1.0-alpha.5"
+source = "git+https://github.com/tlsnotary/tlsn?tag=v0.1.0-alpha.5#68b9474015b817255c226fec38e80addd16191d1"
 dependencies = [
  "async-trait",
  "derive_builder 0.12.0",
  "enum-try-as-inner",
  "futures",
  "ludi",
- "mpz-core 0.1.0 (git+https://github.com/privacy-scaling-explorations/mpz?rev=850636f)",
+ "mpz-core 0.1.0 (git+https://github.com/privacy-scaling-explorations/mpz?rev=9f7403b)",
  "mpz-garble",
  "mpz-share-conversion",
  "p256",
@@ -3848,14 +3943,15 @@ dependencies = [
 
 [[package]]
 name = "tlsn-universal-hash"
-version = "0.1.0-alpha.4"
-source = "git+https://github.com/tlsnotary/tlsn?tag=v0.1.0-alpha.4#309c37fdecd719d8837ec617646a2d394ac3386f"
+version = "0.1.0-alpha.5"
+source = "git+https://github.com/tlsnotary/tlsn?tag=v0.1.0-alpha.5#68b9474015b817255c226fec38e80addd16191d1"
 dependencies = [
  "async-trait",
  "derive_builder 0.12.0",
  "futures",
  "futures-util",
- "mpz-core 0.1.0 (git+https://github.com/privacy-scaling-explorations/mpz?rev=850636f)",
+ "mpz-core 0.1.0 (git+https://github.com/privacy-scaling-explorations/mpz?rev=9f7403b)",
+ "mpz-fields",
  "mpz-share-conversion",
  "mpz-share-conversion-core",
  "opaque-debug",
@@ -3893,13 +3989,13 @@ dependencies = [
 
 [[package]]
 name = "tlsn-verifier"
-version = "0.1.0-alpha.4"
-source = "git+https://github.com/tlsnotary/tlsn?tag=v0.1.0-alpha.4#309c37fdecd719d8837ec617646a2d394ac3386f"
+version = "0.1.0-alpha.5"
+source = "git+https://github.com/tlsnotary/tlsn?tag=v0.1.0-alpha.5#68b9474015b817255c226fec38e80addd16191d1"
 dependencies = [
  "derive_builder 0.12.0",
  "futures",
  "mpz-circuits",
- "mpz-core 0.1.0 (git+https://github.com/privacy-scaling-explorations/mpz?rev=850636f)",
+ "mpz-core 0.1.0 (git+https://github.com/privacy-scaling-explorations/mpz?rev=9f7403b)",
  "mpz-garble",
  "mpz-ot",
  "mpz-share-conversion",
@@ -3942,7 +4038,7 @@ dependencies = [
  "tlsn-prover",
  "tlsn-tls-client",
  "tlsn-tls-core",
- "tlsn-verifier 0.1.0-alpha.4",
+ "tlsn-verifier 0.1.0-alpha.5",
  "tokio",
  "tokio-rustls",
  "tokio-util",
@@ -4254,8 +4350,8 @@ checksum = "ed646292ffc8188ef8ea4d1e0e0150fb15a5c2e12ad9b8fc191ae7a8a7f3c4b9"
 
 [[package]]
 name = "uid-mux"
-version = "0.1.0-alpha.4"
-source = "git+https://github.com/tlsnotary/tlsn?tag=v0.1.0-alpha.4#309c37fdecd719d8837ec617646a2d394ac3386f"
+version = "0.1.0-alpha.5"
+source = "git+https://github.com/tlsnotary/tlsn?tag=v0.1.0-alpha.5#68b9474015b817255c226fec38e80addd16191d1"
 dependencies = [
  "async-trait",
  "futures",
@@ -4393,6 +4489,16 @@ name = "waker-fn"
 version = "1.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f3c4517f54858c779bbcbf228f4fca63d121bf85fbecb2dc578cdf4a39395690"
+
+[[package]]
+name = "walkdir"
+version = "2.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "29790946404f91d9c5d06f9874efddea1dc06c5efe94541a7d6863108e3a5e4b"
+dependencies = [
+ "same-file",
+ "winapi-util",
+]
 
 [[package]]
 name = "want"
@@ -4538,6 +4644,15 @@ name = "winapi-i686-pc-windows-gnu"
 version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ac3b87c63620426dd9b991e5ce0329eff545bccbbb34f3be09ff6fb6ab51b7b6"
+
+[[package]]
+name = "winapi-util"
+version = "0.1.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4d4cc384e1e73b93bafa6fb4f1df8c41695c8a91cf9c4c64358067d15a7b6c6b"
+dependencies = [
+ "windows-sys 0.52.0",
+]
 
 [[package]]
 name = "winapi-x86_64-pc-windows-gnu"
