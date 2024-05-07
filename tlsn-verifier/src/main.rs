@@ -16,14 +16,15 @@ fn main() {
 
     // Check if a path argument was provided
     if args.len() < 2 {
-        eprintln!("Usage: {} <path_to_proof_json> <path_to_send_data_output_txt> <path_to_recv_data_output_txt>", args[0]);
+        eprintln!("Usage: {} <path_to_notary_pub_key> <path_to_proof_json> <path_to_send_data_output_txt> <path_to_recv_data_output_txt>", args[0]);
         std::process::exit(1);
     }
 
     // The first argument in args is the program name, so the second argument (index 1) is the file path
-    let proof_path = &args[1];
-    let send_output_path = &args[2];
-    let recv_output_path = &args[3];
+    let notary_pubkey_path = &args[1];
+    let proof_path = &args[2];
+    let send_output_path = &args[3];
+    let recv_output_path = &args[4];
 
     // Deserialize the proof from the provided file path
     let proof = std::fs::read_to_string(proof_path)
@@ -46,7 +47,7 @@ fn main() {
     // This verifies the identity of the server using a default certificate verifier which trusts
     // the root certificates from the `webpki-roots` crate.
     session
-        .verify_with_default_cert_verifier(notary_pubkey())
+        .verify_with_default_cert_verifier(notary_pubkey(notary_pubkey_path))
         .unwrap();
 
     let SessionProof {
@@ -103,12 +104,10 @@ fn main() {
 }
 
 /// Returns a Notary pubkey trusted by this Verifier
-fn notary_pubkey() -> p256::PublicKey {
-    let pem_file = str::from_utf8(include_bytes!(
-        "../certs/notary.pub"
-    ))
-    .unwrap();
-    p256::PublicKey::from_public_key_pem(pem_file).unwrap()
+fn notary_pubkey(notary_pubkey_path: &str) -> p256::PublicKey {
+    let pem_file = fs::read_to_string(notary_pubkey_path)
+        .expect("Failed to read public key file");
+    p256::PublicKey::from_public_key_pem(&pem_file).expect("Failed to parse public key")
 }
 
 

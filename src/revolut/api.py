@@ -16,7 +16,7 @@ load_dotenv('./env')
 # --------- INITIALIZE HELPERS ------------
 
 DOMAIN = 'api.revolut.com'
-DOCKER_IMAGE_NAME = '0xsachink/zkp2p:modal-verifier-v0.1.0-alpha.5-prod'
+DOCKER_IMAGE_NAME = '0xsachink/zkp2p:modal-tlsn-verifier-v0.1.0-alpha.5-prod'
 STUB_NAME = 'zkp2p-revolut-verifier-0.2.5'
 
 SLACK_TOKEN = os.getenv('SLACK_TOKEN')
@@ -127,9 +127,11 @@ def core_verify_proof(proof_data):
     proof_raw_data = proof_data["proof"]
     payment_type = proof_data["payment_type"]
     circuit_type = proof_data["circuit_type"]
+    notary_pubkey = proof_data["notary_pubkey"]
 
     # Instantiate the TLSN proof verifier
     tlsn_proof_verifier = TLSNProofVerifier(
+        notary_pubkey=notary_pubkey,
         payment_type=payment_type,
         circuit_type=circuit_type,
         regex_patterns_map=regex_patterns_map,
