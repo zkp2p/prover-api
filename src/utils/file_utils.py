@@ -85,8 +85,15 @@ def write_tlsn_proof_to_local(file_contents, payment_type, circuit_type, nonce):
 
 def write_notary_pubkey_to_local(file_contents, payment_type, circuit_type, nonce):
     file_path = get_notary_pubkey_path(payment_type, circuit_type, nonce)
-    with open(file_path, 'w') as file:
-        file.write(file_contents)
+    # Create the folder if it doesn't exist
+    if not os.path.exists(os.path.dirname(file_path)):
+        os.makedirs(os.path.dirname(file_path))
+    try:
+        with open(file_path, 'w') as file:
+            file.write(file_contents)
+    except IOError as e:
+        print(f"Error writing notary pubkey to file: {e}")
+        return None
     return file_path
 
 def read_tlsn_verify_output_from_local(payment_type, circuit_type, nonce):

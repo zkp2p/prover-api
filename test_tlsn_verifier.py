@@ -8,10 +8,10 @@ from dotenv import load_dotenv
 load_dotenv('./.env')
 
 TEST_PAYMENT_TYPE = "revolut"
-TEST_CIRCUIT_TYPE = "transfer"
-NOTARY_PUBKEY_PATH = "./certs/notary.pub"
-TEST_PROOF_PATH = "./proofs/revolut/transfer_proof_new_notary_key.json"
-MODAL_ENDPOINT = "https://zkp2p--zkp2p-revolut-verifier-0-2-5-verify-proof.modal.run"
+TEST_CIRCUIT_TYPE = "registration"
+NOTARY_PUBKEY_PATH = "./certs/zkp2p_notary.pub"
+TEST_PROOF_PATH = "./proofs/revolut/registration_proof_new_notary_key.json"
+MODAL_ENDPOINT = "https://zkp2p--zkp2p-revolut-verifier-0-2-5-verify-proof-dev.modal.run"
 
 
 if __name__ == "__main__":
@@ -34,10 +34,10 @@ if __name__ == "__main__":
         "user_address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
     }
     print(proof_data)
-    print(
-        "Payment Type: ", proof_data['payment_type'], 
-        "Circuit Type: ", proof_data['circuit_type']
-    )
+    # print(
+    #     "Payment Type: ", proof_data['payment_type'], 
+    #     "Circuit Type: ", proof_data['circuit_type']
+    # )
 
 
     start = time.time()

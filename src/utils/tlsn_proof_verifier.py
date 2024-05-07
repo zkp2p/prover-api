@@ -49,7 +49,7 @@ class TLSNProofVerifier:
         write_tlsn_proof_to_local(proof_raw_data, self.payment_type, self.circuit_type, str(nonce))
 
         # Write notary key to local
-        write_notary_pubkey_to_local(self.notary_pubkey)
+        write_notary_pubkey_to_local(self.notary_pubkey, self.payment_type, self.circuit_type, str(nonce))
 
         # Verify the notaries signature on encoded data using the rust verifier
         print('Running verify process')

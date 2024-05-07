@@ -1,6 +1,8 @@
 import modal
 import os
+import hashlib
 from dotenv import load_dotenv
+import binascii
 from fastapi import HTTPException, status
 from typing import Dict
 import json
@@ -16,7 +18,7 @@ load_dotenv('./env')
 # --------- INITIALIZE HELPERS ------------
 
 DOMAIN = 'api.revolut.com'
-DOCKER_IMAGE_NAME = '0xsachink/zkp2p:modal-tlsn-verifier-v0.1.0-alpha.5-prod'
+DOCKER_IMAGE_NAME = '0xsachink/zkp2p:modal-tlsn-verifier-v0.1.0-alpha.5-prod-2'
 STUB_NAME = 'zkp2p-revolut-verifier-0.2.5'
 
 SLACK_TOKEN = os.getenv('SLACK_TOKEN')
@@ -96,6 +98,9 @@ error_codes_map = {
 
 # --------- CUSTOM POST PROCESSING ------------ 
 
+def hex_string_to_bytes(hex_string):
+    return binascii.unhexlify(hex_string)
+
 def post_processing_public_values(pub_values, regex_types, circuit_type, proof_data):
     # Post processing public values
     local_target_types = regex_types.get(circuit_type, []).copy()
@@ -112,6 +117,14 @@ def post_processing_public_values(pub_values, regex_types, circuit_type, proof_d
 
         pub_values.append(proof_data["user_address"])
         local_target_types.append('address')
+
+    # Append hashed notary key and type
+    notary_pubkey = proof_data["notary_pubkey"]
+    notary_pubkey_hasehd = hashlib.sha256(notary_pubkey.encode('utf-8')).hexdigest()
+    notary_pubkey_hashed_bytes_data = hex_string_to_bytes(notary_pubkey_hasehd)
+    # print(notary_pubkey, notary_pubkey_hasehd, notary_pubkey_hashed_bytes_data)
+    pub_values.append(notary_pubkey_hashed_bytes_data)
+    local_target_types.append('bytes32')
 
     return pub_values, local_target_types
 
