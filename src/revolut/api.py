@@ -19,7 +19,7 @@ load_dotenv('./env')
 
 DOMAIN = 'api.revolut.com'
 DOCKER_IMAGE_NAME = '0xsachink/zkp2p:modal-tlsn-verifier-v0.1.0-alpha.5-prod-2'
-STUB_NAME = 'zkp2p-revolut-local-verifier-0.2.5'
+STUB_NAME = 'zkp2p-revolut-verifier-0.2.5'
 
 SLACK_TOKEN = os.getenv('SLACK_TOKEN')
 CHANNEL_ID = os.getenv('CHANNEL_ID')
