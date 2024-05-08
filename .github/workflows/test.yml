@@ -1,0 +1,49 @@
+name: pytest
+on: [pull_request]
+jobs:
+    test:
+      runs-on: ubuntu-latest
+  
+      steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+  
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12.3'
+
+      - name: Activate virtual environment
+        run: |
+          python -m venv venv
+          source venv/bin/activate
+
+      - name: Create .env file
+        run: |
+          echo "CUSTOM_PROVER_API_PATH=/home/runner/work/prover-api/prover-api" > src/revolut/.env
+          echo "VERIFIER_PRIVATE_KEY=${{ secrets.VERIFIER_PRIVATE_KEY }}" >> src/revolut/.env
+          echo "CUSTOM_PROVER_API_PATH=/home/runner/work/prover-api/prover-api" > src/wise/.env
+          echo "VERIFIER_PRIVATE_KEY=${{ secrets.VERIFIER_PRIVATE_KEY }}" >> src/wise/.env
+          echo "CUSTOM_PROVER_API_PATH=/home/runner/work/prover-api/prover-api" > src/utils/tests/.env
+  
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Set up Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+
+      - name: Build and run Rust project
+        run: |
+          cd tlsn-verifier
+          cargo build --release
+        
+      - name: Run pytest directory
+        run: |
+          cd src
+          pytest
