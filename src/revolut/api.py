@@ -19,7 +19,7 @@ load_dotenv('./env')
 
 DOMAIN = 'api.revolut.com'
 DOCKER_IMAGE_NAME = '0xsachink/zkp2p:modal-tlsn-verifier-v0.1.0-alpha.5-prod-2'
-STUB_NAME = 'zkp2p-revolut-verifier-0.2.5'
+STUB_NAME = 'zkp2p-revolut-local-verifier-0.2.5'
 
 SLACK_TOKEN = os.getenv('SLACK_TOKEN')
 CHANNEL_ID = os.getenv('CHANNEL_ID')
@@ -128,6 +128,9 @@ def post_processing_public_values(pub_values, regex_types, circuit_type, proof_d
 
 # ----------------- API -----------------
 
+def clean_public_key(encoded_key):
+    return encoded_key.replace("\\n", "\n")
+
 @stub.function(cpu=48, memory=16000, secrets=[credentials_secret]) 
 @modal.web_endpoint(method="POST")
 def verify_proof(proof_data: Dict):
@@ -138,7 +141,8 @@ def core_verify_proof(proof_data):
     proof_raw_data = proof_data["proof"]
     payment_type = proof_data["payment_type"]
     circuit_type = proof_data["circuit_type"]
-    notary_pubkey = proof_data["notary_pubkey"]
+    notary_pubkey = clean_public_key(proof_data["notary_pubkey"])
+    proof_data["notary_pubkey"] = notary_pubkey     # Reset the notary key
 
     # Instantiate the TLSN proof verifier
     tlsn_proof_verifier = TLSNProofVerifier(
