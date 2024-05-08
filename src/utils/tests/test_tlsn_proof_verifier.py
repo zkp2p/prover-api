@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 dotenv_path = "src/utils/tests/.env"
 load_dotenv(dotenv_path)
 
+
 # Override verifier private key to hardhat
 os.environ['VERIFIER_PRIVATE_KEY'] = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
 
@@ -15,7 +16,6 @@ def open_file(file_path):
     with open(file_path, 'r') as file:
         return file.read()
 
-@pytest.mark.skip(reason="Needs to be updated to latest TLSNProofVerifier API")
 @pytest.mark.parametrize("inputs, expected_output", [
     # When both regexes pass
     ({
@@ -33,6 +33,7 @@ def open_file(file_path):
         "error_codes_map": {
             "transfer": 11
         },
+        "notary_pubkey": "-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEBv36FI4ZFszJa0DQFJ3wWCXvVLFr\ncRzMG5kaTeHGoSzDu6cFqx3uEWYpFGo6C0EOUgf+mEgbktLrXocv5yHzKg==\n-----END PUBLIC KEY-----",
         "send_data": 'AAAAAA,"targetCurrency":"EUR",XXXXXX',
         "recv_data": 'AAAAAA,"id":41213881,XXXXXX'  
     }, {
@@ -56,6 +57,7 @@ def open_file(file_path):
         "error_codes_map": {
             "transfer": 11
         },
+        "notary_pubkey": "-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEBv36FI4ZFszJa0DQFJ3wWCXvVLFr\ncRzMG5kaTeHGoSzDu6cFqx3uEWYpFGo6C0EOUgf+mEgbktLrXocv5yHzKg==\n-----END PUBLIC KEY-----",
         "send_data": 'AAAAAA,"sourceCurrency":"EUR",XXXXXX',
         "recv_data": 'AAAAAA,"id":41213881,XXXXXX'  
     }, {
@@ -79,6 +81,7 @@ def open_file(file_path):
         "error_codes_map": {
             "transfer": 11
         },
+        "notary_pubkey": "-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEBv36FI4ZFszJa0DQFJ3wWCXvVLFr\ncRzMG5kaTeHGoSzDu6cFqx3uEWYpFGo6C0EOUgf+mEgbktLrXocv5yHzKg==\n-----END PUBLIC KEY-----",
         "send_data": 'AAAAAA,"targetCurrency":"EUR",XXXXXX',
         "recv_data": 'AAAAAA,"id":41213881,XXXXXXAAAAAA,"id":41213881,XXXXXX'  
     }, {
@@ -93,7 +96,8 @@ def test_extract_regexes(inputs, expected_output):
         circuit_type=inputs["circuit_type"],
         regex_patterns_map=inputs["regex_patterns_map"],
         regex_target_types=inputs["regex_target_types"],
-        error_codes_map=inputs["error_codes_map"]
+        error_codes_map=inputs["error_codes_map"],
+        notary_pubkey=inputs["notary_pubkey"]
     ).extract_regexes(inputs["send_data"], inputs["recv_data"])
 
     assert public_values == expected_output["public_values"]
@@ -129,14 +133,14 @@ def test_verify_proof(inputs, expected_output):
         circuit_type=inputs["circuit_type"],
         regex_patterns_map={},
         regex_target_types={},
-        error_codes_map={}
+        error_codes_map={},
+        notary_pubkey=""
     ).verify_tlsn_proof(inputs["proof_raw_data"])
 
     assert send_data == expected_output["send_data"]
     assert recv_data == expected_output["recv_data"]
     assert error == expected_output["error"]
 
-@pytest.mark.skip(reason="Needs to be updated to latest TLSNProofVerifier API")
 @pytest.mark.parametrize("inputs, expected_output", [
     # Sample notary proof
     ({
@@ -153,7 +157,8 @@ def test_sign_and_serialize_values(inputs, expected_output):
         circuit_type={},
         regex_patterns_map={},
         regex_target_types={},
-        error_codes_map={}
+        error_codes_map={},
+        notary_pubkey=""
     ).sign_and_serialize_values(inputs["public_values"], inputs["target_types"])
 
     assert signature == expected_output["signature"]
