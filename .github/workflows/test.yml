@@ -27,8 +27,20 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+
+      - name: Set up Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+
+      - name: Build and run Rust project
+        run: |
+          cd tlsn-verifier
+          cargo build --release
         
       - name: Run pytest directory
         run: |
-          cd src
+          cd ../src
           pytest
