@@ -17,6 +17,11 @@ jobs:
         run: |
           python -m venv venv
           source venv/bin/activate
+
+      - name: Create .env file
+        run: |
+          echo "CUSTOM_PROVER_API_PATH=/home/runner/work/prover-api/prover-api" > src/revolut/.env
+          echo "VERIFIER_PRIVATE_KEY=${{ secrets.VERIFIER_PRIVATE_KEY }}" >> src/revolut/.env
   
       - name: Install dependencies
         run: |
