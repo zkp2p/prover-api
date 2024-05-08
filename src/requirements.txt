@@ -6,3 +6,4 @@ dkimpy
 eth_account<0.12.0
 eth-abi
 web3
+pytest
