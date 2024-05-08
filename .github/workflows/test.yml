@@ -22,6 +22,9 @@ jobs:
         run: |
           echo "CUSTOM_PROVER_API_PATH=/home/runner/work/prover-api/prover-api" > src/revolut/.env
           echo "VERIFIER_PRIVATE_KEY=${{ secrets.VERIFIER_PRIVATE_KEY }}" >> src/revolut/.env
+          echo "CUSTOM_PROVER_API_PATH=/home/runner/work/prover-api/prover-api" > src/wise/.env
+          echo "VERIFIER_PRIVATE_KEY=${{ secrets.VERIFIER_PRIVATE_KEY }}" >> src/wise/.env
+          echo "CUSTOM_PROVER_API_PATH=/home/runner/work/prover-api/prover-api" > src/utils/tests/.env
   
       - name: Install dependencies
         run: |
@@ -42,5 +45,5 @@ jobs:
         
       - name: Run pytest directory
         run: |
-          cd ../src
+          cd src
           pytest
