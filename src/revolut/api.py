@@ -120,11 +120,9 @@ def post_processing_public_values(pub_values, regex_types, circuit_type, proof_d
 
     # Append hashed notary key and type
     notary_pubkey = proof_data["notary_pubkey"]
-    notary_pubkey_hasehd = hashlib.sha256(notary_pubkey.encode('utf-8')).hexdigest()
-    notary_pubkey_hashed_bytes_data = hex_string_to_bytes(notary_pubkey_hasehd)
-    # print(notary_pubkey, notary_pubkey_hasehd, notary_pubkey_hashed_bytes_data)
-    pub_values.append(notary_pubkey_hashed_bytes_data)
-    local_target_types.append('bytes32')
+    notary_pubkey_hashed = hashlib.sha256(notary_pubkey.encode('utf-8')).hexdigest()
+    pub_values.append(int(notary_pubkey_hashed, 16))
+    local_target_types.append('uint256')
 
     return pub_values, local_target_types
 
