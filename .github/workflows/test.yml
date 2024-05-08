@@ -15,6 +15,7 @@ jobs:
 
       - name: Activate virtual environment
         run: |
+          python -m venv venv
           source venv/bin/activate
   
       - name: Install dependencies
