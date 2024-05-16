@@ -59,11 +59,11 @@ transfer_regexes_config = [
 
     # Recv data regexes
     (r'"id":"([a-fA-F0-9-]+)","legId":"([a-fA-F0-9-]+)","type":"TRANSFER","state":"COMPLETED","startedDate":(\d+),"updatedDate":(\d+)', 'string'),  # Transaction ID
-    (r'"code":"(\w+)","account":{"id":"([a-fA-F0-9-]+)","type":"CURRENT"}},"localisedDescription":{"key":"transaction.description.generic.name","params":\[[X]+\]', 'string'),  # Target RevID
-    (r'"amount":([\d.-]+),"fee":(\d+),"balance":([X]+),"description":([X]+),', 'string'),  # Target Amount
-    (r'"currency":"([A-Z]{3})","amount":([\d.-]+),"fee":(\d+),"balance":([X]+),"description":([X]+),', 'string'),  # Target Currency
+    (r'"code":"(\w+)","account":{"id":"([a-fA-F0-9-]+)","type":"CURRENT"}},"localisedDescription":{"key":"transaction.description.generic.name",[X]+\]', 'string'),  # Target RevID
+    (r'"amount":([\d.-]+),"fee":(\d+),[X]+,[X]+,', 'string'),  # Target Amount
+    (r'"currency":"([A-Z]{3})","amount":([\d.-]+),"fee":(\d+),[X]+,[X]+,', 'string'),  # Target Currency
     (r'"type":"TRANSFER","state":"(\w+)","startedDate":(\d+),"updatedDate":(\d+)', 'string'),  # State
-    (r'"completedDate":(\d+),"createdDate":(\d+),"currency":"([A-Z]{3})","amount":([\d.-]+),"fee":(\d+),"balance":([X]+),"description":([X]+),', 'string') # Unix date
+    (r'"completedDate":(\d+),"createdDate":(\d+),"currency":"([A-Z]{3})","amount":([\d.-]+),"fee":(\d+),[X]+,[X]+,', 'string') # Unix date
 ]
 
 registration_regexes_config = [
