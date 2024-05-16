@@ -75,6 +75,18 @@ def open_file(file_path):
         'proof': '0xc1b2b6fc8a72c246e499e2efa084d0e275bc6d85888ce048a284c3a1da36b101730c1d05c6a06915335735e4889947b8a5d958fd4a624b30366593833bf305281c', 
         'public_values': ['GET https://app.revolut.com/api/retail/user/current', 'app.revolut.com', '21441300878620834626555326528464320548303703202526115662730864900894611908769', '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', '112089371709673661805969872300503488524525726634528779705618943730435390735319']
     }),
+    # NOTE: Test for when balance is 17 and matches the first 2 UNIX timestamp characters (Vivek's bug)
+    ({
+        "proof": open_file("./revolut/tests/proofs/transfer_eur_17_balance.json"),  
+        "payment_type": "revolut",
+        "circuit_type": "transfer",
+        "intent_hash": "2109098755843864455034980037347310810989244226703714011137935097150268285982",
+        "user_address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "notary_pubkey": "-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEhXZItBvE1R/gcSGKGMrl7cPpybNy\niTJ5B4ejf6chkzVKsjYnljqiD/4eEIl69+Y4QZFb57yvQ10Dq2ntdGMxXQ==\n-----END PUBLIC KEY-----"
+    }, {
+        'proof': '0xb92b50d8c77b6bb60e584e63d918b914423afd81ce3256427c7134d221710bec57647fe63f44469cb8fbe14534e3e498bee03c36d48216c7e0f3dd6fa9e072a11b', 
+        'public_values': ['GET https://app.revolut.com/api/retail/transaction/6645bf63-fb9a-a261-93cf-312d1886b92a', 'app.revolut.com', '6645bf63-fb9a-a261-93cf-312d1886b92a', 'alexgx7gy', '-199', 'EUR', 'COMPLETED', '1715847011200', '2109098755843864455034980037347310810989244226703714011137935097150268285982', '113116629262703480258914951290401242193028831780154554089583031844538369800942']
+    }),
 ])
 def test_verify_proof(proof_data, expected_output):
     # Construct the email data
