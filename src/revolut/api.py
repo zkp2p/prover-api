@@ -72,7 +72,7 @@ registration_regexes_config = [
     (host_regex_pattern, 'string'),
 
     # Recv data regexes
-    (r'"code":"(\w+)","kyc":"PASSED","underReview":false', 'string')
+    (r'"code":"(\w+)","kyc":"PASSED"', 'string')
 ]
 
 def get_regex_patterns(config):
@@ -179,7 +179,7 @@ def core_verify_proof(proof_data):
     # Extract required values from session data
     public_values, valid_values, error_code = tlsn_proof_verifier.extract_regexes(send_data, recv_data)
     if not valid_values:
-        alert_helper.alert_on_slack(error_code, send_data + recv_data)
+        alert_helper.alert_on_slack(error_code, send_data + recv_data + proof_raw_data)
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, 
             detail=Error.get_error_response(error_code)
