@@ -26,8 +26,19 @@ def open_file(file_path):
         "notary_pubkey": "-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEhXZItBvE1R/gcSGKGMrl7cPpybNy\niTJ5B4ejf6chkzVKsjYnljqiD/4eEIl69+Y4QZFb57yvQ10Dq2ntdGMxXQ==\n-----END PUBLIC KEY-----"
     }, {
         'proof': '0xaa4b52f8a14c21b7a03a8ecb3897a9cde955cf1d9755bd58eea2ae27bdf77afc5629717d1128a3308fcab31066427e348a4ed4c2bb6ba388133b092da27d822e1c', 
-        'public_values': ['GET https://app.revolut.com/api/retail/user/current', 'app.revolut.com', '21441300878620834626555326528464320548303703202526115662730864900894611908769', '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', '113116629262703480258914951290401242193028831780154554089583031844538369800942']}
-    ),
+        'public_values': ['GET https://app.revolut.com/api/retail/user/current', 'app.revolut.com', '21441300878620834626555326528464320548303703202526115662730864900894611908769', '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', '113116629262703480258914951290401242193028831780154554089583031844538369800942']
+    }),
+    ({
+        "proof": open_file("./revolut/tests/proofs/registration_with_termsVersion.json"),
+        "payment_type": "revolut",
+        "circuit_type": "registration",
+        "intent_hash": "2109098755843864455034980037347310810989244226703714011137935097150268285982",
+        "user_address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "notary_pubkey": "-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEhXZItBvE1R/gcSGKGMrl7cPpybNy\niTJ5B4ejf6chkzVKsjYnljqiD/4eEIl69+Y4QZFb57yvQ10Dq2ntdGMxXQ==\n-----END PUBLIC KEY-----"
+    }, {
+        'proof': '0x5fe234ddea3bcdadf436c64497cac231c90aac847e67f7e6e7147eacecd125a3585d9a71caf6bbbe312de0c1b4d486ff1cde037344a1af4ec80ade6352774c3a1c', 
+        'public_values': ['GET https://app.revolut.com/api/retail/user/current', 'app.revolut.com', '76999194733354397871627298999127398328850387878548124539575540187178857311010', '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', '113116629262703480258914951290401242193028831780154554089583031844538369800942']
+    }),
     ({
         "proof": open_file("./revolut/tests/proofs/transfer_eur_1.json"),  
         "payment_type": "revolut",
