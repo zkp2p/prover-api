@@ -98,7 +98,7 @@ def test_extract_regexes(inputs, expected_output):
         regex_target_types=inputs["regex_target_types"],
         error_codes_map=inputs["error_codes_map"],
         notary_pubkey=inputs["notary_pubkey"]
-    ).extract_regexes(inputs["send_data"], inputs["recv_data"])
+    ).extract_regexes(inputs["send_data"] + inputs["recv_data"])
 
     assert public_values == expected_output["public_values"]
     assert valid == expected_output["valid"]
