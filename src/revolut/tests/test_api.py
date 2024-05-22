@@ -98,6 +98,18 @@ def open_file(file_path):
         'proof': '0xb92b50d8c77b6bb60e584e63d918b914423afd81ce3256427c7134d221710bec57647fe63f44469cb8fbe14534e3e498bee03c36d48216c7e0f3dd6fa9e072a11b', 
         'public_values': ['GET https://app.revolut.com/api/retail/transaction/6645bf63-fb9a-a261-93cf-312d1886b92a', 'app.revolut.com', '6645bf63-fb9a-a261-93cf-312d1886b92a', 'alexgx7gy', '-199', 'EUR', 'COMPLETED', '1715847011200', '2109098755843864455034980037347310810989244226703714011137935097150268285982', '113116629262703480258914951290401242193028831780154554089583031844538369800942']
     }),
+    # NOTE: Test for send USD and receiving EUR. Should extract the EUR amount and currency instead of USD
+    ({
+        "proof": open_file("./revolut/tests/proofs/transfer_usd_recv_eur.json"),  
+        "payment_type": "revolut",
+        "circuit_type": "transfer",
+        "intent_hash": "2109098755843864455034980037347310810989244226703714011137935097150268285982",
+        "user_address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "notary_pubkey": "-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEhXZItBvE1R/gcSGKGMrl7cPpybNy\niTJ5B4ejf6chkzVKsjYnljqiD/4eEIl69+Y4QZFb57yvQ10Dq2ntdGMxXQ==\n-----END PUBLIC KEY-----"
+    }, {
+        'proof': '0x98ec7c5586cb4b6bdba96c5e083d0ff3af76e87d0eab4ff0a3a77898589e8a0c65473916be6e4bedb102eedc77dbb606462282f6a6967b20f5657e36c9dec1e81c', 
+        'public_values': ['GET https://app.revolut.com/api/retail/transaction/664d1b33-b91f-a8ec-ada9-cf3a55208715', 'app.revolut.com', '664d1b33-b91f-a8ec-ada9-cf3a55208715', 'alexgx7gy', '-939', 'EUR', 'COMPLETED', '1716329267497', '2109098755843864455034980037347310810989244226703714011137935097150268285982', '113116629262703480258914951290401242193028831780154554089583031844538369800942']
+    }),
 ])
 def test_verify_proof(proof_data, expected_output):
     # Construct the email data
