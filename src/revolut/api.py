@@ -12,6 +12,7 @@ from utils.alert import AlertHelper
 from utils.tlsn_proof_verifier import TLSNProofVerifier
 from utils.env_utils import read_env_credentials
 from utils.sign import encode_and_hash
+from utils.regex_helpers import extract_regex_values
 
 load_dotenv('./env')
 
@@ -98,14 +99,25 @@ error_codes_map = {
 
 # --------- CUSTOM POST PROCESSING ------------ 
 
+post_processing_transfer_regex_patterns = [
+    r'"counterpart":{"amount":([\d.-]+),"currency":"([A-Z]{3})"},',
+    r'"currency":"([A-Z]{3})"},"recipient":{"id":"([a-fA-F0-9-]+)"'
+]
+
 def hex_string_to_bytes(hex_string):
     return binascii.unhexlify(hex_string)
 
-def post_processing_public_values(pub_values, regex_types, circuit_type, proof_data):
+def post_processing_public_values(pub_values, regex_types, circuit_type, proof_data, extract_data):
     # Post processing public values
     local_target_types = regex_types.get(circuit_type, []).copy()
 
     if circuit_type == "transfer":
+        # Extract the counterpart amount and currency from the public values
+        values = extract_regex_values(extract_data, post_processing_transfer_regex_patterns)
+        if values and len(values) == 2:
+            pub_values[4] = values[0] # replace amount with counterpart amount
+            pub_values[5] = values[1] # replace currency with counterpart currency
+
         pub_values.append(int(proof_data["intent_hash"]))
         local_target_types.append('uint256')
 
@@ -177,7 +189,8 @@ def core_verify_proof(proof_data):
         )
 
     # Extract required values from session data
-    public_values, valid_values, error_code = tlsn_proof_verifier.extract_regexes(send_data, recv_data)
+    extract_data = send_data + recv_data
+    public_values, valid_values, error_code = tlsn_proof_verifier.extract_regexes(extract_data)
     if not valid_values:
         alert_helper.alert_on_slack(error_code, send_data + recv_data + proof_raw_data)
         raise HTTPException(
@@ -190,7 +203,8 @@ def core_verify_proof(proof_data):
         public_values,
         tlsn_proof_verifier.regex_target_types,
         circuit_type,
-        proof_data
+        proof_data,
+        extract_data
     )
     
     # Logging
