@@ -10,8 +10,8 @@ load_dotenv('./.env')
 TEST_PAYMENT_TYPE = "revolut"
 TEST_CIRCUIT_TYPE = "transfer"
 NOTARY_PUBKEY_PATH = "./certs/zkp2p_notary.pub"
-TEST_PROOF_PATH = "./proofs/revolut/transfer_proof_new_notary_key.json"
-MODAL_ENDPOINT = "https://zkp2p--zkp2p-revolut-local-verifier-0-2-5-verify-proof-dev.modal.run"
+TEST_PROOF_PATH = "./proofs/revolut/transfer_eur_1.json"
+MODAL_ENDPOINT = "https://zkp2p--zkp2p-revolut-verifier-0-2-5-verify-proof.modal.run"
 
 if __name__ == "__main__":
     
