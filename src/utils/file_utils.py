@@ -43,6 +43,7 @@ def read_proof_from_local(payment_type, circuit_type, nonce):
 tlsn_verify_send_data_path = "[base_path]/tlsn_verify_outputs/send_data_[payment_type]_[circuit_type]_[nonce].txt"
 tlsn_verify_recv_data_path = "[base_path]/tlsn_verify_outputs/recv_data_[payment_type]_[circuit_type]_[nonce].txt"
 tlsn_proof_file_path = "[base_path]/proofs/tlsn_proof_[payment_type]_[circuit_type]_[nonce].json"
+tlsn_notary_pubkey_path = "[base_path]/certs/tlsn_notary_pubkey_[payment_type]_[circuit_type]_[nonce].json"
 
 def get_tlsn_send_data_file_path(payment_type, circuit_type, nonce):
     base_path = os.environ.get('CUSTOM_PROVER_API_PATH', "/root/prover-api")
@@ -68,11 +69,31 @@ def get_tlsn_proof_file_path(payment_type, circuit_type, nonce):
         .replace("[circuit_type]", circuit_type)\
         .replace("[nonce]", nonce)
     
+def get_notary_pubkey_path(payment_type, circuit_type, nonce):
+    base_path = os.environ.get('CUSTOM_PROVER_API_PATH', "/root/prover-api")
+    return tlsn_notary_pubkey_path\
+        .replace("[base_path]", base_path)\
+        .replace("[payment_type]", payment_type)\
+        .replace("[circuit_type]", circuit_type)\
+        .replace("[nonce]", nonce)
 
 def write_tlsn_proof_to_local(file_contents, payment_type, circuit_type, nonce):
     file_path = get_tlsn_proof_file_path(payment_type, circuit_type, nonce)
     with open(file_path, 'w') as file:
         file.write(file_contents)
+    return file_path
+
+def write_notary_pubkey_to_local(file_contents, payment_type, circuit_type, nonce):
+    file_path = get_notary_pubkey_path(payment_type, circuit_type, nonce)
+    # Create the folder if it doesn't exist
+    if not os.path.exists(os.path.dirname(file_path)):
+        os.makedirs(os.path.dirname(file_path))
+    try:
+        with open(file_path, 'w') as file:
+            file.write(file_contents)
+    except IOError as e:
+        print(f"Error writing notary pubkey to file: {e}")
+        return None
     return file_path
 
 def read_tlsn_verify_output_from_local(payment_type, circuit_type, nonce):

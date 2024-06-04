@@ -1,6 +1,9 @@
-modal_client>=0.56
+modal_client>=0.62
 python-dotenv==1.0.0
 fastapi
 requests
 dkimpy
-eth_account
+eth_account<0.12.0
+eth-abi
+web3
+pytest

@@ -6,13 +6,13 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-tlsn-core = { git = "https://github.com/tlsnotary/tlsn", tag = "v0.1.0-alpha.4" }
-tlsn-verifier = { git = "https://github.com/tlsnotary/tlsn", tag = "v0.1.0-alpha.4" }
-tlsn-prover = { git = "https://github.com/tlsnotary/tlsn", tag = "v0.1.0-alpha.4" }
-tlsn-tls-core = { git = "https://github.com/tlsnotary/tlsn", tag = "v0.1.0-alpha.4" }
-tlsn-tls-client = { git = "https://github.com/tlsnotary/tlsn", tag = "v0.1.0-alpha.4" }
-tlsn-examples = { git = "https://github.com/tlsnotary/tlsn", tag = "v0.1.0-alpha.4" }
-notary-server = { git = "https://github.com/tlsnotary/tlsn", tag = "v0.1.0-alpha.4" }
+tlsn-core = { git = "https://github.com/tlsnotary/tlsn", tag = "v0.1.0-alpha.5" }
+tlsn-verifier = { git = "https://github.com/tlsnotary/tlsn", tag = "v0.1.0-alpha.5" }
+tlsn-prover = { git = "https://github.com/tlsnotary/tlsn", tag = "v0.1.0-alpha.5" }
+tlsn-tls-core = { git = "https://github.com/tlsnotary/tlsn", tag = "v0.1.0-alpha.5" }
+tlsn-tls-client = { git = "https://github.com/tlsnotary/tlsn", tag = "v0.1.0-alpha.5" }
+tlsn-examples = { git = "https://github.com/tlsnotary/tlsn", tag = "v0.1.0-alpha.5" }
+notary-server = { git = "https://github.com/tlsnotary/tlsn", tag = "v0.1.0-alpha.5" }
 
 mpz-core = { git = "https://github.com/privacy-scaling-explorations/mpz", rev = "ecb8c54" }
 

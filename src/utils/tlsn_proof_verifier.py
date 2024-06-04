@@ -3,7 +3,9 @@ import subprocess
 from utils.helpers import sha256_hash
 from utils.file_utils import (
     write_tlsn_proof_to_local, 
+    write_notary_pubkey_to_local,
     read_tlsn_verify_output_from_local, 
+    get_notary_pubkey_path,
     get_tlsn_proof_file_path, 
     get_tlsn_recv_data_file_path, 
     get_tlsn_send_data_file_path
@@ -14,12 +16,14 @@ from utils.sign import sign_values_with_private_key
 class TLSNProofVerifier:
     def __init__(
             self,
+            notary_pubkey: str,
             payment_type: str,
             circuit_type: str,
             regex_patterns_map: dict,
             regex_target_types: dict,
             error_codes_map: dict
         ):
+        self.notary_pubkey = notary_pubkey
         self.payment_type = payment_type
         self.circuit_type = circuit_type
         self.regex_patterns_map = regex_patterns_map
@@ -27,9 +31,9 @@ class TLSNProofVerifier:
         self.error_codes_map = error_codes_map
         self.base_path = os.environ.get('CUSTOM_PROVER_API_PATH', "/root/prover-api")
 
-    def extract_regexes(self, send_data, recv_data):
+    def extract_regexes(self, data):
         regex_patterns = self.regex_patterns_map.get(self.circuit_type, [])
-        public_values = extract_regex_values(send_data + recv_data, regex_patterns)
+        public_values = extract_regex_values(data, regex_patterns)
 
         valid = len(public_values) == len(regex_patterns) and all(val != 'null' and val != "" for val in public_values)
 
@@ -43,6 +47,9 @@ class TLSNProofVerifier:
 
         # Write file to local
         write_tlsn_proof_to_local(proof_raw_data, self.payment_type, self.circuit_type, str(nonce))
+
+        # Write notary key to local
+        write_notary_pubkey_to_local(self.notary_pubkey, self.payment_type, self.circuit_type, str(nonce))
 
         # Verify the notaries signature on encoded data using the rust verifier
         print('Running verify process')
@@ -59,6 +66,7 @@ class TLSNProofVerifier:
         return send_data, recv_data, ""
 
     def run_verify_process(self, nonce):
+        notary_pubkey_path = get_notary_pubkey_path(self.payment_type, self.circuit_type, nonce)
         tlsn_proof_file_path = get_tlsn_proof_file_path(self.payment_type, self.circuit_type, nonce)
         send_data_file_path = get_tlsn_send_data_file_path(self.payment_type, self.circuit_type, nonce)
         recv_data_file_path = get_tlsn_recv_data_file_path(self.payment_type, self.circuit_type, nonce)
@@ -66,6 +74,7 @@ class TLSNProofVerifier:
         result = subprocess.run(
             [
                 f"{self.base_path}/tlsn-verifier/target/release/tlsn-verifier",
+                notary_pubkey_path,
                 tlsn_proof_file_path,
                 send_data_file_path,
                 recv_data_file_path
