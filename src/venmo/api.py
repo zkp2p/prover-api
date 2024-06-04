@@ -59,7 +59,7 @@ def alert_on_slack(error_code, email_raw_content="", log_subject=False):
     )
     return response.status_code
 
-def validate_email(email_raw_content):
+def validate_email(email_raw_content, circuit_type):
 
     # Ensure the email is from the domain
     if not re.search(fr'{FROM_EMAIL_ADDRESS}', email_raw_content):
@@ -99,7 +99,7 @@ def validate_email(email_raw_content):
         return False, error_code
     
     # Ensure the email is not a send to merchant email
-    if re.search(SEND_TO_MERCHANT_EMAIL_BODY_SUBSTR, email_raw_content):
+    if circuit_type == "send" and re.search(SEND_TO_MERCHANT_EMAIL_BODY_SUBSTR, email_raw_content):
         error_code = Error.ErrorCodes.INVALID_EMAIL
         alert_on_slack(error_code, email_raw_content, log_subject=True)
         return False, error_code
@@ -152,7 +152,7 @@ def genproof_email(email_data: Dict):
         )
 
     # Validate email
-    valid_email, error_code = validate_email(email_raw_data)
+    valid_email, error_code = validate_email(email_raw_data, circuit_type)
     if not valid_email:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, 
