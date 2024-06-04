@@ -99,7 +99,7 @@ def validate_email(email_raw_content, circuit_type):
         return False, error_code
     
     # Ensure the email is not a send to merchant email
-    if circuit_type == "send" and re.search(SEND_TO_MERCHANT_EMAIL_BODY_SUBSTR, email_raw_content):
+    if re.search(SEND_TO_MERCHANT_EMAIL_BODY_SUBSTR, email_raw_content):
         error_code = Error.ErrorCodes.INVALID_EMAIL
         alert_on_slack(error_code, email_raw_content, log_subject=True)
         return False, error_code
