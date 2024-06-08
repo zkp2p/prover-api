@@ -19,3 +19,5 @@ tlsn-verifier/*.txt
 tlsn_verify_outputs/*.txt
 
 certs/*.json
+
+src/proxy/*.log
