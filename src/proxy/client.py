@@ -1,6 +1,12 @@
 import socket
 import ssl
 
+import os
+
+# Set the environment variable for session key logging
+print(ssl.OPENSSL_VERSION)
+os.environ['SSLKEYLOGFILE'] = './keys.log'
+
 def run_client_through_proxy(proxy_host, proxy_port, target_host, target_port):
     context = ssl.create_default_context()  
     context.check_hostname = False
@@ -8,7 +14,7 @@ def run_client_through_proxy(proxy_host, proxy_port, target_host, target_port):
 
     preferred_ciphers = 'ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-CHACHA20-POLY1305:DHE-RSA-CHACHA20-POLY1305'
     context.set_ciphers(preferred_ciphers)
-    
+
     # Connect to the proxy
     with socket.create_connection((proxy_host, proxy_port)) as sock:
         with context.wrap_socket(sock, server_hostname=target_host) as ssock:
