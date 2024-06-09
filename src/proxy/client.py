@@ -6,6 +6,9 @@ def run_client_through_proxy(proxy_host, proxy_port, target_host, target_port):
     context.check_hostname = False
     context.verify_mode = ssl.CERT_NONE  # Disable certificate verification because self signed
 
+    preferred_ciphers = 'ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-CHACHA20-POLY1305:DHE-RSA-CHACHA20-POLY1305'
+    context.set_ciphers(preferred_ciphers)
+    
     # Connect to the proxy
     with socket.create_connection((proxy_host, proxy_port)) as sock:
         with context.wrap_socket(sock, server_hostname=target_host) as ssock:
