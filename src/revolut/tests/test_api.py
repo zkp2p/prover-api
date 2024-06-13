@@ -110,6 +110,18 @@ def open_file(file_path):
         'proof': '0x98ec7c5586cb4b6bdba96c5e083d0ff3af76e87d0eab4ff0a3a77898589e8a0c65473916be6e4bedb102eedc77dbb606462282f6a6967b20f5657e36c9dec1e81c', 
         'public_values': ['GET https://app.revolut.com/api/retail/transaction/664d1b33-b91f-a8ec-ada9-cf3a55208715', 'app.revolut.com', '664d1b33-b91f-a8ec-ada9-cf3a55208715', 'alexgx7gy', '-939', 'EUR', 'COMPLETED', '1716329267497', '2109098755843864455034980037347310810989244226703714011137935097150268285982', '113116629262703480258914951290401242193028831780154554089583031844538369800942']
     }),
+    # NOTE: Transfer failing for person from Circle 
+    ({
+        "proof": open_file("./revolut/tests/proofs/transfer_sgd_circle.json"),  
+        "payment_type": "revolut",
+        "circuit_type": "transfer",
+        "intent_hash": "2109098755843864455034980037347310810989244226703714011137935097150268285982",
+        "user_address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "notary_pubkey": "-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEhXZItBvE1R/gcSGKGMrl7cPpybNy\niTJ5B4ejf6chkzVKsjYnljqiD/4eEIl69+Y4QZFb57yvQ10Dq2ntdGMxXQ==\n-----END PUBLIC KEY-----"
+    }, {
+        'proof': '0x520537564cc6983b06f9fd2e42672461735cfb941380f3285c25bce5ca72b50f070bd5e9ccd10191feed12dde627bff350049c4c1990327ef947ffaae5d97be81b', 
+        'public_values': ['GET https://app.revolut.com/api/retail/transaction/666ad097-8687-a013-ad73-3bafcbaba216', 'app.revolut.com', '666ad097-8687-a013-ad73-3bafcbaba216', 'richar5gsl', '-12825', 'SGD', 'COMPLETED', '1718276247441', '2109098755843864455034980037347310810989244226703714011137935097150268285982', '113116629262703480258914951290401242193028831780154554089583031844538369800942']
+    }),
 ])
 def test_verify_proof(proof_data, expected_output):
     # Construct the email data
