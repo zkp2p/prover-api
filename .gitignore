@@ -18,4 +18,6 @@ tlsn-verifier/target
 tlsn-verifier/*.txt
 tlsn_verify_outputs/*.txt
 
+tlsp-verifier/node_modules
+
 certs/*.json

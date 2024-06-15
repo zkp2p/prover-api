@@ -1,0 +1,14 @@
+{
+  "name": "tlsp-verifier",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "0xsachink",
+  "license": "MIT",
+  "dependencies": {
+    "@reclaimprotocol/circom-symmetric-crypto": "git+https://gitlab.reclaimprotocol.org/Reclaim/zk-symmetric-crypto",
+    "snarkjs": "^0.7.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.2"
+  }
+}
