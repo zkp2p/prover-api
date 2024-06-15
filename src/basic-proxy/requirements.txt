@@ -1,0 +1,9 @@
+modal_client>=0.62
+python-dotenv==1.0.0
+fastapi
+requests
+dkimpy
+eth_account
+eth-abi
+web3
+ecdsa
