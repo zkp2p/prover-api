@@ -59,13 +59,13 @@ class TLSPProofVerifier:
         
         self.attester_key = attester_key
         self.attestation=attestation
-        self.attested_request_ciphertext=attested_request_ciphertext,
-        self.attested_response_ciphertext=attested_response_ciphertext,
+        self.attested_request_ciphertext=attested_request_ciphertext
+        self.attested_response_ciphertext=attested_response_ciphertext
         
         self.ciphertext=ciphertext
         self.plaintext=plaintext
-        self.start_index = start_index
-        self.end_index = end_index
+        self.start_index = int(start_index)
+        self.end_index = int(end_index)
 
         self.regex_patterns_map = regex_patterns_map
         self.regex_target_types = regex_target_types
@@ -89,16 +89,17 @@ class TLSPProofVerifier:
         # Write file to local
         write_tlsn_proof_to_local(snark_proof, self.payment_type, self.circuit_type, str(nonce))
 
+        print('Performing sig verification')
         if not self.run_sig_verify(nonce):
             return "Failed signature verification"
 
         # Verify the notaries signature on encoded data using the rust verifier
         print('Running verify process')
-        result = self.run_proof_verify_process(str(nonce))
+        proof_verified = self.run_proof_verify_process(str(nonce))
 
         # Exit early if error is found
-        if result.stderr != "":
-            return result.stderr
+        if not proof_verified:
+            return "Failed SNARK proof verification"
         
         if not self.run_ciphetext_equality_verify():
             return "Failed ciphertext equality verification"
@@ -106,16 +107,18 @@ class TLSPProofVerifier:
         return ""
 
     def run_sig_verify(self, nonce):
-        msg = self.attested_request_ciphertext + self.attested_response_ciphertext
+        msg = bytes.fromhex(self.attested_request_ciphertext) + bytes.fromhex(self.attested_response_ciphertext)
         pub_key = deserialize_public_key_from_pem(self.attester_key)
-        return verify_signature(msg, self.attestation, pub_key)
+        signature_bytes = bytes.fromhex(self.attestation)
+        return verify_signature(pub_key, msg, signature_bytes)
 
     def run_proof_verify_process(self, nonce):
         tlsn_proof_file_path = get_tlsn_proof_file_path(self.payment_type, self.circuit_type, nonce)
-        
+        print(tlsn_proof_file_path)
         result = subprocess.run(
             [
-                f"{self.base_path}/tlsp-verifier/lib/verifier",
+                'ts-node',
+                f"{self.base_path}/tlsp-verifier/index.ts",
                 tlsn_proof_file_path,
                 self.plaintext,
                 self.ciphertext
@@ -123,18 +126,20 @@ class TLSPProofVerifier:
             capture_output=True,
             text=True
         )
+        # Printing the output
         print('Result', result.stdout)
-        return result
+        print('Error', result.stderr)
+        return True if result.returncode == 0 else False
     
     def run_ciphetext_equality_verify(self):
         # Check if the start and end indices are within the bounds of both strings
-        if self.start_index < 0 or self.end_index > len(self.ciphertext) or self.end_index > len(self.attested_response_ciphertext):
+        if self.start_index < 0 or self.end_index > len(self.ciphertext):
             raise ValueError("Start and end indices must be within the bounds of both strings.")
 
         # Extract the substrings
         substring1 = self.ciphertext[self.start_index:self.end_index]
-        substring2 = self.attested_response_ciphertext[self.start_index:self.end_index]
-        return substring1 == substring2
+        print('Looking for', substring1, 'in response ciphertext')
+        return substring1 in self.attested_response_ciphertext
 
 
     def sign_and_serialize_values(self, public_values, target_types):

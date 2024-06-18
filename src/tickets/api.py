@@ -12,13 +12,13 @@ from utils.alert import AlertHelper
 from utils.tlsp_proof_verifier import TLSPProofVerifier
 from utils.env_utils import read_env_credentials
 
-load_dotenv('./env')
+load_dotenv('./basicenv')
 
 # --------- INITIALIZE HELPERS ------------
 
 DOMAIN = 'localhost'
 DOCKER_IMAGE_NAME = '0xsachink/zkp2p:modal-tlsp-verifier-v0.1.0-staging'
-STUB_NAME = 'zkp2p-basic-proxy-verifier'
+STUB_NAME = 'zkp2p-tickets-verifier'
 
 SLACK_TOKEN = os.getenv('SLACK_TOKEN')
 CHANNEL_ID = os.getenv('CHANNEL_ID')
@@ -30,7 +30,7 @@ alert_helper.init_slack(SLACK_TOKEN, CHANNEL_ID)
 
 # ----------- ENV VARIABLES ------------ (Todo: Clean this)
 
-env_credentials = read_env_credentials('./basic-proxy/.env.example', './basic-proxy/.env')
+env_credentials = read_env_credentials('./tickets/.env.example', './tickets/.env')
 print("env_credentials", env_credentials)
 
 # ----------------- MODAL -----------------
@@ -38,7 +38,7 @@ print("env_credentials", env_credentials)
 image = modal.Image.from_registry(
     DOCKER_IMAGE_NAME, 
     add_python="3.11"
-).pip_install_from_requirements("./basic-proxy/requirements.txt")
+).pip_install_from_requirements("./tickets/requirements.txt")
 stub = modal.Stub(name=STUB_NAME, image=image)
 credentials_secret = modal.Secret.from_dict(env_credentials)
 
@@ -49,7 +49,7 @@ host_regex_pattern = r"host: ([\w\.-]+)" # Host
 
 response_regexes_config = [
     # Recv data regexes
-    (r'Hello, ([a-z]+) world!', 'string'),
+    (r'o, ([a-z]+) world!', 'string'),
 ]
 
 def get_regex_patterns(config):
@@ -76,7 +76,7 @@ error_codes_map = {
 def hex_string_to_bytes(hex_string):
     return binascii.unhexlify(hex_string)
 
-def post_processing_public_values(pub_values, regex_types, circuit_type, proof_data ):
+def post_processing_public_values(pub_values, regex_types, circuit_type, proof_data):
     # Post processing public values
     local_target_types = regex_types.get(circuit_type, []).copy()
 
@@ -105,7 +105,7 @@ def core_verify_proof(proof_data):
 
     # Circuit outputs (We will have to consume two proofs)
     # One for request, other for response
-    snark_proof = proof_data["proof"]
+    snark_proof = proof_data["snark_proof"]
     ciphertext = proof_data["ciphertext"]
     plaintext = proof_data["plaintext"]
     
@@ -120,12 +120,8 @@ def core_verify_proof(proof_data):
     start_index = proof_data["start_index"]
     end_index = proof_data["end_index"]
 
-    notary_pubkey = clean_public_key(proof_data["notary_pubkey"])
-    proof_data["notary_pubkey"] = notary_pubkey     # Reset the notary key
-
     # Instantiate the TLSN proof verifier
     tlsn_proof_verifier = TLSPProofVerifier(
-        notary_pubkey=notary_pubkey,
         payment_type=payment_type,
         circuit_type=circuit_type,
         
@@ -144,14 +140,15 @@ def core_verify_proof(proof_data):
         error_codes_map=error_codes_map
     )
 
-    if circuit_type not in regex_patterns_map.keys(snark_proof):
+    if circuit_type not in regex_patterns_map.keys():
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, 
             detail=Error.get_error_response(Error.ErrorCodes.INVALID_CIRCUIT_TYPE)
         )
 
     # Verify proof
-    snark_verify_error = tlsn_proof_verifier.verify_tlsn_proof()
+    print('Going to verify proof')
+    snark_verify_error = tlsn_proof_verifier.verify_tlsn_proof(snark_proof)
     if snark_verify_error != "":
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, 
@@ -159,7 +156,9 @@ def core_verify_proof(proof_data):
         )
 
     # Extract required values from session data
-    extract_data = plaintext
+    # TODO: COULD ALSO USE THE INDICES HERE.
+    extract_data = bytes.fromhex(plaintext).decode('ascii', errors='ignore')
+
     public_values, valid_values, error_code = tlsn_proof_verifier.extract_regexes(extract_data)
     if not valid_values:
         alert_helper.alert_on_slack(error_code, plaintext + proof_data)
@@ -168,13 +167,16 @@ def core_verify_proof(proof_data):
             detail=Error.get_error_response(error_code)
         )
 
+    # Logging
+    print('Public Values:', public_values)
+    print('Value types:', tlsn_proof_verifier.regex_target_types)
+
     # Custom post processing public values defined above
     post_processed_public_values, post_processed_target_types = post_processing_public_values(
         public_values,
         tlsn_proof_verifier.regex_target_types,
         circuit_type,
-        proof_data,
-        extract_data
+        proof_data
     )
     
     # Logging

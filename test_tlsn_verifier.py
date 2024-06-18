@@ -8,9 +8,9 @@ from dotenv import load_dotenv
 load_dotenv('./.env')
 
 TEST_PAYMENT_TYPE = "revolut"
-TEST_CIRCUIT_TYPE = "transfer"
+TEST_CIRCUIT_TYPE = "registration"
 NOTARY_PUBKEY_PATH = "./certs/zkp2p_notary.pub"
-TEST_PROOF_PATH = "./proofs/revolut/transfer_eur_1.json"
+TEST_PROOF_PATH = "./proofs/revolut/circle_proof.json"
 MODAL_ENDPOINT = "https://zkp2p--zkp2p-revolut-verifier-0-2-5-verify-proof.modal.run"
 
 if __name__ == "__main__":
