@@ -1,18 +1,16 @@
 import modal
+import json
 import os
 import hashlib
 from dotenv import load_dotenv
 import binascii
 from fastapi import HTTPException, status
 from typing import Dict
-import json
 
 from utils.errors import Errors
 from utils.alert import AlertHelper
 from utils.tlsp_proof_verifier import TLSPProofVerifier
 from utils.env_utils import read_env_credentials
-from utils.sign import encode_and_hash
-from utils.regex_helpers import extract_regex_values
 
 load_dotenv('./env')
 
@@ -20,7 +18,7 @@ load_dotenv('./env')
 
 DOMAIN = 'localhost'
 DOCKER_IMAGE_NAME = '0xsachink/zkp2p:modal-tlsp-verifier-v0.1.0-staging'
-STUB_NAME = 'zkp2p-basic-proxy-verifier-0.2.5'
+STUB_NAME = 'zkp2p-basic-proxy-verifier'
 
 SLACK_TOKEN = os.getenv('SLACK_TOKEN')
 CHANNEL_ID = os.getenv('CHANNEL_ID')
@@ -50,9 +48,6 @@ credentials_secret = modal.Secret.from_dict(env_credentials)
 host_regex_pattern = r"host: ([\w\.-]+)" # Host
 
 response_regexes_config = [
-    # Request data regexes
-    # (host_regex_pattern, 'string'),
-    
     # Recv data regexes
     (r'Hello, ([a-z]+) world!', 'string'),
 ]
@@ -91,8 +86,6 @@ def post_processing_public_values(pub_values, regex_types, circuit_type, proof_d
     pub_values.append(int(notary_pubkey_hashed, 16))
     local_target_types.append('uint256')
 
-
-
     return pub_values, local_target_types
 
 # ----------------- API -----------------
@@ -107,14 +100,23 @@ def verify_proof(proof_data: Dict):
 
 def core_verify_proof(proof_data):
 
-    proof_raw_data = proof_data["proof"]
     payment_type = proof_data["payment_type"]
     circuit_type = proof_data["circuit_type"]
-    attestation = proof_data["attestation"]
-    attested_ciphertext = proof_data["attested_ciphertext"]
+
+    # Circuit outputs (We will have to consume two proofs)
+    # One for request, other for response
+    snark_proof = proof_data["proof"]
     ciphertext = proof_data["ciphertext"]
     plaintext = proof_data["plaintext"]
+    
+    # Proxy API outputs
+    attestation = proof_data["attestation"]
+    attested_request_ciphertext = proof_data["attested_request_ciphertext"]
+    attested_response_ciphertext = proof_data["attested_response_ciphertext"]
     attester_key = proof_data["attester_key"]
+
+    # Start index and end index in response ciphertext that 
+    # needs to be searched for in ciphertext
     start_index = proof_data["start_index"]
     end_index = proof_data["end_index"]
 
@@ -129,7 +131,9 @@ def core_verify_proof(proof_data):
         
         attester_key=attester_key,
         attestation=attestation,
-        attested_ciphertext=attested_ciphertext,
+        attested_request_ciphertext=attested_request_ciphertext,
+        attested_response_ciphertext=attested_response_ciphertext,
+        
         ciphertext=ciphertext,
         plaintext=plaintext,
         start_index=start_index,
@@ -140,15 +144,15 @@ def core_verify_proof(proof_data):
         error_codes_map=error_codes_map
     )
 
-    if circuit_type not in regex_patterns_map.keys():
+    if circuit_type not in regex_patterns_map.keys(snark_proof):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, 
             detail=Error.get_error_response(Error.ErrorCodes.INVALID_CIRCUIT_TYPE)
         )
 
     # Verify proof
-    tlsn_verify_error = tlsn_proof_verifier.verify_tlsn_proof(proof_raw_data)
-    if tlsn_verify_error != "":
+    snark_verify_error = tlsn_proof_verifier.verify_tlsn_proof()
+    if snark_verify_error != "":
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, 
             detail=Error.get_error_response(Error.ErrorCodes.TLSN_PROOF_VERIFICATION_FAILED)
@@ -158,7 +162,7 @@ def core_verify_proof(proof_data):
     extract_data = plaintext
     public_values, valid_values, error_code = tlsn_proof_verifier.extract_regexes(extract_data)
     if not valid_values:
-        alert_helper.alert_on_slack(error_code, plaintext + proof_raw_data)
+        alert_helper.alert_on_slack(error_code, plaintext + proof_data)
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, 
             detail=Error.get_error_response(error_code)

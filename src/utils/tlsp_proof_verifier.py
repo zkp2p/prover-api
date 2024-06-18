@@ -7,31 +7,35 @@ from utils.file_utils import (
 )
 from utils.regex_helpers import extract_regex_values
 from utils.sign import sign_values_with_private_key
-import binascii
 import hashlib
-from ecdsa import SigningKey, SECP256k1, VerifyingKey
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import ec
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import hashes
 
+def deserialize_public_key_from_pem(pem_data):
+    """
+    Deserialize the public key from PEM format.
+    """
+    public_key = serialization.load_pem_public_key(
+        pem_data.encode('utf-8'),
+        backend=default_backend()  # This can be omitted in newer versions of cryptography
+    )
+    return public_key
 
-def load_ecdsa_public_key_from_hex(public_key_hex):
-    """Load an ECDSA public key from a hex string."""
+def verify_signature(public_key, data, signature):
+    """Verify a signature using a public key."""
     try:
-        public_key_bytes = binascii.unhexlify(public_key_hex)
-        public_key = VerifyingKey.from_string(public_key_bytes, curve=SECP256k1)
-        return public_key
+        public_key.verify(
+            signature,
+            data,
+            ec.ECDSA(hashes.SHA256())
+        )
+        return True
     except Exception as e:
-        print(f"An error occurred: {e}")
-        return None
+        print(f"Verification failed: {e}")
+        return False
 
-def sign_message(message, private_key):
-    """Sign a message using the provided ECDSA private key."""
-    message_hash = hashlib.sha256(message.encode()).digest()
-    signature = private_key.sign(message_hash)
-    return signature
-
-def verify_signature(message, signature, public_key):
-    """Verify the ECDSA signature using the corresponding public key."""
-    message_hash = hashlib.sha256(message.encode()).digest()
-    return public_key.verify(signature, message_hash)
 
 class TLSPProofVerifier:
     def __init__(
@@ -40,7 +44,8 @@ class TLSPProofVerifier:
             circuit_type: str,
             attester_key: str,
             attestation: str,
-            attested_ciphertext: str,
+            attested_request_ciphertext: str,
+            attested_response_ciphertext: str,
             ciphertext: str,
             plaintext: str,
             start_index: int,
@@ -54,7 +59,9 @@ class TLSPProofVerifier:
         
         self.attester_key = attester_key
         self.attestation=attestation
-        self.attested_ciphertext=attested_ciphertext
+        self.attested_request_ciphertext=attested_request_ciphertext,
+        self.attested_response_ciphertext=attested_response_ciphertext,
+        
         self.ciphertext=ciphertext
         self.plaintext=plaintext
         self.start_index = start_index
@@ -76,11 +83,11 @@ class TLSPProofVerifier:
 
         return public_values, valid, ""
 
-    def verify_tlsn_proof(self, proof_raw_data):
-        nonce = int(sha256_hash(proof_raw_data), 16)
+    def verify_tlsn_proof(self, snark_proof):
+        nonce = int(sha256_hash(snark_proof), 16)
 
         # Write file to local
-        write_tlsn_proof_to_local(proof_raw_data, self.payment_type, self.circuit_type, str(nonce))
+        write_tlsn_proof_to_local(snark_proof, self.payment_type, self.circuit_type, str(nonce))
 
         if not self.run_sig_verify(nonce):
             return "Failed signature verification"
@@ -99,8 +106,9 @@ class TLSPProofVerifier:
         return ""
 
     def run_sig_verify(self, nonce):
-        pub_key = load_ecdsa_public_key_from_hex(self.attester_key)
-        return verify_signature(self.attested_ciphertext, self.attestation, pub_key)
+        msg = self.attested_request_ciphertext + self.attested_response_ciphertext
+        pub_key = deserialize_public_key_from_pem(self.attester_key)
+        return verify_signature(msg, self.attestation, pub_key)
 
     def run_proof_verify_process(self, nonce):
         tlsn_proof_file_path = get_tlsn_proof_file_path(self.payment_type, self.circuit_type, nonce)
@@ -120,12 +128,12 @@ class TLSPProofVerifier:
     
     def run_ciphetext_equality_verify(self):
         # Check if the start and end indices are within the bounds of both strings
-        if self.start_index < 0 or self.end_index > len(self.ciphertext) or self.end_index > len(self.attested_ciphertext):
+        if self.start_index < 0 or self.end_index > len(self.ciphertext) or self.end_index > len(self.attested_response_ciphertext):
             raise ValueError("Start and end indices must be within the bounds of both strings.")
 
         # Extract the substrings
         substring1 = self.ciphertext[self.start_index:self.end_index]
-        substring2 = self.attested_ciphertext[self.start_index:self.end_index]
+        substring2 = self.attested_response_ciphertext[self.start_index:self.end_index]
         return substring1 == substring2
 
 
@@ -134,5 +142,4 @@ class TLSPProofVerifier:
         serialized_values = [str(v) for v in public_values]
 
         return signature, serialized_values
-
 
