@@ -163,7 +163,7 @@ def genproof_email(email_data: Dict):
     write_file_to_local(email_raw_data, payment_type, circuit_type, str(nonce))
 
     # Prove
-    run_prove_process(payment_type, circuit_type, str(nonce), intent_hash, "true")
+    run_prove_process(payment_type, circuit_type, str(nonce), intent_hash, "false")
 
     # Read the proof from local
     proof, public_values = read_proof_from_local(payment_type, circuit_type, str(nonce))

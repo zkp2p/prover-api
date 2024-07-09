@@ -32,8 +32,8 @@
 # Use the official Rust image as the base image
 FROM rust:latest
 ARG ZKP2P_BRANCH_NAME=develop
-ARG ZKP2P_VERSION=v2.5/v0.2.4
-ARG PROVER_API_BRANCH_NAME=sachin/update-to-2.4
+ARG ZKP2P_VERSION=v2.5/v0.2.5
+ARG PROVER_API_BRANCH_NAME=sachin/update-venmo
 ARG PAYMENT_TYPE=venmo
 ARG PAYMENT_ROOT_DIR=/root/zk-p2p/circuits-circom/circuits/${PAYMENT_TYPE}
 ARG BUILD_DIR=${PAYMENT_ROOT_DIR}/build
@@ -80,20 +80,20 @@ WORKDIR /root/zk-p2p/circuits-circom/package
 RUN yarn install
 
 # Pull JS .wasm from S3 and place them in js folders
-# RUN wget -P ${BUILD_DIR}/${PAYMENT_TYPE}_send/${PAYMENT_TYPE}_send_js https://zk-p2p.s3.amazonaws.com/${ZKP2P_VERSION}/${PAYMENT_TYPE}_send/${PAYMENT_TYPE}_send.wasm --quiet
-# RUN wget -P ${BUILD_DIR}/${PAYMENT_TYPE}_registration/${PAYMENT_TYPE}_registration_js https://zk-p2p.s3.amazonaws.com/${ZKP2P_VERSION}/${PAYMENT_TYPE}_registration/${PAYMENT_TYPE}_registration.wasm --quiet
+RUN wget -P ${BUILD_DIR}/${PAYMENT_TYPE}_send/${PAYMENT_TYPE}_send_js https://zk-p2p.s3.amazonaws.com/${ZKP2P_VERSION}/${PAYMENT_TYPE}_send/${PAYMENT_TYPE}_send.wasm --quiet
+RUN wget -P ${BUILD_DIR}/${PAYMENT_TYPE}_registration/${PAYMENT_TYPE}_registration_js https://zk-p2p.s3.amazonaws.com/${ZKP2P_VERSION}/${PAYMENT_TYPE}_registration/${PAYMENT_TYPE}_registration.wasm --quiet
 
 # Pull C .dat from S3 and place them in cpp folders
 RUN wget -P ${BUILD_DIR}/${PAYMENT_TYPE}_send/${PAYMENT_TYPE}_send_cpp https://zk-p2p.s3.amazonaws.com/${ZKP2P_VERSION}/${PAYMENT_TYPE}_send/${PAYMENT_TYPE}_send.dat --quiet
 RUN wget -P ${BUILD_DIR}/${PAYMENT_TYPE}_registration/${PAYMENT_TYPE}_registration_cpp https://zk-p2p.s3.amazonaws.com/${ZKP2P_VERSION}/${PAYMENT_TYPE}_registration/${PAYMENT_TYPE}_registration.dat --quiet
 
 # Pull C witness gen binary from S3 and place them in cpp folders
-RUN wget -P ${BUILD_DIR}/${PAYMENT_TYPE}_send/${PAYMENT_TYPE}_send_cpp https://zk-p2p.s3.amazonaws.com/${ZKP2P_VERSION}/${PAYMENT_TYPE}_send/${PAYMENT_TYPE}_send --quiet
-RUN wget -P ${BUILD_DIR}/${PAYMENT_TYPE}_registration/${PAYMENT_TYPE}_registration_cpp https://zk-p2p.s3.amazonaws.com/${ZKP2P_VERSION}/${PAYMENT_TYPE}_registration/${PAYMENT_TYPE}_registration --quiet
+# RUN wget -P ${BUILD_DIR}/${PAYMENT_TYPE}_send/${PAYMENT_TYPE}_send_cpp https://zk-p2p.s3.amazonaws.com/${ZKP2P_VERSION}/${PAYMENT_TYPE}_send/${PAYMENT_TYPE}_send --quiet
+# RUN wget -P ${BUILD_DIR}/${PAYMENT_TYPE}_registration/${PAYMENT_TYPE}_registration_cpp https://zk-p2p.s3.amazonaws.com/${ZKP2P_VERSION}/${PAYMENT_TYPE}_registration/${PAYMENT_TYPE}_registration --quiet
 
 # Make cpp files executable
-RUN chmod +x ${BUILD_DIR}/${PAYMENT_TYPE}_send/${PAYMENT_TYPE}_send_cpp/${PAYMENT_TYPE}_send
-RUN chmod +x ${BUILD_DIR}/${PAYMENT_TYPE}_registration/${PAYMENT_TYPE}_registration_cpp/${PAYMENT_TYPE}_registration
+# RUN chmod +x ${BUILD_DIR}/${PAYMENT_TYPE}_send/${PAYMENT_TYPE}_send_cpp/${PAYMENT_TYPE}_send
+# RUN chmod +x ${BUILD_DIR}/${PAYMENT_TYPE}_registration/${PAYMENT_TYPE}_registration_cpp/${PAYMENT_TYPE}_registration
 
 # Pull keys from S3
 RUN wget -P ${BUILD_DIR}/${PAYMENT_TYPE}_send https://zk-p2p.s3.amazonaws.com/${ZKP2P_VERSION}/${PAYMENT_TYPE}_send/${PAYMENT_TYPE}_send.zkey --quiet
