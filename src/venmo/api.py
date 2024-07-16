@@ -36,8 +36,8 @@ y or delayed delivery of your funds\."""
 
 FROM_EMAIL_ADDRESS = "From: Venmo <venmo@venmo.com>"
 EMAIL_SUBJECT = "Subject: You paid (.+?) \$(.+)"
-DOCKER_IMAGE_NAME = '0xsachink/zkp2p:modal-venmo-staging-0.2.5' 
-APP_NAME = 'zkp2p-modal-venmo-0.2.5-staging'
+DOCKER_IMAGE_NAME = '0xsachink/zkp2p:modal-venmo-0.2.5-v2' 
+APP_NAME = 'zkp2p-modal-venmo-0.2.5'
 
 SLACK_TOKEN = os.getenv('SLACK_TOKEN')
 CHANNEL_ID = os.getenv('CHANNEL_ID')
