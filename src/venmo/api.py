@@ -36,8 +36,8 @@ y or delayed delivery of your funds\."""
 
 FROM_EMAIL_ADDRESS = "From: Venmo <venmo@venmo.com>"
 EMAIL_SUBJECT = "Subject: You paid (.+?) \$(.+)"
-DOCKER_IMAGE_NAME = '0xsachink/zkp2p:modal-venmo-0.2.4' 
-STUB_NAME = 'zkp2p-modal-venmo-0.2.4'
+DOCKER_IMAGE_NAME = '0xsachink/zkp2p:modal-venmo-0.2.5-v2' 
+APP_NAME = 'zkp2p-modal-venmo-0.2.5'
 
 SLACK_TOKEN = os.getenv('SLACK_TOKEN')
 CHANNEL_ID = os.getenv('CHANNEL_ID')
@@ -49,7 +49,7 @@ Error = Errors()
 def alert_on_slack(error_code, email_raw_content="", log_subject=False):
 
     error_message = Error.get_error_message(error_code)
-    msg = f'Alert: {error_message}. Stub: {STUB_NAME}. Docker image: {DOCKER_IMAGE_NAME}'
+    msg = f'Alert: {error_message}. Stub: {APP_NAME}. Docker image: {DOCKER_IMAGE_NAME}'
     
     response = upload_file_to_slack(
         CHANNEL_ID,
@@ -118,13 +118,13 @@ image = modal.Image.from_registry(
     DOCKER_IMAGE_NAME, 
     add_python="3.11"
 ).pip_install_from_requirements("requirements.txt")
-stub = modal.Stub(name=STUB_NAME, image=image)
-stub['credentials_secret'] = modal.Secret.from_dict(env_credentials)
+app = modal.App(name=APP_NAME, image=image)
+credentials_secret = modal.Secret.from_dict(env_credentials)
 
 
 # ----------------- API -----------------
 
-@stub.function(cpu=48, memory=16000, secret=stub['credentials_secret'])
+@app.function(cpu=48, memory=16000, secrets=[credentials_secret])
 @modal.web_endpoint(method="POST")
 def genproof_email(email_data: Dict):
 
