@@ -122,6 +122,18 @@ def open_file(file_path):
         'proof': '0x520537564cc6983b06f9fd2e42672461735cfb941380f3285c25bce5ca72b50f070bd5e9ccd10191feed12dde627bff350049c4c1990327ef947ffaae5d97be81b', 
         'public_values': ['GET https://app.revolut.com/api/retail/transaction/666ad097-8687-a013-ad73-3bafcbaba216', 'app.revolut.com', '666ad097-8687-a013-ad73-3bafcbaba216', 'richar5gsl', '-12825', 'SGD', 'COMPLETED', '1718276247441', '2109098755843864455034980037347310810989244226703714011137935097150268285982', '113116629262703480258914951290401242193028831780154554089583031844538369800942']
     }),
+    # NOTE: Transfer failing for person sending HUF recv EUR. Because regexes were too tight for when receiving different currency
+    ({
+        "proof": open_file("./revolut/tests/proofs/transfer_huf_recv_eur.json"),  
+        "payment_type": "revolut",
+        "circuit_type": "transfer",
+        "intent_hash": "2109098755843864455034980037347310810989244226703714011137935097150268285982",
+        "user_address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "notary_pubkey": "-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEhXZItBvE1R/gcSGKGMrl7cPpybNy\niTJ5B4ejf6chkzVKsjYnljqiD/4eEIl69+Y4QZFb57yvQ10Dq2ntdGMxXQ==\n-----END PUBLIC KEY-----"
+    }, {
+        'proof': '0x117d0e75c8d9392491e55b9f20f842f77665f463a8ee4e2aa31e4265e08c9fcc64a21b99c9ea9a2d49dc61e9f6c4a11014ec7080f7937756af33d7d3ba27f7db1c', 
+        'public_values': ['GET https://app.revolut.com/api/retail/transaction/66a693f2-4e14-a970-b7b0-2752aa5dd16e', 'app.revolut.com', '66a693f2-4e14-a970-b7b0-2752aa5dd16e', 'richar5gsl', '-18400', 'EUR', 'COMPLETED', '1722192882625', '2109098755843864455034980037347310810989244226703714011137935097150268285982', '113116629262703480258914951290401242193028831780154554089583031844538369800942']
+    }),
 ])
 def test_verify_proof(proof_data, expected_output):
     # Construct the email data
