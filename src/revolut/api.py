@@ -101,7 +101,7 @@ error_codes_map = {
 
 post_processing_transfer_regex_patterns = [
     r'"counterpart":{"amount":([\d.-]+),"currency":"([A-Z]{3})"},',
-    r'"currency":"([A-Z]{3})"},"recipient":{"id":"([a-fA-F0-9-]+)"'
+    r'"currency":"([A-Z]{3})"},"'
 ]
 
 def hex_string_to_bytes(hex_string):
