@@ -86,10 +86,10 @@ RUN wget -P ${BUILD_DIR}/${PAYMENT_TYPE}_push/${PAYMENT_TYPE}_push_js https://zk
 RUN wget -P ${BUILD_DIR}/${PAYMENT_TYPE}_push/${PAYMENT_TYPE}_push_cpp https://zk-p2p.s3.amazonaws.com/${ZKP2P_VERSION}/${PAYMENT_TYPE}_push/${PAYMENT_TYPE}_push.dat --quiet
 
 # Pull C witness gen binary from S3 and place them in cpp folders
-RUN wget -P ${BUILD_DIR}/${PAYMENT_TYPE}_push/${PAYMENT_TYPE}_push_cpp https://zk-p2p.s3.amazonaws.com/${ZKP2P_VERSION}/${PAYMENT_TYPE}_push/${PAYMENT_TYPE}_push --quiet
+# RUN wget -P ${BUILD_DIR}/${PAYMENT_TYPE}_push/${PAYMENT_TYPE}_push_cpp https://zk-p2p.s3.amazonaws.com/${ZKP2P_VERSION}/${PAYMENT_TYPE}_push/${PAYMENT_TYPE}_push --quiet
 
 # Make cpp files executable
-RUN chmod +x ${BUILD_DIR}/${PAYMENT_TYPE}_push/${PAYMENT_TYPE}_push_cpp/${PAYMENT_TYPE}_push
+# RUN chmod +x ${BUILD_DIR}/${PAYMENT_TYPE}_push/${PAYMENT_TYPE}_push_cpp/${PAYMENT_TYPE}_push
 
 # Pull keys from S3
 RUN wget -P ${BUILD_DIR}/${PAYMENT_TYPE}_push https://zk-p2p.s3.amazonaws.com/${ZKP2P_VERSION}/${PAYMENT_TYPE}_push/${PAYMENT_TYPE}_push.zkey --quiet
