@@ -25,10 +25,10 @@ DOMAIN_KEYS = [
 ]
 SELECTORS = [dk['selector'] for dk in DOMAIN_KEYS]
 # NAME_PATTERN = r"^[A-Z][a-z'’-]+\s([A-Z][a-z'’-]+\s?)+$"
-FROM_EMAIL_ADDRESS = "From: NameCheap.com Support <support@namecheap.com>"
-EMAIL_SUBJECT = "Subject: PUSH DOMAIN CONFIRMATION EMAIL - Namecheap.com"
-DOCKER_IMAGE_NAME = '0xsachink/zkp2p:modal-namecheap-0.2.6'
-STUB_NAME = 'zkp2p-modal-namecheap-0.2.6'
+FROM_EMAIL_ADDRESS = 'From: "NameCheap.com Support" <support@namecheap.com>'
+EMAIL_SUBJECT = 'Subject: PUSH DOMAIN CONFIRMATION EMAIL - Namecheap.com'
+DOCKER_IMAGE_NAME = '0xsachink/zkp2p:modal-namecheap-staging-0.2.6-v2'
+STUB_NAME = 'zkp2p-modal-namecheap-staging-0.2.6'
 
 SLACK_TOKEN = os.getenv('SLACK_TOKEN')
 CHANNEL_ID = os.getenv('CHANNEL_ID')
@@ -50,6 +50,8 @@ def alert_on_slack(error_code, email_raw_content="", log_subject=False):
     return response.status_code
 
 def validate_email(email_raw_content):
+
+    print(email_raw_content)
 
     # Ensure the email is from the domain
     if not re.search(fr'{FROM_EMAIL_ADDRESS}', email_raw_content):
@@ -102,13 +104,13 @@ image = modal.Image.from_registry(
     DOCKER_IMAGE_NAME, 
     add_python="3.11"
 ).pip_install_from_requirements("requirements.txt")
-stub = modal.Stub(name=STUB_NAME, image=image)
-stub['credentials_secret'] = modal.Secret.from_dict(env_credentials)
+stub = modal.App(name=STUB_NAME, image=image)
+credentials_secret = modal.Secret.from_dict(env_credentials)
 
 
 # ----------------- API -----------------
 
-@stub.function(cpu=48, memory=16000, secret=stub['credentials_secret'])
+@stub.function(cpu=48, memory=16000, secrets=[credentials_secret])
 @modal.web_endpoint(method="POST")
 def genproof_email(email_data: Dict):
 
@@ -147,7 +149,7 @@ def genproof_email(email_data: Dict):
     write_file_to_local(email_raw_data, payment_type, circuit_type, str(nonce))
 
     # Prove
-    run_prove_process(payment_type, circuit_type, str(nonce), intent_hash, "true")
+    run_prove_process(payment_type, circuit_type, str(nonce), intent_hash, "false")
 
     # Read the proof from local
     proof, public_values = read_proof_from_local(payment_type, circuit_type, str(nonce))
