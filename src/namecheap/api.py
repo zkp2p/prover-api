@@ -27,7 +27,7 @@ SELECTORS = [dk['selector'] for dk in DOMAIN_KEYS]
 # NAME_PATTERN = r"^[A-Z][a-z'’-]+\s([A-Z][a-z'’-]+\s?)+$"
 FROM_EMAIL_ADDRESS = 'From: "NameCheap.com Support" <support@namecheap.com>'
 EMAIL_SUBJECT = 'Subject: PUSH DOMAIN CONFIRMATION EMAIL - Namecheap.com'
-DOCKER_IMAGE_NAME = '0xsachink/zkp2p:modal-namecheap-staging-0.2.6-v2'
+DOCKER_IMAGE_NAME = '0xsachink/zkp2p:modal-namecheap-staging-0.2.6-v4'
 STUB_NAME = 'zkp2p-modal-namecheap-staging-0.2.6'
 
 SLACK_TOKEN = os.getenv('SLACK_TOKEN')
@@ -149,7 +149,7 @@ def genproof_email(email_data: Dict):
     write_file_to_local(email_raw_data, payment_type, circuit_type, str(nonce))
 
     # Prove
-    run_prove_process(payment_type, circuit_type, str(nonce), intent_hash, "false")
+    run_prove_process(payment_type, circuit_type, str(nonce), intent_hash, "true")
 
     # Read the proof from local
     proof, public_values = read_proof_from_local(payment_type, circuit_type, str(nonce))
