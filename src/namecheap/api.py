@@ -27,8 +27,8 @@ SELECTORS = [dk['selector'] for dk in DOMAIN_KEYS]
 # NAME_PATTERN = r"^[A-Z][a-z'’-]+\s([A-Z][a-z'’-]+\s?)+$"
 FROM_EMAIL_ADDRESS = 'From: "NameCheap.com Support" <support@namecheap.com>'
 EMAIL_SUBJECT = 'Subject: PUSH DOMAIN CONFIRMATION EMAIL - Namecheap.com'
-DOCKER_IMAGE_NAME = '0xsachink/zkp2p:modal-namecheap-staging-0.2.7-v2'
-STUB_NAME = 'zkp2p-modal-namecheap-staging-0.2.7'
+DOCKER_IMAGE_NAME = '0xsachink/zkp2p:modal-namecheap-0.2.8-v1'
+STUB_NAME = 'zkp2p-modal-namecheap-0.2.8'
 
 SLACK_TOKEN = os.getenv('SLACK_TOKEN')
 CHANNEL_ID = os.getenv('CHANNEL_ID')
