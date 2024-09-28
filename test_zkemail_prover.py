@@ -12,6 +12,11 @@ TEST_CIRCUIT_TYPE = os.getenv("TEST_CIRCUIT_TYPE")
 TEST_EMAIL_PATH = os.getenv("TEST_EMAIL_PATH")
 MODAL_ENDPOINT = os.getenv("MODAL_ENDPOINT")
 
+TEST_PAYMENT_TYPE = "namecheap"
+TEST_CIRCUIT_TYPE = "push"
+TEST_EMAIL_PATH = "./received_eml/namecheap_email.eml"
+MODAL_ENDPOINT = "https://zkp2p--zkp2p-modal-namecheap-0-2-8-genproof-email.modal.run"
+
 
 if __name__ == "__main__":
     
